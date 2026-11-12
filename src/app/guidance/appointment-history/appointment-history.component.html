@@ -1,0 +1,69 @@
+<div class="hist">
+
+  <!-- Banner on the left; Export button removed (REQ 3) -->
+  <div class="top">
+    <div class="head">
+      <h2>Appointment History</h2>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- Progress bar: only depends on 'loading' (exporting removed) -->
+    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+    <div class="body">
+      <div class="intro">
+        <h3>Recent appointments</h3>
+        <p>Track upcoming, completed, and rescheduled counseling sessions.</p>
+      </div>
+
+      <div class="filters">
+        <mat-form-field class="search">
+          <mat-label>Search</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput type="search" [(ngModel)]="search" (ngModelChange)="onSearchTyped()"
+            placeholder="Type, counselor, date, or status">
+        </mat-form-field>
+
+        <mat-form-field class="status">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="status" (ngModelChange)="onFilterChanged()">
+            <mat-option value="All">All statuses</mat-option>
+            <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="msg msg-error" *ngIf="error">
+        <span>{{ error }}</span>
+        <button mat-stroked-button type="button" class="btn-outline" (click)="load()">Try again</button>
+      </div>
+
+      <ul class="list" *ngIf="!loading && !error && items.length">
+        <li class="row" *ngFor="let a of items">
+          <div class="when">
+            <strong>{{ a.date | date:'MMM d, y' }}</strong>
+            <span>{{ a.date | date:'EEE' }} &bull; {{ time(a) }}</span>
+          </div>
+          <div class="what">
+            <strong>{{ a.counselingTypeName }}</strong>
+            <span>{{ a.counselorName }}</span>
+            <span class="notes" *ngIf="a.notes">{{ a.notes }}</span>
+          </div>
+          <span class="badge" [ngClass]="statusClass(a)">{{ a.status }}</span>
+        </li>
+      </ul>
+
+      <div class="empty" *ngIf="!loading && !error && !items.length">
+        <ng-container *ngIf="search || status !== 'All'">No appointments match your search or filter.</ng-container>
+        <ng-container *ngIf="!search && status === 'All'">You have no appointments yet. Book one from Appointment Scheduler.</ng-container>
+      </div>
+
+      <mat-paginator *ngIf="total > 0" [length]="total" [pageIndex]="pageIndex" [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizes" (page)="onPage($event)">
+      </mat-paginator>
+    </div>
+  </div>
+
+</div>

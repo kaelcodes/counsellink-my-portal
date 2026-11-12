@@ -1,0 +1,194 @@
+$navy: #294a70;
+$blue: #3f7cc0;
+$tint: #e3eefa;
+$line: #d9dee5;
+$ink: #1f2933;
+$muted: #5f6b7a;
+$shadow: 0 1px 3px rgba(0, 0, 0, .15);
+
+:host { display: block; color: $ink; font-size: 14px; }
+
+// ---- top row: blue banner on the left, button in its own container on the right
+.top { display: flex; align-items: stretch; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+
+.head {
+  flex: 1 1 320px; background: $navy; color: #fff; padding: 12px 16px; border-radius: 4px;
+  display: flex; align-items: center;
+  h2 { margin: 0; font-size: 16px; font-weight: 600; }
+}
+
+.actions {
+  display: flex; align-items: center; padding: 8px 12px; background: #fff; border-radius: 4px; box-shadow: $shadow;
+}
+
+.card { background: #fff; border-radius: 4px; box-shadow: $shadow; overflow: hidden; }
+.body { padding: 14px 16px 18px; }
+
+// ---- Material button colours (!important so they beat the Material theme)
+.btn-primary {
+  background-color: $navy !important; color: #fff !important; font-weight: 600;
+  &[disabled] { background-color: #b7c4d3 !important; color: #fff !important; }
+}
+.btn-outline { color: $navy !important; border-color: $navy !important; }
+.mat-icon { vertical-align: middle; }
+.btn-primary .mat-icon, .btn-outline .mat-icon { margin-right: 4px; font-size: 20px; height: 20px; width: 20px; }
+
+// ---- messages
+.msg {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 12px; border-radius: 3px; margin-bottom: 12px; background: #eef2f7;
+  &.msg-error { background: #fdecec; color: #8a1f1f; }
+  &.msg-ok { background: #e7f5ec; color: #1d5c34; }
+}
+
+.pending {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  border-left: 4px solid $blue; background: $tint; padding: 10px 12px; margin-bottom: 12px;
+  strong { display: block; }
+  span { color: $muted; }
+}
+
+// ---- toolbar
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+  .nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .title { font-weight: 600; color: $navy; min-width: 190px; text-align: center; }
+}
+.views {
+  ::ng-deep .mat-button-toggle-checked { background-color: $navy; color: #fff; }
+}
+
+// ---- grids
+.scroll { overflow-x: auto; }
+
+.grid {
+  width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 560px;
+  th { background: $navy; color: #fff; font-weight: 600; font-size: 12px; padding: 8px 6px; }
+  th.today { background: #1d3550; box-shadow: inset 0 -3px 0 $blue; }
+  td { border: 1px solid $line; height: 44px; vertical-align: top; padding: 2px; }
+  .timecol { width: 84px; background: #f6f8fa; color: $muted; font-size: 12px; text-align: center; vertical-align: middle; }
+}
+
+.chip, .mini {
+  border-left: 3px solid $blue; background: $tint; border-radius: 2px; padding: 3px 6px; font-size: 11px;
+  strong { display: block; font-weight: 600; }
+  span { color: $muted; }
+  &.st-completed { border-color: #2f8f55; background: #e4f4ea; }
+  &.st-no-show { border-color: #b23b3b; background: #fbe6e6; }
+}
+
+// phone-only week list (hidden on wide screens)
+.agenda { display: none; }
+.agenda-day {
+  border: 1px solid $line; border-radius: 4px; padding: 8px 10px; margin-bottom: 8px;
+  .chip { margin-top: 6px; font-size: 12px; }
+  &.today { border-color: $navy; box-shadow: inset 3px 0 0 $navy; }
+}
+.agenda-head { font-weight: 600; color: $navy; }
+.agenda-empty { color: $muted; font-size: 12px; margin-top: 4px; }
+
+.month {
+  display: grid; grid-template-columns: repeat(7, minmax(80px, 1fr)); min-width: 560px;
+  border-top: 1px solid $line; border-left: 1px solid $line;
+  .dow { background: $navy; color: #fff; font-size: 12px; font-weight: 600; text-align: center; padding: 7px 0; border-right: 1px solid $line; }
+  .cell {
+    background: #fff; border: 0; border-right: 1px solid $line; border-bottom: 1px solid $line; font-family: inherit; cursor: pointer;
+    min-height: 82px; padding: 4px; text-align: left; display: flex; flex-direction: column; gap: 2px; font-size: 11px;
+    &:hover { background: #f6f8fa; }
+    &:focus-visible { outline: 2px solid $blue; outline-offset: -2px; }
+    &.out { background: #fafbfc; color: #a3adba; }
+    &.today .num { background: $navy; color: #fff; border-radius: 10px; }
+    .num { font-weight: 600; align-self: flex-start; padding: 0 6px; min-width: 20px; text-align: center; }
+    .mini { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .more { color: $muted; }
+    .dot { display: none; width: 6px; height: 6px; border-radius: 50%; background: $blue; }
+  }
+}
+
+.empty { text-align: center; color: $muted; padding: 18px 0 4px; }
+
+// ---- dialog (its content is in this component's template, so these styles apply)
+.dlg-body { min-width: 0; }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.who { margin: 0 0 12px; color: $muted; strong { color: $ink; } }
+.full { width: 100%; }
+
+.slot-block { margin-bottom: 14px; }
+.slot-title { display: block; font-size: 12px; font-weight: 600; color: $navy; margin-bottom: 6px; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.slot {
+  color: $navy !important; border-color: $navy !important; line-height: 1.2; padding: 6px 4px; text-align: center;
+  small { display: block; font-size: 10px; }
+  &.sel { background-color: $navy !important; color: #fff !important; }
+  &[disabled] { color: #8a94a1 !important; border-color: #cfd5dc !important; text-decoration: line-through; }
+}
+
+// ---- pending appointment banner action buttons
+.pending-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+// ---- color legend
+.color-legend {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 10px;
+  font-size: 12px; color: $muted;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; }
+
+// ---- appointment color dots
+.appt-color-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  vertical-align: middle; margin-right: 4px; flex-shrink: 0;
+  background: transparent;
+}
+.appt-color-dot-mini { width: 6px; height: 6px; }
+.appt-color-green { background: #2f8f55 !important; }
+.appt-color-red   { background: #b23b3b !important; }
+.appt-color-yellow { background: #c47f00 !important; }
+
+// ---- slot states
+.slot-own { background-color: #e3f2fd !important; color: $navy !important; border-color: $blue !important; font-style: italic; }
+
+// ---- phones: everything below applies ONLY at 640px wide or less
+@media (max-width: 640px) {
+  // banner and a compact "+ Book" button on the same row
+  .top { flex-wrap: nowrap; gap: 8px; }
+  .head { flex: 1 1 0; min-width: 0; padding: 10px 12px; h2 { font-size: 15px; } }
+  .actions {
+    flex: 0 0 auto; padding: 0; background: transparent; box-shadow: none; align-items: stretch;
+    .btn-primary { height: auto; min-width: 0; padding: 0 14px; }
+  }
+  .btn-extra { display: none; }
+
+  .body { padding: 12px; }
+
+  .toolbar {
+    flex-direction: column; align-items: stretch; gap: 8px;
+    .nav { flex-wrap: nowrap; justify-content: space-between; }
+    .title { flex: 1; min-width: 0; font-size: 14px; }
+  }
+  .today-btn { min-width: 0; padding: 0 10px; }
+  .today-btn .mat-icon { margin-right: 0; }
+  .today-text { display: none; }
+
+  .views {
+    display: flex; width: 100%;
+    ::ng-deep .mat-button-toggle { flex: 1; text-align: center; }
+  }
+
+  // week: swap the wide grid for the day-by-day list
+  .week-grid { display: none; }
+  .agenda { display: block; }
+
+  // day: the table only has two columns, so let it use the full width
+  .grid { min-width: 0; .timecol { width: 68px; } }
+
+  // month: fit 7 columns on the screen, show a dot instead of text
+  .month {
+    min-width: 0; grid-template-columns: repeat(7, 1fr);
+    .cell { min-height: 48px; align-items: center; padding: 4px 0; }
+    .cell .num { align-self: center; }
+    .cell .mini, .cell .more { display: none; }
+    .cell .dot { display: block; margin-top: 2px; }
+  }
+
+  .slots { grid-template-columns: repeat(2, 1fr); }
+}

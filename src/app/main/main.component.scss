@@ -1,0 +1,209 @@
+#main {
+	.mat-drawer {
+		width: 300px;
+	}
+
+	.mat-list .mat-list-item,
+	.mat-nav-list .mat-list-item,
+	.mat-selection-list .mat-list-item {
+		font-size: 14px;
+	}
+
+	.mat-list .mat-list-item,
+	.mat-list .mat-list-option,
+	.mat-nav-list .mat-list-item,
+	.mat-nav-list .mat-list-option,
+	.mat-selection-list .mat-list-item,
+	.mat-selection-list .mat-list-option {
+		height: 38px;
+	}
+
+	.mat-list .mat-list-item,
+	.mat-list .mat-list-option,
+	.mat-nav-list .mat-list-item,
+	.mat-nav-list .mat-list-option,
+	.mat-selection-list .mat-list-item,
+	.mat-selection-list .mat-list-option {
+		padding-top: 0;
+	}
+
+	.iconsize {
+		font-size: 18px
+	}
+
+	// ---- Appointment activity indicator and color dot (REQ 4, REQ 5)
+	.appt-badge {
+		display: inline-block; background: #b23b3b; color: #fff;
+		border-radius: 50%; width: 16px; height: 16px; line-height: 16px;
+		font-size: 11px; font-weight: 700; text-align: center;
+		vertical-align: middle; margin-left: 4px;
+	}
+	.appt-dot {
+		display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+		vertical-align: middle; margin-left: 4px;
+		background: transparent;
+	}
+	.appt-color-green { background: #2f8f55 !important; }
+	.appt-color-red   { background: #b23b3b !important; }
+	.appt-color-yellow { background: #c47f00 !important; }
+
+	.borrow-request-nav-badge {
+		display: inline-block;
+		width: 1px;
+		height: 1px;
+		margin-right: 16px;
+		overflow: visible;
+		vertical-align: middle;
+	}
+
+	.mat-button {
+		width: 100%;
+		text-align: left;
+		padding-left: 5px;
+		padding-right: 5px;
+	}
+
+	.matcontainer {
+		overflow-y: scroll;
+	}
+
+	.borrow-alert {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 20px;
+		padding: 20px 24px;
+		margin: 0 0 12px 0;
+		border-radius: 16px;
+		border: 2px dashed #000000;
+		background: white;
+		color: #000000;
+		box-shadow: none;
+	}
+
+	.borrow-alert__body {
+		min-width: 0;
+	}
+
+	.borrow-alert__title {
+		margin: 0;
+		font-size: 1.05rem;
+		font-weight: 700;
+		line-height: 1.3;
+	}
+
+	.borrow-alert__text {
+		margin: 8px 0 0;
+		font-size: 0.98rem;
+		line-height: 1.4;
+		opacity: 1;
+	}
+
+	.borrow-alert__button {
+		flex: 0 0 auto;
+		min-width: 120px;
+		height: 48px;
+		padding: 0 24px;
+		border-radius: 999px;
+		background: #294a70;
+		color: #ffffff;
+		box-shadow: none;
+	}
+
+	.borrow-alert__button:hover {
+		background: #294a70;
+	}
+
+	::ng-deep .borrow-alert__button.mat-raised-button {
+		line-height: 48px;
+		font-size: 1rem;
+		font-weight: 500;
+	}
+
+	::ng-deep .borrow-alert__button.mat-raised-button:not([disabled]) {
+		background-color: #294a70;
+		color: #ffffff;
+	}
+
+
+	::ng-deep .tabs .mat-tab-list .mat-tab-labels {
+		display: none;
+	}
+
+	.nolink {
+		color: inherit;
+		/* blue colors for links too */
+		text-decoration: inherit;
+		/* no underline */
+		padding: 5px;
+	}
+
+	.nolink:hover {
+		background-color: #e0e0e0;
+	}
+
+	.custom-menu-panel {
+		width: 300px !important;
+	}
+
+	::ng-deep .sports-equipment-panel .mat-expansion-panel-header {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+		margin: 0 !important;
+	}
+
+	::ng-deep .sports-equipment-panel .mat-expansion-panel-header .mat-content {
+		margin: 0 !important;
+	}
+
+	::ng-deep .sports-header-title {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		margin: 0;
+	}
+
+	::ng-deep .sub-vmenu {
+		padding-left: 28px !important;
+	}
+
+	::ng-deep .mobile-sports-panel {
+		margin-top: 0;
+	}
+
+	::ng-deep .sports-equipment-panel {
+		margin: 0 !important;
+		width: 100%;
+	}
+
+}
+
+
+::ng-deep .mat-card-header {
+	background-color: #294a70 !important;
+	padding: 15px 5px 5px 5px !important;
+	color: white;
+}
+
+::ng-deep .mat-card-header * {
+	color: gold;
+}
+
+::ng-deep .mat-card {
+	padding: 0 !important;
+}
+
+::ng-deep .mat-card-content {
+	padding: 15px !important;
+}
+
+@media (max-width: 768px) {
+	.borrow-alert {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.borrow-alert__button {
+		width: 100%;
+	}
+}

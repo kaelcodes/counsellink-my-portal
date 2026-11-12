@@ -1,0 +1,86 @@
+<div  id="pinfo" style="">
+<mat-card class="example-card">
+   <mat-card-header >
+    <mat-card-title><b>Parent Information</b></mat-card-title>
+  </mat-card-header>
+  <div style="height: 10px"></div>
+  <mat-card-content class='colo'>
+		  <table  cellspacing="0" style="width: 100%">
+		  <tr>
+		    <td width="100%">
+		  	<mat-form-field>
+		      <input matInput placeholder="Parent's Name" [(ngModel)]="pname">
+		    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+		  	<mat-form-field>
+		      <input matInput placeholder="Cellphone Number" [(ngModel)]="cpno">
+		    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+		  	<mat-form-field>
+		      <input matInput placeholder="Landline Number" [(ngModel)]="lno">
+		    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+		  	<mat-form-field>
+		      <input matInput placeholder="Occupation" [(ngModel)]="accu">
+		    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+		  	<mat-form-field>
+		      <input matInput placeholder="Office Address" [(ngModel)]="oa">
+		    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+			    <mat-form-field class="example-full-width">
+			      <mat-select required [(ngModel)]="status" name="status" placeholder="Status">
+			      <mat-option  value="S">Single</mat-option>
+			      <mat-option value="M">Married</mat-option>
+			      <mat-option  value="W">Widow/Widower</mat-option>
+			      <mat-option value="P">Separated</mat-option>
+			      <mat-option  value="A">Annuled</mat-option>
+			      <mat-option value="X">Deceased</mat-option>
+			    </mat-select>
+			    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+			    <mat-form-field class="example-full-width">
+			      <mat-select required [(ngModel)]="rel" name="rel" placeholder="Relationship">
+			      <mat-option  value="0">Father</mat-option>
+			      <mat-option value="1">Mother</mat-option>
+			    </mat-select>
+			    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+			    
+              <mat-checkbox (click)="checkbox()" [checked]='ofw'>
+                <p>OFW</p>
+              </mat-checkbox>
+		    </td>
+		  </tr>
+		  </table>
+		  
+	</mat-card-content>
+</mat-card>
+</div>
+  <button mat-raised-button (click)="onNoClickclose()" color="warning">Close</button>
+<div mat-dialog-actions style="float: right">
+  <button mat-raised-button color="primary" (click)="save()" *ngIf="data.kind==1">Save</button>
+  <button mat-raised-button color="primary" (click)="update()" *ngIf="data.kind!=1" >Update</button>
+</div>
+ 

@@ -1,0 +1,74 @@
+<mat-card class="example-card borrowed-items-card">
+    <mat-card-header class="borrowed-items-header">
+        <mat-card-title style="color: white;">BORROW REQUEST ITEM</mat-card-title>
+        <button mat-icon-button class="close-button" (click)="onClose()" style="color: white;">
+            <mat-icon>close</mat-icon>
+        </button>
+    </mat-card-header>
+
+    <mat-card-content style="overflow: hidden;">
+        <div class="condition">
+            <div *ngIf="isLoading" style="padding: 12px; text-align: center;">
+                Loading borrow request items...
+            </div>
+            <div *ngIf="loadError" style="padding: 12px; text-align: center; color: #b00020;">
+                {{ loadError }}
+            </div>
+            <table class="apptable">
+                <thead>
+                    <tr>
+                        <th style="width: 10%; text-transform: uppercase; text-align: center;"> Item</th>
+                        <th style="width: 8%; text-transform: uppercase; text-align: center;"> Quantity Requested </th>
+                        <th style="width: 8%; text-transform: uppercase; text-align: center;"> Quantity Approved</th>
+                        <th style="width: 8%; text-transform: uppercase; text-align: center;"> Quantity Returned</th>
+                        <th style="width: 20%; text-transform: uppercase; text-align: center;"> Item Return Status</th>
+                        <th style="width: 10%; text-transform: uppercase; text-align: center;"> Date Returned</th>
+                        <th style="width: 18%; text-transform: uppercase; text-align: center;"> Returned Condition</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        *ngFor="let row of filteredRows | paginate: { itemsPerPage: 10, currentPage: classificationsPage, id: 'borrowed-items' }">
+                        <td style="text-align: center;">
+                            {{ getItemName(row) }}
+                        </td>
+                        <td style="text-align: center;">
+                            {{ getQuantityRequested(row) }}
+                        </td>
+                        <td style="text-align: center;">
+                            {{ getQuantityApproved(row) }}
+                        </td>
+                        <td style="text-align: center;">
+                            {{ getQuantityReturned(row) }}
+                        </td>
+
+                        <td style="text-align: center;">
+                            {{ getBorrowRequestItemStatus(row) }}
+                        </td>
+                        <td style="text-align: center;">
+                            {{ getDateReturned(row) }}
+                        </td>
+
+                        <td style="text-align: center;">
+                            {{ getReturnedCondition(row) }}
+                        </td>
+
+
+                    </tr>
+                    <tr *ngIf="!isLoading && (!filteredRows || filteredRows.length === 0)">
+                        <td colspan="8" style="text-align: center; padding: 12px;">
+                            No borrow request items found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <pagination-controls *ngIf="filteredRows.length > 10" id="borrowed-items"
+                (pageChange)="classificationsPage = $event" maxSize="5" autoHide="true" previousLabel="Previous"
+                nextLabel="Next">
+            </pagination-controls>
+        </div>
+
+    </mat-card-content>
+</mat-card>

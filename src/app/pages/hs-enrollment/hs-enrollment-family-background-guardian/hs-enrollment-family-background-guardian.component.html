@@ -1,0 +1,55 @@
+<div  id="pinfo" style="">
+<mat-card class="example-card">
+   <mat-card-header >
+    <mat-card-title><b>Guardian Information</b></mat-card-title>
+  </mat-card-header>
+  <div style="height: 10px"></div>
+  <mat-card-content class='colo'>
+		  <table  cellspacing="0" style="width: 100%">
+		  <tr>
+		    <td width="100%">
+		  	<mat-form-field>
+		      <input matInput placeholder="Guardian's Name" [(ngModel)]="name" autocomplete="off">
+		    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+		  	<mat-form-field>
+		      <input matInput placeholder="Phone Number" [(ngModel)]="cpno" autocomplete="off">
+		    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+		  	<mat-form-field>
+		      <input matInput placeholder="Address" [(ngModel)]="address" autocomplete="off">
+		    </mat-form-field>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td width="100%">
+			    <mat-form-field class="example-full-width">
+			      <mat-select required [(ngModel)]="rel" name="rel" placeholder="Relationship">
+			      <mat-option  value="10">Brother/Sister</mat-option>
+			      <mat-option value="11">Cousin</mat-option>
+			      <mat-option value="8">Uncle/Aunt</mat-option>
+			      <mat-option value="9">Grand Parent</mat-option>
+			      <mat-option value="12">Step Father</mat-option>
+			      <mat-option value="13">Step Mother</mat-option>
+			      <mat-option value="3">Spouse</mat-option>
+			    </mat-select>
+			    </mat-form-field>
+		    </td>
+		  </tr>
+		  </table>
+		  
+	</mat-card-content>
+</mat-card>
+</div>
+  <button mat-raised-button (click)="onNoClickclose()" color="warning">Close</button>
+<div mat-dialog-actions style="float: right">
+  <button mat-raised-button color="primary" (click)="save()" *ngIf="data.kind==1">Save</button>
+  <button mat-raised-button color="primary" (click)="update()" *ngIf="data.kind!=1" >Update</button>
+</div>
+ 

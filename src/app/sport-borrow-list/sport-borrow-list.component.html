@@ -1,0 +1,105 @@
+<mat-card class="example-card" id="ebcg" style="padding: 0">
+    <mat-card-header>
+        <mat-card-title style="color: white; ">Borrow Request</mat-card-title>
+        <mat-card-subtitle style="color: white;">
+            This page allows you to view your borrow requests, including their status and details.
+        </mat-card-subtitle>
+    </mat-card-header>
+
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 16px; padding-right: 10px;">
+        <button mat-raised-button color="warn" class="clear-filter-btn" type="button" (click)="clearFilter()">
+            Clear Filter
+        </button>
+    </div>
+    <mat-card-content class="colo" style="overflow: auto;">
+        <mat-divider></mat-divider>
+        <form [formGroup]="form">
+            <table class="apptable" style="text-align: center;">
+                <thead>
+                    <tr>
+                        <th style="width: 10%; text-transform: uppercase; text-align: center;">Request Date</th>
+                        <th style="width: 10%; text-transform: uppercase; text-align: center;">Expected Return</th>
+                        <th style="width: 10%; text-transform: uppercase; text-align: center;">Actual Return</th>
+                        <th style="width: 15%; text-transform: uppercase; text-align: center;">Approved Date</th>
+                        <th style="width: 15%; text-transform: uppercase; text-align: center;">Remarks</th>
+                        <th style="width: 8%; text-transform: uppercase; text-align: center;">Status</th>
+                    </tr>
+                    <tr class="filter-row" style="background-color: white !important;">
+                        <td>
+                            <div
+                                style="display: flex; justify-content: center; align-items: center; column-gap: 0.5rem;">
+                                <mat-form-field style="width: 100px; padding-bottom: 0;" appearance="outline">
+                                    <mat-label>Start Date</mat-label>
+                                    <input matInput style="cursor: pointer;" [matDatepicker]="pickerFrom"
+                                        placeholder="Start Date" [(ngModel)]="filterRequestStartDate"
+                                        [matDatepickerFilter]="filterOnlyPreviousDates" [value]="filterRequestStartDate"
+                                        (click)="pickerFrom.open()" (dateChange)="filterRequests()"
+                                        formControlName="filterRequestStartDate">
+                                    <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+                                    <mat-datepicker #pickerFrom></mat-datepicker>
+                                </mat-form-field>
+                                <mat-form-field style="width: 100px; padding-bottom: 0;" appearance="outline">
+                                    <mat-label>End Date</mat-label>
+                                    <input matInput style="cursor: pointer;" [matDatepicker]="pickerTo"
+                                        placeholder="End Date" [(ngModel)]="filterRequestEndDate"
+                                        [disabled]="!filterRequestStartDate"
+                                        [matDatepickerFilter]="filterOnlyFutureDates" [value]="filterRequestEndDate"
+                                        (click)="pickerTo.open()" (dateChange)="filterRequests()"
+                                        formControlName="filterRequestEndDate">
+                                    <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+                                    <mat-datepicker #pickerTo></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <mat-form-field class="filter-field" style="padding-bottom: 0;" appearance="outline">
+                                <mat-label>Status</mat-label>
+                                <mat-select formControlName="filterStatus" (selectionChange)="FilterList()">
+                                    <mat-option value="">All</mat-option>
+                                    <mat-option value="PENDING">PENDING</mat-option>
+                                    <mat-option value="APPROVE">APPROVED</mat-option>
+                                    <mat-option value="REJECTED">REJECTED</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </td>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of filteredRows | paginate: { itemsPerPage: 10, currentPage: classificationsPage, id: 'equipment-type' }; let i = index"
+                        (click)="openDetails(row)" style="cursor: pointer;"
+                        title="click to view borrow request items">
+                        <td>{{ (row.requestDate || row.RequestDate) | date: 'EEE, MM/dd/yyyy' }}</td>
+                        <td>{{ (row.expectedReturnDate || row.ExpectedReturnDate) | date: 'EEE, MM/dd/yyyy' }}</td>
+                        <td>{{ (row.actualReturnDate || row.ActualReturnDate) | date: 'EEE, MM/dd/yyyy' }}</td>
+                        <td>{{ getApprovalDateForDisplay(row) | date: 'EEE, MM/dd/yyyy' }}</td>
+                        <td class="remarks-inline">
+                            <span>{{ getRemarksDisplay(row, 'row-' + classificationsPage + '-' + i) }}</span>
+                            <button
+                                *ngIf="row.remarks || row.Remarks"
+                                type="button"
+                                class="remarks-toggle"
+                                (click)="toggleRemarks('row-' + classificationsPage + '-' + i); $event.stopPropagation()"
+                                aria-label="Toggle remarks">
+                                <mat-icon>{{ getRemarksIcon('row-' + classificationsPage + '-' + i) }}</mat-icon>
+                            </button>
+                        </td>
+                        <td>{{ row.borrowRequestStatus || row.BorrowRequestStatus || row.BorrowRequestStatusID }}</td>
+                    </tr>
+                    <tr *ngIf="!filteredRows || filteredRows.length <= 0">
+                        <td colspan="6">No Borrow Request found.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <pagination-controls *ngIf="filteredRows.length > 10" id="equipment-type"
+                (pageChange)="classificationsPage = $event" maxSize="10" autoHide="true" previousLabel="Previous"
+                nextLabel="Next">
+            </pagination-controls>
+        </form>
+    </mat-card-content>
+</mat-card>

@@ -1,0 +1,96 @@
+::ng-deep .mat-card-header {
+    background-color: #294a70 !important;
+    padding: 15px 5px 5px 5px !important;
+    color: white;
+}
+
+::ng-deep .mat-card-header * {
+    color: white;
+}
+
+::ng-deep .mat-card {
+    padding: 0 !important;
+}
+
+::ng-deep .mat-card-content {
+    padding: 15px !important;
+}
+
+.sample-form-shell {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100vh - 190px);
+    overflow: auto;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.sample-form {
+    width: max-content;
+    min-width: 100%;
+    box-sizing: border-box;
+}
+
+.sample-table {
+    min-width: 920px;
+    width: 100%;
+}
+
+::ng-deep .mat-form-field-wrapper {
+    margin: 0;
+    padding: 0;
+}
+
+::ng-deep .filter-field {
+    width: 100%;
+    min-width: 260px;
+}
+
+::ng-deep .filter-field .mat-form-field-flex {
+    width: 100%;
+}
+
+::ng-deep .filter-field .mat-form-field-infix {
+    width: 100%;
+}
+
+.apptable {
+    th {
+        text-align: center;
+        font-weight: bold;
+        text-transform: uppercase;
+        height: 40px;
+    }
+
+    td {
+        text-align: center;
+        height: 40px;
+    }
+}
+
+.status-pill {
+    display: inline-block;
+    min-width: 72px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.status-active {
+    background: #def0ff;
+    color: #0f5b8a;
+}
+
+.status-inactive {
+    background: #ffe0e0;
+    color: #9e1c1c;
+}
+
+.status-unknown {
+    background: #ececec;
+    color: #555555;
+}

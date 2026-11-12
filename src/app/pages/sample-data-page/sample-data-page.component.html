@@ -1,0 +1,63 @@
+<mat-card class="example-card" id="sample-page" style="padding: 0">
+    <mat-card-header>
+        <mat-card-title>Sample Data Page</mat-card-title>
+        <mat-card-subtitle style="font-style: italic;">This is a barebone sample page template with table layout and sample data.</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="colo">
+        <mat-divider></mat-divider>
+        <div class="sample-form-shell">
+            <form [formGroup]="form" class="sample-form">
+                <table class="apptable sample-table">
+                    <tr>
+                        <th style="width: 25%;"> Item Name </th>
+                        <th style="width: 20%;"> Status </th>
+                        <th style="width: 15%;"> Quantity </th>
+                        <th style="width: 20%;"> Date </th>
+                        <th style="width: 20%;"> Remarks </th>
+                    </tr>
+                    <tr class="filter-row" style="background-color: white !important;">
+                        <td style="min-width: 260px;">
+                            <mat-form-field class="filter-field" appearance="outline">
+                                <mat-label>Item Name</mat-label>
+                                <input matInput formControlName="filterItemName" (input)="FilterList()" />
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <mat-form-field class="filter-field" appearance="outline"
+                                style="width: 100% !important; min-width: 0 !important;">
+                                <mat-label>Status</mat-label>
+                                <mat-select formControlName="filterStatus"
+                                    (selectionChange)="FilterList()">
+                                    <mat-option value="">All</mat-option>
+                                    <mat-option value="Active">Active</mat-option>
+                                    <mat-option value="Inactive">Inactive</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr *ngFor="let row of filteredItems | paginate : { id: 'sampleData', itemsPerPage: 10, currentPage: currentPage, totalItems: filteredItems.length }">
+                        <td>{{ row.itemName }}</td>
+                        <td>
+                            <span class="status-pill" [ngClass]="'status-' + (row.status || 'unknown').toLowerCase()">{{
+                                row.status }}</span>
+                        </td>
+                        <td>{{ row.quantity }}</td>
+                        <td>{{ row.date | date:'MM/dd/yyyy' }}</td>
+                        <td>{{ row.remarks }}</td>
+                    </tr>
+                    <tr *ngIf="filteredItems.length === 0" class="empty-row">
+                        <td colspan="5" class="empty-cell">No items found.</td>
+                    </tr>
+                </table>
+
+                <div style="display: flex; justify-content: flex-end; margin-right: 1rem;">
+                    <pagination-controls *ngIf="filteredItems && filteredItems.length > 10"
+                        id="sampleData" (pageChange)="currentPage=$event"></pagination-controls>
+                </div>
+            </form>
+        </div>
+    </mat-card-content>
+</mat-card>

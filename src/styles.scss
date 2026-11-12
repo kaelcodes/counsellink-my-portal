@@ -1,0 +1,136 @@
+/* You can add global styles to this file, and also import other style files */
+//ffab1f
+//294a70
+
+@import './studentportaltheme';
+@function black($opacity) {
+  @return rgba(black, $opacity)
+}
+
+body{
+	margin:0;
+}
+
+mat-card{
+	margin:10px;
+}
+
+.example-card{
+  overflow: hidden
+}
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+.buttonblue{
+  background-color: #294a70 !important;
+  color: white !important;
+}
+.buttonred{
+  background-color: #dc3545;
+  color: white !important;
+}
+.matcontainer{
+	max-height:calc(100vh - 190px);
+	min-height:calc(100vh - 145px);
+	overflow-y: scroll;
+}
+
+.matcontainer p {
+	font-size: 14px;
+}
+
+.hnav button {
+	font-size: 12px;
+}
+
+.hnav mat-icon {
+	font-size: 20px;
+}
+.mat-menu-item{
+	font-size: 14px;
+}
+
+#coverp{
+	background: url(assets/user-info.jpg) no-repeat;
+  background-size: cover;
+}
+#photop{
+	border-radius: 50%;text-align: center;
+    margin-left: auto;
+    margin-right: auto;display: block;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+#fullname{
+  color: white;
+  background: black(0.5);
+  text-align:center;
+  padding:10px;
+}
+ *{font-family: Roboto,"Helvetica Neue",sans-serif;}
+ 
+ .addbuttons{
+  font-size: 12px;
+  padding: 0px !important;
+ }
+
+ .mat-form-field-infix  {
+      width: 100px !important;
+ }
+  .mat-horizontal-stepper-header{
+      pointer-events: none !important;
+  }
+
+  .overflowys{
+    max-height: calc(100vh - 310px) !important;
+    overflow-y: scroll;
+  }
+
+
+  .apptable {
+  border-collapse: collapse;
+  width: 100%;
+}
+    .apptable td, .apptable th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+
+  .apptable tr:nth-child(even){background-color: #f2f2f2;}
+
+  .apptable tr:hover {background-color: #ddd;}
+
+  .apptable th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #294a70;
+    color: white;
+  }
+
+.tabledesign {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tabledesign td, .tabledesign th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.tabledesign tr:nth-child(even){background-color: #f2f2f2;}
+
+.tabledesign tr:hover {background-color: #ddd;}
+
+.tabledesign th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #262626;
+  color: white;
+}

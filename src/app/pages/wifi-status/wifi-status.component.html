@@ -1,0 +1,73 @@
+<mat-card class="example-card" id="es"  style="padding: 0">
+   <mat-card-header >
+    <mat-card-title *ngIf="UserType === 'Employee'">Wi-fi Status</mat-card-title>
+    <mat-card-title *ngIf="UserType === 'Student'">Corporate Email and Wi-fi Details</mat-card-title>
+    <span class="example-spacer"></span>
+  <button mat-raised-button (click)="noclick()" color="warning" style="margin-right: 10px;margin-top: -4px;height: 35px"><span style="color: black !important;">Close</span></button>
+  </mat-card-header>
+  <mat-card-content class='colo'>
+    <mat-divider></mat-divider>
+    <div style="height: 10px"></div>
+<style type="text/css">
+  		#users  td{
+  			border: 0px solid #ddd;
+  		}
+  	</style>
+    <div *ngIf="UserType == 'Student'">
+
+      <table class="apptable" id="users" border="0">
+        <tr>
+          <td width="130px">
+            <b>Corporate Email:</b>
+          </td>
+          <td style="text-align: right;">
+            {{corporateEmail}}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Password:</b>
+          </td>
+          <td style="text-align: right; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif">
+            {{corporateEmailPassword}}
+          </td>
+        </tr>
+      </table>
+      <hr >
+    </div>
+
+    <table class="apptable" id="users" border="0">
+  		  	<tr>
+  		  		<td width="130px">
+  		  			<b>Wi-Fi Password:</b>
+  		  		</td>
+  		  		<td style="text-align: right;">
+  		  			{{global.wifi.password}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Last Login:</b>
+  		  		</td>
+  		  		<td style="text-align: right;">
+              {{global.wifi.lastLogin}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Data Allocation</b>
+  		  		</td>
+  		  		<td style="text-align: right;">
+  		  			<strong id="used-stat">{{6000-global.wifi.userCredit}}</strong> MB out of <strong>6000</strong> MB used.
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td colspan="2" style="padding: 10px">
+                    <div id="alloc-status"><div class="progressbar" style="width: 100%; background-color:#ddd; border-radius: 5px; height: 25px"><div class="proggress" style="background-color: #294a70; height: 25px; border-radius: 5px; width: {{check}}%;"></div><div class="percentCount"></div></div></div>
+  		  		</td>
+  		  	</tr>
+  		  </table>
+
+
+  </mat-card-content>
+</mat-card>

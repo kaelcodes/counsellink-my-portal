@@ -1,0 +1,210 @@
+<mat-card class="example-card" id="es"  style="padding: 0" *ngIf="global.empPInfo!=undefined&&global.empInfo!=null">
+   <mat-card-header >
+    <mat-card-title>Personal Data</mat-card-title>
+    <mat-card-subtitle><i>Disclaimer: If there are information here that need to be updated, please inform the Human Resource Management and Development Office (HRMDO).</i></mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class='colo'>
+
+    <mat-divider></mat-divider>
+    <div style="padding: 10px">
+  <mat-accordion>
+	  <mat-expansion-panel  [expanded]="true">
+	    <mat-expansion-panel-header>
+	      <mat-panel-title>
+	        <b style="color: #294a70">Basic Information</b>
+	      </mat-panel-title>
+	      <mat-panel-description>
+	      </mat-panel-description>
+
+	    </mat-expansion-panel-header>
+    <style type="text/css">
+  		#users  td{
+  			border: 0px solid #ddd;
+  		}
+  	</style>
+      <table width="100%">
+        <tr>
+          <td>
+            <table class="apptable" id="users" border="0" style="width: 95% !important">
+              <tr>
+                <td width="200px"><b>Name</b></td>
+                <td>{{global.empInfo.fullname}}</td>
+              </tr>
+              <tr>
+                <td><b>Gender</b></td>
+                <td>{{displayg(global.empBInfo.gender)}}</td>
+              </tr>
+              <tr>
+                <td><b>Civil Status</b></td>
+                <td>{{displaycs(global.empPInfo.civilstatus)}}</td>
+              </tr>
+              <tr>
+                <td><b>Date of Birth</b></td>
+                <td>{{global.empPInfo.dateofbirth | date: 'MM/dd/yyyy'}}</td>
+              </tr>
+              <tr>
+                <td><b>Place of Birth</b></td>
+                <td>{{global.empBInfo.placeOfBirth}}</td>
+              </tr>
+              <tr>
+                <td><b>Nationality</b></td>
+                <td>{{global.empPInfo.nationality}}</td>
+              </tr>
+              <tr>
+                <td><b>Religion</b></td>
+                <td>{{global.empPInfo.religion}}</td>
+              </tr>
+            </table>
+          </td>
+          <td style="">
+            <strong >Government Issued Numbers:</strong>
+            <table class="apptable" id="users" border="0">
+                <tr>
+                  <td width="200px"><b>TIN</b></td>
+                  <td>{{global.empPInfo.tin}}</td>
+                </tr>
+                <tr>
+                  <td><b>Pag-ibig</b></td>
+                  <td>{{global.empPInfo.pagIbigNo}}</td>
+                </tr>
+                <tr>
+                  <td><b>SSS</b></td>
+                  <td>{{global.empPInfo.sssNo}}</td>
+                </tr>
+                <tr>
+                  <td><b>PhilHealth</b></td>
+                  <td>{{global.empPInfo.philHealthNo}}</td>
+                </tr>
+                
+              </table>
+          </td>
+        </tr>
+      </table>
+	  </mat-expansion-panel>
+	  <mat-expansion-panel>
+	    <mat-expansion-panel-header>
+	      <mat-panel-title>
+	        <b style="color: #294a70">Contact Information</b>
+	      </mat-panel-title>
+	      <mat-panel-description>
+	      </mat-panel-description>
+	    </mat-expansion-panel-header>
+
+	    <table class="apptable" id="users" border="0">
+  		  	<tr>
+  		  		<td width="200px"><b>Telephone Number</b></td>
+  		  		<td>{{global.empPInfo.telno}}</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td><b>Cellphone Number</b></td>
+  		  		<td>{{global.empPInfo.mobileno}}</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td><b>Email Address</b></td>
+            <td>{{global.empPInfo.emailAdd}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Home Address</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.empPInfo.permanentaddress}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Current/Boarding Address</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.empPInfo.currentaddress}}
+  		  		</td>
+  		  	</tr>
+  		  </table>
+	  </mat-expansion-panel>
+
+<mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <b style="color: #294a70">Marriage</b>
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <table class="apptable" id="users" border="0">
+          <tr>
+            <td width="200px">
+              <b>Name of Spouse</b>
+            </td>
+            <td>
+              {{global.empPInfo.spouse}}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>Occupation</b>
+            </td>
+            <td>
+              {{global.empPInfo.occupation}}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>Date of Marriage</b>
+            </td>
+            <td>
+              {{global.empPInfo.dateofmarriage | date: 'MM/dd/yyyy'}}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>Name of Church</b>
+            </td>
+            <td>
+              {{global.empPInfo.nameOfChurch}}
+            </td>
+          </tr>
+          
+        </table>
+
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <b style="color: #294a70">Children</b>
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <table id="student" class="apptable" style="width:80%">
+          <tr>
+            <th style="text-align: left;">
+              FIRST NAME
+            </th>
+            <th style="text-align: left;">
+              MIDDLE NAME
+            </th>
+            <th>
+              LAST NAME
+            </th>
+            <th width="105px" >
+              DATE OF BIRTH
+            </th>
+          </tr>
+          <tr *ngFor="let f of global.empchildArray">
+            <td>{{f.firstName}}</td>
+            <td>{{f.middleName}}</td>
+            <td>{{f.lastName}}</td>
+            <td>{{f.dateOfBirth | date: 'MM/dd/yyyy'}}</td>
+          </tr>
+        </table>
+
+      </mat-expansion-panel>
+</mat-accordion>
+    	
+    </div>
+  </mat-card-content>
+</mat-card>
+ 

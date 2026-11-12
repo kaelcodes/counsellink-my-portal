@@ -1,0 +1,72 @@
+<mat-card class="example-card" id="es"  style="padding: 0">
+   <mat-card-header >
+    <mat-card-title>Announcement</mat-card-title>
+    <span class="example-spacer"></span>
+  <button mat-raised-button (click)="noclick()" color="warning" style="margin-right: 10px;margin-top: -4px;height: 35px"><span style="color: black !important;">Close</span></button>
+  </mat-card-header>
+  <mat-card-content class='colo'>
+    <mat-divider></mat-divider>
+    <div style="height: 10px"></div>
+    <div class="module_3" style="max-height: calc(100vh - 400px);overflow-x: auto;">
+      <div style="display: flex; justify-content: space-between; gap: 24px; align-items: flex-start;">
+        <div style="flex: 1;" *ngIf="storage.get('role') == 'Student'">
+          <h3>Louisian students, help chart the next era of USLT excellence!</h3>
+          <p>
+            Share your insights through our quick <b>Institutional Development survey.</b> Start the survey now and be part of USLT’s next milestone!
+          </p>
+          <br>
+          <p>
+            To participate, Click here: <a href="https://forms.gle/6ELu75XMGzfMeASK8" target="_blank">Strategic Plan Survey</a>
+          </p>
+          <br>
+          <p>Thanks for your participation!</p>
+        </div>
+        <div style="flex: 1;">
+          <h3>Louisian Employees and Students</h3>
+          <p>Follow us on social media for updates and news</p>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="https://www.facebook.com/OfficialUSLPhilippines" target="_blank" style="text-decoration: none; color: inherit;">
+              <div style="display: flex; align-items: center; gap: 12px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px;">
+                <img src="assets/fb.png" width="44" style="border-radius: 50%;" />
+                <div>
+                  <div style="font-weight: 600;">Facebook</div>
+                  <div style="color: #6b7280; font-size: 12px;">Connect with us</div>
+                </div>
+              </div>
+            </a>
+            <a href="https://www.instagram.com/uslphilippines/" target="_blank" style="text-decoration: none; color: inherit;">
+              <div style="display: flex; align-items: center; gap: 12px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px;">
+                <img src="assets/insta.png" width="44" style="border-radius: 50%;" />
+                <div>
+                  <div style="font-weight: 600;">Instagram</div>
+                  <div style="color: #6b7280; font-size: 12px;">See our photos</div>
+                </div>
+              </div>
+            </a>
+            <a href="https://www.youtube.com/uslphilippines" target="_blank" style="text-decoration: none; color: inherit;">
+              <div style="display: flex; align-items: center; gap: 12px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px;">
+                <img src="assets/yt.png" width="44" style="border-radius: 50%;" />
+                <div>
+                  <div style="font-weight: 600;">YouTube</div>
+                  <div style="color: #6b7280; font-size: 12px;">Watch our videos</div>
+                </div>
+              </div>
+            </a>
+            <a href="https://usl.edu.ph/" target="_blank" style="text-decoration: none; color: inherit;">
+              <div style="display: flex; align-items: center; gap: 12px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px;">
+                <img src="assets/usl.png" width="44" style="border-radius: 50%;" />
+                <div>
+                  <div style="font-weight: 600;">Website</div>
+                  <div style="color: #6b7280; font-size: 12px;">Visit our website</div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+  </mat-card-content>
+</mat-card>

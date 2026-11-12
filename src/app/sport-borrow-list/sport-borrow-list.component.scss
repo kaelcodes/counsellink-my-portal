@@ -1,0 +1,70 @@
+.condition {
+  width: 100%;
+}
+
+.condition .apptable {
+  width: 75%;
+  margin: 0;
+}
+
+.card-header {
+  color: white !important;
+}
+
+.card-header mat-card-title,
+.card-header mat-card-subtitle {
+  color: white !important;
+}
+
+:host ::ng-deep .mat-form-field-wrapper {
+  padding-bottom: 0 !important;
+}
+
+.filter-row td {
+  background: #ffffff;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  vertical-align: middle;
+}
+
+.filter-field {
+  width: 100%;
+}
+
+.clear-filter-btn {
+  width: 35px;
+  min-width: 80px;
+  max-width: 35px;
+  padding: 0;
+  margin: 10px;
+}
+
+:host ::ng-deep .mat-form-field-wrapper {
+  padding-bottom: 0 !important;
+}
+
+.remarks-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.remarks-toggle {
+  background: transparent;
+  border: 0;
+  color: #294a70;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.remarks-toggle mat-icon {
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+  line-height: 20px;
+}
+
+.remarks-toggle:hover {
+  color: #1f3f60;
+}

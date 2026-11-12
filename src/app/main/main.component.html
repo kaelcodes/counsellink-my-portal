@@ -1,0 +1,632 @@
+<mat-drawer-container class="example-container" style="max-height: calc(100vh - 50px);" id="main"
+  *ngIf="global.studinfo!=undefined&&global.requestrole()=='Student'">
+  <mat-drawer mode="side" opened="true" #drawer>
+    <div id="coverp" *ngIf="global.userinfo!=undefined">
+      <img [src]="global.image" width="125" id="photop" onError="this.src='assets/noimage.jpg'" />
+      <div id="fullname">
+        {{global.userinfo.idNumber}}<br>
+
+        <span style="text-transform: capitalize">{{global.userinfo.firstName}} {{global.userinfo.middleName}}
+          {{global.userinfo.lastName}} {{global.userinfo.suffixName}}</span> <br>
+        <ng-container *ngIf="global.nextSYStudInfo;else next">
+          <span
+            *ngIf="global.studinfo.yearOrGradeLevel!=0 && global.studinfo.departmentCode!='SAS'">{{(global.nextSYStudInfo.yearOrGradeLevel
+            != global.studinfo.yearOrGradeLevel) ? global.nextSYStudInfo.course : global.studinfo.course}}</span>
+        </ng-container>
+        <ng-template #next>
+          <span
+            *ngIf="global.studinfo.yearOrGradeLevel!=0 && global.studinfo.departmentCode!='SAS'">{{global.studinfo.course}}</span>
+        </ng-template>
+
+        <ng-container
+          *ngIf="global.nextSYStudInfo ? (global.nextSYStudInfo.yearOrGradeLevel == global.studinfo.yearOrGradeLevel && global.studinfo.departmentCode=='HS'):false;else levelNotEqual">
+          <span *ngIf="global.studinfo.yearOrGradeLevel==1">{{global.studinfo.departmentCode}} - Grade 7</span>
+          <span *ngIf="global.studinfo.yearOrGradeLevel==2"> - Grade 8</span>
+          <span *ngIf="global.studinfo.yearOrGradeLevel==3"> - Grade 9</span>
+          <span *ngIf="global.studinfo.yearOrGradeLevel==4"> - Grade 10</span>
+          <span *ngIf="global.studinfo.yearOrGradeLevel==5"> - Grade 11</span>
+          <span *ngIf="global.studinfo.yearOrGradeLevel==6"> - Grade 12</span>
+        </ng-container>
+        <ng-template #levelNotEqual>
+          <ng-container *ngIf="global.nextSYStudInfo">
+            <span *ngIf="global.nextSYStudInfo.departmentCode=='HS'&&global.nextSYStudInfo.yearOrGradeLevel==1"> - Grade
+              7</span>
+            <span *ngIf="global.nextSYStudInfo.departmentCode=='HS'&&global.nextSYStudInfo.yearOrGradeLevel==2"> - Grade
+              8</span>
+            <span *ngIf="global.nextSYStudInfo.departmentCode=='HS'&&global.nextSYStudInfo.yearOrGradeLevel==3"> - Grade
+              9</span>
+            <span *ngIf="global.nextSYStudInfo.departmentCode=='HS'&&global.nextSYStudInfo.yearOrGradeLevel==4"> - Grade
+              10</span>
+            <span *ngIf="global.nextSYStudInfo.departmentCode=='HS'&&global.nextSYStudInfo.yearOrGradeLevel==5"> - Grade
+              11</span>
+            <span *ngIf="global.nextSYStudInfo.departmentCode=='HS'&&global.nextSYStudInfo.yearOrGradeLevel==6"> - Grade
+              12</span>
+          </ng-container>
+
+        </ng-template>
+
+        <span *ngIf="global.studinfo.departmentCode=='SAS'">{{global.studinfo.course}} -
+          {{global.studinfo.yearOrGradeLevel}}</span>
+        <span *ngIf="global.studinfo.departmentCode!='SAS'&&global.studinfo.yearOrGradeLevel!=0">
+
+
+          <ng-container *ngIf="global.nextSYStudInfo ? global.nextSYStudInfo.departmentCode == 'ELEM': false">
+            - Grade {{global.nextSYStudInfo.yearOrGradeLevel}}
+          </ng-container>
+
+
+
+          <span
+            *ngIf="global.studinfo.departmentCode!='HS'&&global.studinfo.departmentCode!='SAS'&&global.studinfo.departmentCode!='ELEM'">
+            - {{global.studinfo.yearOrGradeLevel}}</span>
+          <span *ngIf="global.studinfo.departmentCode=='ELEM'&&!global.nextSYlevel"> -
+            {{global.studinfo.yearOrGradeLevel}}</span>
+        </span>
+        <table style="width: 100%">
+          <tr>
+            <td style="width: 50%">
+              <small><a mat-button color='default' style="font-size: 10px;text-align: right;"
+                  (click)="openDialogChangePassword()"><i class="material-icons iconsize">lock</i> Change
+                  Password</a></small>
+            </td>
+            <td style="text-align: center;text-align: left;"><small><a mat-button color='default'
+                  style="font-size: 10px;float: left" (click)="logout()">
+                  <mat-icon>exit_to_app</mat-icon> Sign Out</a></small>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div style="background-color: #294a70;color: white;text-align: center;font-size: 11px;padding: 5px"
+      *ngIf="global.studinfo.course!=''&&global.studinfo.course!=null">
+      <!-- Active: <span *ngIf="(global.studinfo.departmentCode!='HS'&&global.studinfo.departmentCode!='ELEM')">{{global.syDisplay(global.sy)}}</span>
+  <span *ngIf="!(global.studinfo.departmentCode!='HS'&&global.studinfo.departmentCode!='ELEM')">{{global.syDisplay(global.sy.substring(0, global.sy.length - 1))}}</span> -->
+      <div *ngIf="(global.studinfo.departmentCode == 'HS');else college">
+
+        <div
+          *ngIf="global.constSY.substring(0,global.constSY.length-1) != global.schoolyear && !(global.hsfirstyear && (global.studinfo.yearOrGradeLevel != 4))">
+          <!-- <div *ngIf="global.enrollmenthist.length>1">
+                    <span>{{ global.lastSYDisplay }}</span>: {{global.lastSYLevel}} <b><span><span *ngIf="global.lastSY=='Paid'">Officially Enrolled</span><span *ngIf="global.lastSY=='Admitted'">Admitted</span>&nbsp;&nbsp;</span></b>
+                    <br>
+                  </div> -->
+          <span *ngIf="global.enrollmenthist.length!=0">{{ global.nextSYDisplay }}</span> : <b><span>
+              <!-- <span *ngIf="global.enrollmenthist.length!=0">{{ global.nextSYDisplay }}</span>: {{global.nextSYlevel}} <b><span> -->
+              <span
+                *ngIf="global.nextSY=='Paid' && !(global.nextSYStudInfo.yearOrGradeLevel == 6 || (global.nextSYStudInfo.yearOrGradeLevel > 1 && global.nextSYStudInfo.yearOrGradeLevel <= 4) )">{{global.checkEnrollmentStatus(global.userdemog)}}</span>
+              <span
+                *ngIf="global.nextSY=='Paid' && (global.nextSYStudInfo.yearOrGradeLevel == 6 || (global.nextSYStudInfo.yearOrGradeLevel > 1 && global.nextSYStudInfo.yearOrGradeLevel <= 4) )">Officially
+                Enrolled</span>
+              <span *ngIf="global.nextSY=='Admitted'">Admitted</span>&nbsp;&nbsp;</span></b>
+        </div>
+
+        <div *ngIf="global.constSY.substring(0,global.constSY.length-1) == global.schoolyear">
+          <span *ngIf="global.enrollmenthist.length!=0">{{
+            global.syDisplay(global.enrollmenthist[global.enrollmenthist.length-1].schoolYear) }}</span>: <b><span>
+              <ng-container *ngIf="global.lastSY;else nextSY">
+                <span *ngIf="global.lastSY=='Paid'">Officially Enrolled</span><span
+                  *ngIf="global.lastSY=='Admitted'">Admitted</span>
+              </ng-container>
+              <ng-template #nextSY>
+                <span *ngIf="global.nextSY=='Paid'">Officially Enrolled</span><span
+                  *ngIf="global.nextSY=='Admitted'">Admitted</span>
+              </ng-template>
+
+              &nbsp;&nbsp;</span></b>
+        </div>
+        <div
+          *ngIf="global.constSY.substring(0,global.constSY.length-1) != global.schoolyear && (global.hsfirstyear && global.studinfo.yearOrGradeLevel != 4)">
+          <span *ngIf="global.enrollmenthist.length!=0">{{ global.nextSYDisplay }}</span>: {{global.nextSYlevel}}
+          <b><span><span *ngIf="global.nextSY=='Paid'">{{global.checkEnrollmentStatus(global.userdemog)}}</span><span
+                *ngIf="global.nextSY=='Admitted'">Admitted</span>&nbsp;&nbsp;</span></b>
+        </div>
+      </div>
+
+      <ng-template #college>
+        <ng-container *ngIf="(global.studinfo.level == 'COLLEGE'||global.studinfo.departmentCode == 'SAS');else elem">
+          <div
+            *ngIf="global.constSY != global.schoolyear && !(global.firstyear && global.studinfo.yearOrGradeLevel == 1)">
+            <div *ngIf="global.enrollmenthist.length>1">
+              <span>{{ global.lastSYDisplay }}</span>: {{global.lastSYLevel}} <b><span><span
+                    *ngIf="global.lastSY=='Paid'">Officially Enrolled</span><span
+                    *ngIf="global.lastSY=='Admitted'">Admitted</span>&nbsp;&nbsp;</span></b>
+              <br>
+            </div>
+            <span *ngIf="global.enrollmenthist.length!=0">{{ global.nextSYDisplay }}</span>: {{global.nextSYlevel}}
+            <b><span><span *ngIf="global.nextSY=='Paid'">{{global.checkEnrollmentStatus(global.userdemog)}}</span><span
+                  *ngIf="global.nextSY=='Admitted'">Admitted</span>&nbsp;&nbsp;</span></b>
+          </div>
+          <div *ngIf="global.constSY == global.schoolyear">
+            <span *ngIf="global.enrollmenthist.length!=0">{{
+              global.syDisplay(global.enrollmenthist[global.enrollmenthist.length-1].schoolYear) }}</span>:
+            <b><span><span *ngIf="global.lastSY=='Paid'">Officially Enrolled</span><span
+                  *ngIf="global.lastSY=='Admitted'">Admitted</span>&nbsp;&nbsp;</span></b>
+          </div>
+          <div
+            *ngIf="global.constSY != global.schoolyear && (global.firstyear && global.studinfo.yearOrGradeLevel == 1)">
+            <span *ngIf="global.enrollmenthist.length!=0">{{ global.nextSYDisplay }}</span>: {{global.nextSYlevel}}
+            <b><span><span *ngIf="global.nextSY=='Paid'">{{global.checkEnrollmentStatus(global.userdemog)}}</span><span
+                  *ngIf="global.nextSY=='Admitted'">Admitted</span>&nbsp;&nbsp;</span></b>
+          </div>
+        </ng-container>
+
+        <ng-template #elem>
+          <ng-container *ngIf="(global.studinfo.departmentCode == 'ELEM');">
+            <div
+              *ngIf="global.constSY != global.schoolyear && !(global.firstyear && global.studinfo.yearOrGradeLevel == 1)">
+              <!-- <span *ngIf="global.enrollmenthist.length!=0">{{ global.nextSYDisplay }}</span>: {{global.nextSYlevel}} <b><span> -->
+              <span *ngIf="global.enrollmenthist.length!=0">{{ global.nextSYDisplay }}</span>&nbsp; : &nbsp;<b><span>
+                  <span
+                    *ngIf="global.nextSY=='Paid' && !(global.nextSYStudInfo.yearOrGradeLevel == 6 || (global.nextSYStudInfo.yearOrGradeLevel > 1 && global.nextSYStudInfo.yearOrGradeLevel <= 4) )">{{global.checkEnrollmentStatus(global.userdemog)}}</span>
+                  <span
+                    *ngIf="global.nextSY=='Paid' && (global.nextSYStudInfo.yearOrGradeLevel == 6 || (global.nextSYStudInfo.yearOrGradeLevel > 1 && global.nextSYStudInfo.yearOrGradeLevel <= 4) )">Officially
+                    Enrolled</span>
+                  <span *ngIf="global.nextSY=='Admitted'">Admitted</span>&nbsp;&nbsp;</span></b>
+            </div>
+          </ng-container>
+        </ng-template>
+      </ng-template>
+
+    </div>
+    <div style="height: 3px;background-color: #ffab1f;"></div>
+
+    <div style="max-height: calc(100vh - 445px);overflow-y: auto;">
+
+      <style type="text/css">
+        .vmenu {
+          padding: 5px 25px 5px 25px !important;
+          font-weight: bold;
+        }
+      </style>
+      <div style="height: 10px"></div>
+
+      <div *ngIf="global.loading">
+        <!-- Place your Student Navigation Menu here -->
+        <a mat-button [routerLink]="['../main',{outlets:{div:'personal-data'}}]" class="vmenu"><i
+            class="material-icons iconsize ">assignment_ind</i> Personal Data</a>
+        <a mat-button [routerLink]="['../main',{outlets:{div:'sample-data-page'}}]" class="vmenu"><i
+            class="material-icons iconsize ">dashboard</i>Sample Data Page</a>
+        <!-- Guidance Counseling (student-facing) -->
+        <a mat-button [routerLink]="['../main',{outlets:{div:'guidance-scheduler'}}]" class="vmenu"><i
+            class="material-icons iconsize ">event</i> Appointment
+          <span *ngIf="hasPendingAppointment || hasUnreadNotification" class="appt-badge">!</span>
+          <span *ngIf="hasPendingAppointment" class="appt-dot" [ngClass]="appointmentColorClass"></span>
+        </a>
+        <a mat-button [routerLink]="['../main',{outlets:{div:'guidance-history'}}]" class="vmenu"><i
+            class="material-icons iconsize ">history</i> Appointment History</a>
+        <!-- Place your Student Navigation Menu here -->
+      </div>
+      <mat-spinner style="margin-right: auto;margin-left: auto" *ngIf="!global.loading"></mat-spinner>
+    </div>
+
+    <div style="bottom: 0 !important;position: fixed;width: 300px;background-color: #294a70;color: white;">
+      <div style="height: 5px;background-color: #ffab1f;"></div>
+      <p style="font-size: 11px;line-height: 1.3;padding-left: 10px">
+        ©{{global.year}} USL MyPortal, All rights reserved.<br> University of Saint Louis - Tuguegarao City<br> Center
+        for Information and Communications Technology</p>
+    </div>
+  </mat-drawer>
+  <mat-drawer-content>
+    <div style="margin-left: 10px;margin-top: 8px;" class="hnav">
+
+      <button mat-button color="primary" style="min-width: 10px;width: 32px;"
+        (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+
+      <button mat-button color="primary" style="min-width: 10px;width: auto;"
+        (click)='openDialogAnnouncement()'><mat-icon>volume_up</mat-icon> Announcement &nbsp;</button>
+
+      <button *ngIf="EmployeeRole" mat-button (click)="openDialogWifiStatus('Employee')" color="primary"
+        style="min-width: 10px;width: auto;"><mat-icon>wifi</mat-icon> Louisian Wifi Account &nbsp;</button>
+      <button *ngIf="StudentRole" mat-button (click)="openDialogWifiStatus('Student')" color="primary"
+        style="min-width: 10px;width: auto;"><mat-icon>wifi</mat-icon> Email and Wifi Account Details &nbsp;</button>
+
+      <button mat-button [matMenuTriggerFor]="reports" color="primary" style="min-width: 10px;width: auto;"
+        *ngIf="global.studinfo.departmentCode!='ELEM'">
+        <mat-icon>picture_as_pdf</mat-icon> Downloadables <i class="material-icons">arrow_drop_down</i>
+      </button>
+
+      <button mat-button [matMenuTriggerFor]="online" color="primary" style="min-width: 10px;width: auto;"
+        *ngIf="global.nextSYStudInfo ? global.nextSYStudInfo.enrollmentStatus == 'Paid' : global.studinfo.enrollmentStatus=='Paid'">
+        <mat-icon>cloud_circle</mat-icon> Online Resources <i class="material-icons">arrow_drop_down</i>
+      </button>
+
+
+      <button mat-button [matMenuTriggerFor]="librarysubscriptions" color="primary"
+        style="min-width: 10px;width: auto; background-color: #ffab1f;"
+        *ngIf="global.nextSYStudInfo ? global.nextSYStudInfo.enrollmentStatus == 'Paid' : global.studinfo.enrollmentStatus=='Paid'">
+        <mat-icon>book</mat-icon> Library Online Subscriptions <i class="material-icons">arrow_drop_down</i>
+      </button>
+      <div *ngIf="!global.notifSHSTrigger" style="margin-right: 8px;">
+        <mat-accordion style="padding: 15px 5px 5px 5px !important;" *ngIf="(global.constSY == global.schoolyear)
+      && (global.lastSY=='Paid')
+      && (global.studinfo.departmentCode == 'COLLEGE' || global.studinfo.departmentCode == 'SAS'||global.studinfo.departmentCode == 'SAS')
+      && (studDemog.cForm137A!=1 || studDemog.cForm138!=1 || studDemog.cnso!=1)">
+          <mat-expansion-panel [expanded]="true" style="max-width: auto;background-color: #eeb9b9;"
+            (expandedChange)="onPanelStateChange($event)">
+            <mat-expansion-panel-header style="background-color: #294a70">
+              <mat-panel-title>
+                <span>
+                  <h3 style="color: #ffab1f"><i
+                      class="material-icons iconsize">notification_important</i>&nbsp;Notification</h3>
+                </span>
+              </mat-panel-title>
+              <mat-panel-description>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <h3 style="color: red;">Please submit the following credentials at the offcice of the University Registrar
+              on or before December 21, 2024:</h3>
+            <mat-list style="margin-top: -25px;">
+              <mat-list-item style="color: red; margin-bottom:-10px"
+                *ngIf="studDemog.cForm137A!=1 && global.studinfo.enrollmentType!=2 && !(global.studinfo.departmentCode == 'SAS'||global.studinfo.departmentCode == 'SAS')">
+                <mat-icon matListItemIcon>file_copy</mat-icon>
+                <h3 matListItemTitle>Form 137A</h3>
+              </mat-list-item>
+              <mat-list-item style="color: red; margin-bottom:-10px"
+                *ngIf="studDemog.cForm138!=1 && global.studinfo.enrollmentType!=2 && !(global.studinfo.departmentCode == 'SAS'||global.studinfo.departmentCode == 'SAS')">
+                <mat-icon matListItemIcon>file_copy</mat-icon>
+                <h3 matListItemTitle>Form 138</h3>
+              </mat-list-item>
+              <mat-list-item style="color: red; margin-bottom:-10px" *ngIf="studDemog.cnso!=1">
+                <mat-icon matListItemIcon>file_copy</mat-icon>
+                <h3 matListItemTitle>PSA Birth Certificate</h3>
+              </mat-list-item>
+
+              <mat-list-item style="color: red; margin-bottom:-10px"
+                *ngIf="studDemog.otr!=1 && global.studinfo.enrollmentType==2 && (global.studinfo.departmentCode == 'SAS'||global.studinfo.departmentCode == 'SAS')">
+                <mat-icon matListItemIcon>file_copy</mat-icon>
+                <h3 matListItemTitle>Transcript of Records</h3>
+              </mat-list-item>
+            </mat-list>
+
+            <h4 style="color: #294a70;margin-bottom:-4px;">*For verification, please visit the office of the University
+              Registrar</h4>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+
+
+      <style type="text/css">
+        .link {
+          text-decoration: none;
+        }
+      </style>
+
+      <mat-menu #reports="matMenu">
+        <div>
+          <a href="assets/pdf/Covid Prevention Booklet.pdf" target="_blank" class="link"><button mat-menu-item>Covid
+              Prevention Booklet</button></a>
+        </div>
+
+        <div *ngIf="global.studinfo.departmentCode=='HS'||global.studinfo.yearOrGradeLevel==0">
+          <b style="padding: 10px 10px 0px 10px;font-size: 11px">For incoming Grade 7
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and Transferees</b>
+          <a href="assets/pdf/HS-Enrollment-Form.pdf" target="_blank" class="link"><button mat-menu-item>- Enrollment
+              Form</button></a>
+        </div>
+
+        <div *ngIf="global.studinfo.departmentCode=='HS'||global.studinfo.yearOrGradeLevel==0">
+          <b style="padding: 10px 10px 0px 10px;font-size: 11px">For incoming Grade 11</b>
+          <a href="assets/pdf/SHS-Enrollment-Form.pdf" target="_blank" class="link"><button mat-menu-item>- Enrollment
+              Form</button></a>
+        </div>
+
+        <div
+          *ngIf="(global.studinfo.departmentCode!='ELEM'&&global.studinfo.departmentCode!='HS'&&global.studinfo.departmentCode!='SAS')||global.studinfo.yearOrGradeLevel==0">
+          <b style="padding: 10px 10px 0px 10px;font-size: 11px">For College</b>
+          <a href="assets/pdf/EOMS-FM-SAS-100 - Admission Form.pdf" target="_blank" class="link"><button mat-menu-item>-
+              Admission Form </button></a>
+          <a href="assets/pdf/adding-form.docx" target="_blank" class="link"><button mat-menu-item>- Adding Form
+            </button></a>
+          <a href="assets/pdf/Shifting-Form.docx" target="_blank" class="link"><button mat-menu-item>- Shifting Form
+            </button></a>
+          <a href="assets/pdf/Dropping-Form.docx" target="_blank" class="link"><button mat-menu-item>- Dropping Form
+            </button></a>
+          <a href="assets/pdf/Student-Information-Form.docx" target="_blank" class="link"><button mat-menu-item>-
+              Student Information Form </button></a>
+          <a href="assets/pdf/EOMS-FM-SAS-019- Class Excusal Form.doc.pdf" target="_blank" class="link"><button
+              mat-menu-item>- Excusal Form </button></a>
+          <a href="assets/pdf/EOMS-FM-SAS-054- Parents_ Waiver.pdf" target="_blank" class="link"><button mat-menu-item>-
+              Parent's Waiver </button></a>
+        </div>
+
+        <div *ngIf="global.studinfo.departmentCode=='SAS'||global.studinfo.yearOrGradeLevel==0">
+          <b style="padding: 10px 10px 0px 10px;font-size: 11px">For Graduate School</b>
+          <button mat-menu-item>- no content -</button>
+        </div>
+
+      </mat-menu>
+
+      <mat-menu #online="matMenu">
+
+
+        <button mat-menu-item [matMenuTriggerFor]="Orientation"
+          *ngIf="global.studinfo.departmentCode!='ELEM'&&global.studinfo.departmentCode!='HS'&&global.studinfo.departmentCode!='SAS'">USL
+          College Orientation</button>
+        <button mat-menu-item [matMenuTriggerFor]="Downloadables">Downloadables</button>
+        <button mat-menu-item [matMenuTriggerFor]="handbook">Student Handbook</button>
+
+        <a href="assets/pdf/COLLEGE ACAD GUIDE.pdf" class="link" target="_blank" *ngIf="global.studinfo.departmentCode!='ELEM'&&
+                global.studinfo.departmentCode!='HS'&&global.studinfo.departmentCode!='SAS'">
+          <button mat-menu-item>Academic Guide</button>
+        </a>
+        <a href="assets/pdf/SHS ACAD GUIDE.pdf" class="link" target="_blank"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel==5||global.studinfo.yearOrGradeLevel==6)">
+          <button mat-menu-item> Academic Guide</button>
+        </a>
+
+        <a href="assets/pdf/JHS ACAD GUIDE.pdf" class="link" target="_blank"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel<5)">
+          <button mat-menu-item>Academic Guide</button>
+        </a>
+
+        <a href="assets/pdf/BES-Calendar.pdf" class="link" target="_blank"
+          *ngIf="global.studinfo.departmentCode=='ELEM' || global.studinfo.departmentCode=='HS'">
+          <button mat-menu-item>Calendar</button>
+        </a>
+      </mat-menu>
+
+      <mat-menu #handbook="matMenu">
+        <a href="assets/pdf/Student Handbook-Elem.pdf" target="_blank" class="link">
+          <button mat-menu-item>Elementary</button>
+        </a>
+        <a href="assets/pdf/Student Handbook-JHS.pdf" target="_blank" class="link">
+          <button mat-menu-item>Junior High School</button>
+        </a>
+        <a href="assets/pdf/Student Handbook-SHS.pdf" target="_blank" class="link">
+          <button mat-menu-item>Senior High School</button>
+        </a>
+        <a href="assets/pdf/Student Handbook-College.pdf" target="_blank" class="link">
+          <button mat-menu-item>College</button>
+        </a>
+      </mat-menu>
+
+      <mat-menu #Orientation="matMenu">
+        <a href="assets/pdf/USL College Orientation 2020 Test.pdf" target="_blank" class="link">
+          <button mat-menu-item>Test</button>
+        </a>
+        <a href="assets/pdf/Orientation Test 2020- Answer Sheet.docx" target="_blank" class="link">
+          <button mat-menu-item>Answer Sheet</button>
+        </a>
+      </mat-menu>
+
+      <mat-menu #Downloadables="matMenu" Class="custom-menu-panel">
+        <a href="https://drive.google.com/file/d/1KgS4B_zWA8fp2CkguE1lBUK856c_D0Lt/view" target="_blank" class="link">
+          <button mat-menu-item>Administrative Staff SY 2020-2021</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/1UiXPEIR0FatgG7jdJNGLTSwiOwzM3Nv7/view" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel==5||global.studinfo.yearOrGradeLevel==6)">
+          <button mat-menu-item>SHS Scholarships and grants</button>
+        </a>
+
+        <a href="assets/pdf/Guidance Orientation.pptx" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel<5)">
+          <button mat-menu-item>Guidance Orientation</button>
+        </a>
+
+        <a href="assets/pdf/JHS Library Orientation.ppsx" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel<5)">
+          <button mat-menu-item>JHS Library Orientation</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/1Ii5wHb_8hR1TfkZ5uPe4MCcvzOLtOYHj/view" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel==5||global.studinfo.yearOrGradeLevel==6)">
+          <button mat-menu-item>SHS Library Orientation</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/18X47HpaMR1fKkfihCdaqwePvLj2Z9xuq/view" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel==5||global.studinfo.yearOrGradeLevel==6)">
+          <button mat-menu-item>SHS Guidance Orientation</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/1nfrhZXqJ8Aoy7vixwslC7vZIux_BGmo0/view" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel==5||global.studinfo.yearOrGradeLevel==6)">
+          <button mat-menu-item>SHS AFP PRESENTATION</button>
+        </a>
+
+        <a href="assets/pdf/jhs Academic Policies.ppt" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel<5)">
+          <button mat-menu-item>Academic Policies</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/1TttvkIqILtb0ag814rxopG-qpxAaWRuG/view" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel==5||global.studinfo.yearOrGradeLevel==6)">
+          <button mat-menu-item>Academic Policies</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/1nfrhZXqJ8Aoy7vixwslC7vZIux_BGmo0/view" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel==5||global.studinfo.yearOrGradeLevel==6)">
+          <button mat-menu-item>SHS2 AFP PRESENTATION</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/1u7KYuiRwsQJSlsfOVyyCfPDBaERQTHk9/view" target="_blank" class="link"
+          *ngIf="global.studinfo.departmentCode=='HS'&&(global.studinfo.yearOrGradeLevel<5)">
+          <button mat-menu-item>JHS Scholarships and Grants</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/1rQ8JMMnEzOl8Q2ll8Js062BJBnzjeQLu/view" target="_blank" class="link">
+          <button mat-menu-item>Chaplain</button>
+        </a>
+
+        <a href="https://drive.google.com/file/d/19zkIcid6cAMBA-DrrSKmZBV9p4G9VwXC/view" target="_blank" class="link">
+          <button mat-menu-item>Accounting Office students' orientation</button>
+        </a>
+        <a href="assets/pdf/No Going Out Policy.pdf" target="_blank" class="link">
+          <button mat-menu-item>"No Going Out ..." Policy</button>
+        </a>
+
+      </mat-menu>
+      <mat-menu #ched="matMenu">
+        <button mat-menu-item>Enrolment List</button>
+        <button mat-menu-item>Enrolment Summary</button>
+      </mat-menu>
+
+    </div>
+
+    <mat-card class="matcontainer" style="padding: 0;">
+      <div *ngIf="sportsNotificationEnabled && borrowRequestCount > 0" class="borrow-alert">
+        <div class="borrow-alert__body">
+          <h3 class="borrow-alert__title">You currently have {{ borrowRequestCount }}
+            approved borrow request{{ borrowRequestCount === 1 ? '' : 's' }}. </h3>
+          <p class="borrow-alert__text">You need to return these equipment to the CSDO immediately.</p>
+        </div>
+        <button type="button" mat-raised-button class="borrow-alert__button"
+          (click)="hideSportsNotificationOnly()">Dismiss</button>
+      </div>
+      <router-outlet name="div"></router-outlet>
+    </mat-card>
+  </mat-drawer-content>
+</mat-drawer-container>
+
+
+<mat-drawer-container class="example-container" style="max-height: calc(100vh - 50px);" id="main"
+  *ngIf="global.requestrole()=='Employee'">
+  <mat-drawer mode="side" opened="true" #drawer>
+    <div id="coverp" *ngIf="global.empInfo!=undefined">
+      <img [src]="image" width="125" id="photop" onError="this.src='assets/noimage.jpg'" />
+      <div id="fullname">
+        {{global.empInfo.idnumber}}<br> {{global.empInfo.fullname}}
+        <br> {{global.empInfo.position}}
+        <table style="width: 100%">
+          <tr>
+            <td style="width: 50%">
+              <small><a mat-button color='default' style="font-size: 10px;text-align: right;"
+                  (click)="openDialogChangePassword()"><i class="material-icons iconsize">lock</i> Change
+                  Password</a></small>
+            </td>
+            <td style="text-align: center;text-align: left;"><small><a mat-button color='default'
+                  style="font-size: 10px;float: left" (click)="logout()">
+                  <mat-icon>exit_to_app</mat-icon> Sign Out</a></small>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div style="max-height: calc(100vh - 420px);overflow-y: auto;">
+
+      <style type="text/css">
+        .vmenu {
+          padding: 5px 25px 5px 25px !important;
+          font-weight: bold;
+        }
+      </style>
+      <div style="height: 10px"></div>
+
+      <a mat-button [routerLink]="['../main',{outlets:{div:'personal-data-emp'}}]" class="vmenu"><i
+          class="material-icons iconsize ">person_outline</i> Personal Data</a>
+    </div>
+
+    <div style="bottom: 0 !important;position: fixed;width: 300px;background-color: #294a70;color: white;">
+      <div style="height: 5px;background-color: #ffab1f;"></div>
+      <p style="font-size: 11px;line-height: 1.3;padding-left: 10px">
+        ©{{global.year}} USL MyPortal, All rights reserved.<br> University of Saint Louis - Tuguegarao City<br> Center
+        for Digital Transformation</p>
+    </div>
+  </mat-drawer>
+  <mat-drawer-content>
+
+    <div style="margin-left: 10px;margin-top: 8px;" class="hnav">
+
+      <button mat-button color="primary" style="min-width: 10px;width: 32px;"
+        (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+
+      <button mat-button color="primary" style="min-width: 10px;width: auto;"
+        (click)='openDialogAnnouncement()'><mat-icon>volume_up</mat-icon> Announcement &nbsp;</button>
+
+      <button *ngIf="EmployeeRole" mat-button (click)="openDialogWifiStatus('Employee')" color="primary"
+        style="min-width: 10px;width: auto;"><mat-icon>wifi</mat-icon> Louisian Wifi Account &nbsp;</button>
+      <button *ngIf="StudentRole" mat-button (click)="openDialogWifiStatus('Student')" color="primary"
+        style="min-width: 10px;width: auto;"><mat-icon>wifi</mat-icon> Email and Wifi Account Details &nbsp;</button>
+
+      <button mat-button [matMenuTriggerFor]="Downloadable" color="primary" style="min-width: 10px;width: auto;">
+        <mat-icon>picture_as_pdf</mat-icon> Downloadables<i class="material-icons">arrow_drop_down</i>
+      </button>
+
+
+      <button mat-button [matMenuTriggerFor]="librarysubscriptions" color="primary" style="
+        min-width: 10px;
+        width: auto;
+        color: #294a70;
+        background-color: #ffd58e;
+        border: 1px solid #fda005;">
+        <mat-icon>book</mat-icon> Library Online Subscriptions<i class="material-icons">arrow_drop_down</i>
+      </button>
+
+      <mat-menu #Downloadable="matMenu">
+        <div>
+          <a href="assets/pdf/Covid Prevention Booklet.pdf" target="_blank" class="link"><button mat-menu-item>Covid
+              Prevention Booklet</button></a>
+          <a href="assets/pdf/FM-SAS-005- Admission Form.docx" target="_blank" class="link"><button
+              mat-menu-item>Admission Form</button></a>
+          <a href="FM-SAS-008- Student Information Form.docx" target="_blank" class="link"><button mat-menu-item>Student
+              Information Form</button></a>
+          <a href="assets/pdf/FM-OAD-042 Shifting Form.docx" target="_blank" class="link"><button mat-menu-item>Shifting
+              Form</button></a>
+        </div>
+      </mat-menu>
+
+    </div>
+
+    <mat-card class="matcontainer" style="padding: 0;overflow-y: scroll;">
+      <div *ngIf="sportsNotificationEnabled && borrowRequestCount > 0" class="borrow-alert">
+        <div class="borrow-alert__body">
+          <h3 class="borrow-alert__title">Approved borrow requests</h3>
+          <p class="borrow-alert__text">You currently have {{ borrowRequestCount }}
+            approved borrow request{{ borrowRequestCount === 1 ? '' : 's' }}.</p>
+        </div>
+        <button type="button" mat-raised-button class="borrow-alert__button"
+          (click)="hideSportsNotificationOnly()">Dismiss</button>
+      </div>
+      <router-outlet name="div"></router-outlet>
+
+    </mat-card>
+  </mat-drawer-content>
+</mat-drawer-container>
+
+<!--I placed it here to make it accessible for both students and employees.-->
+<mat-menu #librarysubscriptions Class="custom-menu-panel">
+  <a href="https://login.ebsco.com/?requestIdentifier=c7712b09-0381-4fd5-9241-9329632f8603&acrValues=uid&ui_locales&redirect_uri=https://logon.ebsco.zone/api/dispatcher/continue/prompted?state=Y2I4NDYxNTk0ODEyNGJjM2FmNjk5YTZlMDdkYWM0MTE=&authRequest=eyJraWQiOiIxNjg2MTQ5MjEzNjMxIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczpcL1wvYXV0aC5lYnNjby56b25lXC9hcGlcL2Rpc3BhdGNoZXIiLCJhdXRoUmVxdWVzdCI6eyJncmFudF90eXBlIjoiYXV0aG9yaXphdGlvbl9jb2RlIiwic2NvcGUiOiJvcGVuaWQgZW1haWwgYWZmaWxpYXRpb24iLCJhY3JfdmFsdWVzIjoidWlkIiwicmVzcG9uc2VfdHlwZSI6ImNvZGUiLCJyZWRpcmVjdF91cmkiOiJodHRwczpcL1wvc2VhcmNoLmVic2NvaG9zdC5jb21cL3dlYmF1dGhcL1Byb21wdGVkQ2FsbGJhY2suYXNweCIsInN0YXRlIjoiQXd0c2lMb0pnQU9QaUl4azFiZ09NZFR1dnNrUElwV2hJeTJPaGRLUndVSjRLcng4VjBKaEd3RlM2N01FRzlJaDNmTDdSR3NESC1sa0lhb1BHWk5QRkdESENFblUyLWlCTW5fc2ZsXzloYzhxeHJaRy04QlJCSV9QdkJwQ1dJSmN0NVl1emJEU3dJNE05NF9QblRSLUEzRGl4S1UyUklaN3lQYmZDTHlGc2dpUXdsX0NLWkpZaFpnczBVOHhGSThtdE5QYVJjZk5oRVBuRmNvSEJMd19XQWgxcDdnU1Z2anpOYzNHVlpJME4yYkVsVzJaODVjLUxpbGh6OUo1eTZSUkdXYVRObkljZW1QYnUtUVhOc3RwLWJZV1dsRERXblBXYzNLSmNzXzd5QUlXeHcxOUQ3eG54aXBDZGtLcUZXYXlhSHJxWGRGSWpMeVBRMzQ2UjFka3RJSDYzYlU2dS1vZTBOOWRRbU9fWTNtYzM0YzdfSFZIeUVmWDhEV3hCNFBvdmciLCJjbGllbnRfaWQiOiJhd2d5Y0l4NTdNcnduRFE1aDRVZTZ5Q1ZFUDByNU10OSIsInJlc3BvbnNlX21vZGUiOiJxdWVyeSIsInJlcUlkIjoiYzc3MTJiMDktMDM4MS00ZmQ1LTkyNDEtOTMyOTYzMmY4NjAzIn0sImlhdCI6MTc1NzQyMTQ1OCwianRpIjoiYTk3YjlkMjItYmZjNy00MTA4LTg2ODQtZjhlYmQ0NDA2OTJhIiwicmVxSWQiOiJjNzcxMmIwOS0wMzgxLTRmZDUtOTI0MS05MzI5NjMyZjg2MDMifQ.Fn1183vybH_59nNygAybi6yhM54hEnyqFybNLGK8EvsoEmfGQzzhHnFat9CcACWnizI9EnHrI07_FB5poTJlkz6vttjQYk-TISspoDGLN7GGIZ9wr9gUj2gCptKQQHiOYnEzK3YCz7xbO9JoduJPXYy3R8OXd0DwP7a8lpI1mVZ6mbpWSNO6SQZv8qvFeTbL9sDL1s3NHrrRGATlALWqhNH9V-15vF5wsJiDaBNuHZreemBsf2p75Un6CNi6LJNWouZPLQsuZwtL4mz49bHzgpF6S1upuJzZOFgwf1GylCVfaxl30qDmiVkwG9uUAT_Tf01NOxtcHdEXDYWe0zRD9Q"
+    target="_blank" class="link">
+    <button mat-menu-item>EBSCOHost</button>
+  </a>
+
+  <a href="https://link.gale.com/apps/menu?userGroupName=phcicm&prodId=MENU" target="_blank" class="link">
+    <button mat-menu-item>Gale Reference Complete</button>
+  </a>
+
+  <a href="https://link.gale.com/apps/menu?u=phusl" target="_blank" class="link">
+    <button mat-menu-item>Gale e-Books</button>
+  </a>
+
+  <a href="https://www.accessengineeringlibrary.com/?implicit-login=true" target="_blank" class="link">
+    <button mat-menu-item>McGraw Hill's Access Engineering </button>
+  </a>
+
+  <a href="https://www.accessscience.com/?implicit-login=true" target="_blank" class="link">
+    <button mat-menu-item>McGraw Hill's Access Science </button>
+  </a>
+
+  <a href="https://app.grammarly.com/" target="_blank" class="link">
+    <button mat-menu-item>Grammarly</button>
+  </a>
+
+  <a href="https://www.turnitin.com/login_page.asp?lang=en_us" target="_blank" class="link">
+    <button mat-menu-item>Turnitin</button>
+  </a>
+
+  <a href="https://www.pressreader.com/catalog" target="_blank" class="link">
+    <button mat-menu-item>PressReader</button>
+  </a>
+
+  <a href="https://onlinelibrary.wiley.com/" target="_blank" class="link">
+    <button mat-menu-item>Wiley Online Library</button>
+  </a>
+
+  <a href="https://sciencedirect.com/" target="_blank" class="link">
+    <button mat-menu-item>ScienceDirect</button>
+  </a>
+</mat-menu>
+
+<div *ngIf="(global.studinfo!=undefined&&global.requestrole()=='Student')||global.requestrole()=='Employee'">
+  <div style="height: 5px;background-color: #ffab1f;"></div>
+  <div style="height: 7px;background-color: #294a70;"></div>
+</div>

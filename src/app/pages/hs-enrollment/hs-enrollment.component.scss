@@ -1,0 +1,106 @@
+
+#es{
+.buttondesign {
+    font-size: 11px!important;
+    min-width: 18px!important;
+    line-height: 15px!important;
+    height: 28px!important;
+    padding: 0!important;
+    margin-left: 5px!important;
+}
+	.example-form {
+		  min-width: 150px;
+		  max-width: 580px;
+		  width: 100%;
+		}
+
+		::ng-deep .mat-card-header {
+		    background-color: #294a70 !important;
+		    padding: 15px 5px 5px 5px !important;
+		    color:white;
+		}
+		::ng-deep .mat-card-header * {
+		    color:white;
+		}
+
+		::ng-deep .mat-card {
+		    padding: 0 !important;
+		}
+
+		::ng-deep .mat-card-content {
+		    padding: 15px !important;
+		}
+  mat-form-field{
+	  margin-bottom: -20px;
+	}
+ #student {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#student td, #student th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#student tr:nth-child(even){background-color: #f2f2f2;}
+
+#student tr:hover {background-color: #ddd;}
+
+#student th {
+  padding-top: 8px;
+  padding-bottom: 8;
+  text-align: left;
+  background-color: #294a70;
+  color: white;
+}
+.example-form {
+  min-width: 150px;
+  max-width: 700px;
+  width: 100%;
+}
+.example-form2 {
+  min-width: 150px;
+  max-width: 700px;
+  width: 100%;
+}
+
+
+.example-full-width {
+  width: 100%;
+}
+.example-full-width2 {
+  width: 175px;
+}
+.example-full-width3 {
+  width: 60px;
+}
+
+::ng-deep .mat-card-header {
+    background-color: #294a70 !important;
+    padding: 15px 5px 5px 5px !important;
+    color:white;
+}
+::ng-deep .mat-card-header * {
+    color:white;
+}
+
+::ng-deep .mat-card {
+    padding: 0 !important;
+}
+
+::ng-deep .mat-card-content {
+    padding: 15px !important;
+}
+
+.mat-form-field-infix{
+  width: auto !important;
+}
+
+.example-full-widthminus{
+  width: calc(100% - 50px)
+}
+
+
+}

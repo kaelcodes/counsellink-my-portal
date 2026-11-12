@@ -1,0 +1,60 @@
+<mat-card class="example-card" id="es"  style="padding: 0">
+   <mat-card-header >
+    <mat-card-title>My Portal</mat-card-title>
+    <span class="example-spacer"></span>
+  <button mat-raised-button (click)="noclick()" color="warning" style="margin-right: 10px;margin-top: -4px;height: 35px">
+    <i class="material-icons" style="color: black">exit_to_app</i>
+<span style="color: black !important;">&nbsp;&nbsp;Exit App</span></button>
+  </mat-card-header>
+  <mat-card-content class='colo'>
+    <mat-divider></mat-divider>
+    <style type="text/css">
+    	.hovericon:hover{
+    		background-color: #cecece
+    	}
+    	.hovericon{
+    		padding: 5px;
+            float:left;
+            width: calc(25% - 10px);
+            margin-bottom:10px;
+            margin-top:10px;
+    	}
+        @media only screen and (max-width: 700px) {
+             .hovericon{
+                padding: 5px;
+                float:left;
+                width: calc(50% - 10px);
+                margin-bottom:10px;
+                margin-top:10px;
+            }
+        }
+    </style>
+    <div>
+     <div class="hovericon">
+        <img src="assets/student.png" style="width: 100%" *ngIf="checkportal('Student')" (click)="proceed('Student')">
+                <img src="assets/studentdis.png" style="width: 100%" *ngIf="!checkportal('Student')" (click)="openSnackBar('Student','Close')">
+    </div>
+
+    <div class="hovericon">
+        <img src="assets/employee.png" style="width: 100%" *ngIf="checkportal('Employee')" (click)="proceed('Employee')">
+                <img src="assets/employeedis.png" style="width: 100%" *ngIf="!checkportal('Employee')" (click)="openSnackBar('Employee','Close')">
+    </div>
+
+    <div class="hovericon">
+        <img src="assets/alumni.png" style="width: 100%" *ngIf="checkportal('Alumni')" (click)="proceed('Alumni')">
+                <img src="assets/alumnidis.png" style="width: 100%" *ngIf="!checkportal('Alumni')" (click)="openSnackBar('Alumni','Close')">
+    </div>
+
+    <div class="hovericon">
+        <img src="assets/parent.png" style="width: 100%" *ngIf="checkportal('Parent')" (click)="proceed('Parent')">
+                <img src="assets/parentdis.png" style="width: 100%" *ngIf="!checkportal('Parent')" (click)="openSnackBar('Parent','Close')">
+    </div>
+    </div>
+    <div style="height: 10px"></div><!--
+    <p>
+    	&nbsp;&nbsp;<b>NOTE:</b> Conta
+    </p> -->
+
+
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,813 @@
+
+<mat-card class="example-card" id="es"  style="padding: 0;overflow-y: auto;" *ngIf='global.userinfo!=undefined&&studinfo!=undefined'>
+   <mat-card-header >
+    <mat-card-title>Enrollment for {{global.syDisplay(global.enrollmentsy.substring(0,6))}}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class='colo'>
+
+    <mat-divider></mat-divider>
+    <div style="padding: 10px">
+	  <mat-expansion-panel  [expanded]="true" style="max-width: 650px;" >
+	    <mat-expansion-panel-header style="background-color: #dedede">
+	      <mat-panel-title>
+            <table>
+              <tr>
+                <td>
+                  <mat-icon class="green" *ngIf="!checkbasicinfo()">check</mat-icon>
+                </td>
+                <td>
+                  <b style="color: #294a70">Basic Information</b>
+                </td>
+              </tr>
+            </table>
+	      </mat-panel-title>
+	      <mat-panel-description>
+	      </mat-panel-description>
+
+	    </mat-expansion-panel-header>
+        <style type="text/css">
+    		#users  td{
+    			border: 0px solid #ddd;
+    		}
+        .green{
+          color: green
+        }
+        .red{
+          color: red
+        }
+  	    </style>
+  		  <table class="apptable" id="users" border="0">
+
+  		  	<tr>
+  		  		<td width="100px">
+  		  			<b>ID Number:</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userinfo.idNumber}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Name:</b>
+  		  		</td>
+  		  		<td  style="text-transform: capitalize">
+  		  			{{global.userinfo.firstName}} {{global.userinfo.middleName}} {{global.userinfo.lastName}} {{global.userinfo.suffixName}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr *ngIf="studinfo.enrollmentStatus=='For Admission'">
+  		  		<td>
+  		  			<b>Year:</b>
+  		  		</td>
+  		  		<td>
+              <span *ngIf="(studinfo.yearOrGradeLevel-1) ==1">Grade 7</span>
+              <span *ngIf="(studinfo.yearOrGradeLevel-1)==2">Grade 8</span>
+              <span *ngIf="(studinfo.yearOrGradeLevel-1)==3">Grade 9</span>
+              <span *ngIf="(studinfo.yearOrGradeLevel-1)==4">Grade 10</span>
+              <span *ngIf="(studinfo.yearOrGradeLevel-1)==5">Grade 11</span>
+              <span *ngIf="(studinfo.yearOrGradeLevel-1)==6">Grade 12</span>
+  		  		</td>
+  		  	</tr>
+  		  	<tr *ngIf="studinfo.enrollmentStatus=='For Admission'">
+  		  		<td>
+              <b *ngIf="studinfo.yearOrGradeLevel<5">Curriculum:</b>
+              <b *ngIf="!(studinfo.yearOrGradeLevel<5)">Strand:</b>
+  		  		</td>
+            <td *ngIf="studinfo.yearOrGradeLevel<5">
+              {{studinfo.curriculum}}
+            </td>
+            <td *ngIf="!(studinfo.yearOrGradeLevel<5)">
+              {{studinfo.major}}
+            </td>
+  		  	</tr>
+
+  		  </table>
+        <div *ngIf="studinfo.enrollmentStatus=='For Admission'">
+          <table border="0" width="100%">
+            <tr>
+              <td>
+                <mat-form-field class="example-full-width"  appearance="outline">
+                  <mat-label class='green' *ngIf="global.userinfo.religion!=''&&global.userinfo.religion!=null">
+                    <mat-icon>check</mat-icon> Religion
+                  </mat-label>
+                  <mat-label class='red' *ngIf="global.userinfo.religion==''||global.userinfo.religion==null">
+                    <mat-icon>close</mat-icon> Religion
+                  </mat-label>
+                  <input matInput [(ngModel)]="global.userinfo.religion" placeholder="">
+                </mat-form-field>
+              </td>
+            </tr>
+            <tr *ngIf="global.hsfirstyear||global.oldjhs_shs">
+              <td>
+                <mat-form-field class="example-full-width"  appearance="outline">
+                  <mat-label class='green' *ngIf="global.studinfo.placeOfBirth!=''&&global.studinfo.placeOfBirth!=null">
+                    <mat-icon>check</mat-icon> Place of Birth
+                  </mat-label>
+                  <mat-label class='red' *ngIf="global.studinfo.placeOfBirth==''||global.studinfo.placeOfBirth==null">
+                    <mat-icon>close</mat-icon> Place of Birth
+                  </mat-label>
+                  <input matInput [(ngModel)]="global.studinfo.placeOfBirth" placeholder="">
+                </mat-form-field>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+         <!-- <button mat-raised-button color="primary" style="float: right;" (click)="updatebasicinfo()" *ngIf="studinfo.enrollmentStatus=='Admitted'"> -->
+          <button mat-raised-button color="primary" style="float: right;" (click)="updatebasicinfo()" *ngIf="studinfo.enrollmentStatus=='For Admission'">
+            <i class="material-icons">done_outline</i> Save Basic Info
+         </button>
+	  </mat-expansion-panel>
+
+
+    <mat-expansion-panel   [expanded]="true" style="max-width: 650px;" *ngIf="studinfo.enrollmentStatus=='For Admission'">
+      <mat-expansion-panel-header style="background-color: #dedede">
+        <mat-panel-title>
+          <table>
+              <tr>
+                <td>
+                  <mat-icon class="green" *ngIf="!checkcontactinfo()">check</mat-icon>
+                </td>
+                <td>
+                  <b style="color: #294a70">Contact Information</b>
+                </td>
+              </tr>
+            </table>
+
+        </mat-panel-title>
+        <mat-panel-description>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+       <div style="height: 10px"></div>
+       <table class="example-full-width" cellspacing="0"  style="max-width: 900px"><tr>
+        <td style="padding-right: 10px">
+          <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label>Telephone Number</mat-label>
+            <input matInput [(ngModel)]="tno" placeholder="">
+          </mat-form-field>
+      </td>
+        <td style="padding-right: 10px">
+          <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label class='green' *ngIf="cno!=''&&cno!=null">
+              <mat-icon>check</mat-icon> Mobile Number
+            </mat-label>
+            <mat-label class='red' *ngIf="cno==''||cno==null">
+              <mat-icon>close</mat-icon> Mobile Number
+            </mat-label>
+            <input matInput [(ngModel)]="cno" placeholder="">
+          </mat-form-field>
+      </td>
+        <td style="padding-right: 10px">
+          <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label class='green' *ngIf="email!=''&&email!=null">
+              <mat-icon>check</mat-icon> E-mail Address
+            </mat-label>
+            <mat-label class='red' *ngIf="email==''||email==null">
+              <mat-icon>close</mat-icon> E-mail Address
+            </mat-label>
+            <input matInput [(ngModel)]="email" placeholder="">
+          </mat-form-field>
+      </td>
+        </tr></table>
+
+      <table class="example-full-width" cellspacing="0"  style="max-width: 900px">
+      <tr>
+        <td width="30%">
+        <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label>Street</mat-label>
+          <input matInput placeholder="" [(ngModel)]="permNoStreet" name="lrno">
+        </mat-form-field></td>
+        <td style="padding-left: 10px;padding-top: 9px">
+        <mat-form-field class="example-full-widthminus"  appearance="outline" (click)="openDialog(1)">
+            <mat-label class='green' *ngIf="homeaddress!=''&&homeaddress!=null">
+              <mat-icon>check</mat-icon> Home Address
+            </mat-label>
+            <mat-label class='red' *ngIf="homeaddress==''||homeaddress==null">
+              <mat-icon>close</mat-icon> Home Address
+            </mat-label>
+          <input autofocus matInput  placeholder="" [(ngModel)]="homeaddress" readonly="readonly">
+
+        </mat-form-field>
+        <button mat-mini-fab color="primary"  (click)="openDialog(1)">
+          <mat-icon>search</mat-icon>
+        </button>
+        </td>
+      </tr>
+      </table>
+
+      <table class="example-full-width" cellspacing="0"  style="max-width: 650px">
+      <tr>
+        <td width="30%">
+        <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label>Street</mat-label>
+          <input matInput placeholder="Street" [(ngModel)]="currNoStreet" name="lrno">
+        </mat-form-field></td>
+        <td style="padding-left: 10px;padding-top: 9px">
+        <mat-form-field class="example-full-widthminus"  appearance="outline"  (click)="openDialog(2)">
+            <mat-label>Current/Boarding Address</mat-label>
+          <input autofocus matInput  placeholder="" [(ngModel)]="boardingaddress" readonly="readonly">
+
+        </mat-form-field>
+        <button mat-mini-fab color="primary" (click)="openDialog(2)">
+          <mat-icon>search</mat-icon>
+        </button>
+        </td>
+      </tr>
+      </table>
+      <div style="height: 10px"></div>
+         <button mat-raised-button color="primary" form="ngForm" style="float: right;" (click)="savecontact()"  *ngIf="studinfo.enrollmentStatus=='For Admission'">
+          <i class="material-icons">done_outline</i> Save Contact Info
+         </button>
+    </mat-expansion-panel>
+
+
+
+      <mat-expansion-panel style="max-width: 650px;"  [expanded]="true" *ngIf="studinfo.enrollmentStatus=='For Admission'">
+        <mat-expansion-panel-header style="background-color: #dedede">
+          <mat-panel-title>
+             <table>
+              <tr>
+                <td>
+                  <mat-icon class="green">check</mat-icon>
+                </td>
+                <td>
+                  <b style="color: #294a70">Family Background</b>
+                </td>
+              </tr>
+            </table>
+
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div style="height: 10px"></div>
+        <table id="student">
+          <tr>
+            <th>
+              FAMILY MEMBER NAME
+            </th>
+            <th>
+              RELATIONSHIP
+            </th>
+            <th style="width: 190px;text-align: center;" >
+              - ACTION -
+            </th>
+          </tr>
+          <tr *ngFor="let f of familyarray">
+            <td>{{f.fullName}}</td>
+            <td>{{f.relDesc}}</td>
+            <td style="text-align: center;">
+              <button mat-raised-button color="primary" (click)="openedit(f.memberIdNumber,f.relDesc)" style="width: 70px;color:white;" class="buttondesign"><i class="material-icons" >edit
+                        </i>
+                        <span style="margin-top: 7px"> Update&nbsp;&nbsp;</span></button>
+
+
+               <button mat-raised-button (click)="deletefamily(f.memberIdNumber)" style="width: 75px;background-color:#990000;color:white;" class="buttondesign"><i class="material-icons">delete
+                        </i>
+                        <span style="margin-top: 7px"> Remove&nbsp;&nbsp;</span></button>
+            </td>
+          </tr>
+        </table>
+        <br>
+
+          <button mat-raised-button color="primary" (click)="openDialog2(1)" style="float: left;margin-right: 5px" [disabled]="checkparent()">
+            <i class="material-icons">add</i> Add Parent
+          </button>&nbsp; &nbsp;
+          <button mat-raised-button color="primary" (click)="openDialogguardian(1)" style="float: left;margin-right: 5px" >
+            <i class="material-icons">add</i> Add Guardian
+          </button>&nbsp; &nbsp;
+          <button mat-raised-button color="primary" (click)="openDialogfamilymember(1)" style="float: left" >
+            <i class="material-icons">add</i> Add Sibling Studying in USL
+          </button><br>&nbsp;
+      </mat-expansion-panel>
+
+
+
+
+
+
+    <mat-expansion-panel   [expanded]="true" style="max-width: 650px;"  *ngIf="(global.hsfirstyear||global.oldjhs_shs)&&studentYearLevel==1 && studinfo.enrollmentStatus=='For Admission'">
+        <mat-expansion-panel-header style="background-color: #dedede">
+          <mat-panel-title>
+            <table>
+              <tr>
+                <td>
+                  <mat-icon class="green" *ngIf="!checkedubackground()">check</mat-icon>
+                </td>
+                <td>
+                  <b style="color: #294a70">Educational Background</b>
+                </td>
+              </tr>
+            </table>
+
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div style="height: 10px"></div>
+         <table class="example-full-width" cellspacing="0">
+
+        <tr>
+          <td style="padding-right: 20px;" colspan="2">
+
+            <form class="example-form">
+              <mat-form-field class="example-full-width" appearance="outline"  >
+              <mat-label class='green' *ngIf="sgfId!=''">
+                <mat-icon>check</mat-icon> Elementary School Graduated From
+              </mat-label>
+              <mat-label class='red' *ngIf="sgfId==''">
+                <mat-icon>close</mat-icon> Elementary School Graduated From
+              </mat-label>
+                <input type="text" placeholder="" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto" [value]="slaplaceholder">
+                <mat-autocomplete #auto="matAutocomplete">
+                  <mat-option *ngFor="let option of filteredOptions | async" [value]="option"  (click)="getindex(option)">
+                    {{option}}
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+            </form>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <section class="example-section" style="margin-top: -12px;display: flex; align-items: center;">
+              <mat-checkbox class="example-margin" [(ngModel)]="isPrivate">Private School</mat-checkbox>
+              &nbsp;&nbsp;&nbsp;<p style="color: #ff3a3a;font-size: smaller;">Tick the box if the school is private. Untick it if public</p>
+            </section>
+          </td>
+        </tr>
+        <tr *ngIf="sgfAddress != ''">
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width" appearance="outline">
+              <mat-label>Address</mat-label>
+              <input matInput [(ngModel)]="sgfAddress" placeholder="" readonly="readonly">
+            </mat-form-field>
+        </td>
+        </tr>
+
+        <tr>
+          <td style="padding-right: 20px">
+            <mat-form-field class="example-full-width" appearance="outline" appearance="outline">
+            <mat-label class='green' *ngIf="sgfsy!=''">
+              <mat-icon>check</mat-icon> School Year
+            </mat-label>
+            <mat-label class='red' *ngIf="sgfsy == ''">
+              <mat-icon>close</mat-icon> School Year
+            </mat-label>
+              <input matInput [(ngModel)]="sgfsy" placeholder="e.g. 2010" autocomplete="off">
+            </mat-form-field>
+        </td>
+          <td style="padding-right: 20px">
+            <mat-form-field class="example-full-width" appearance="outline" appearance="outline">
+            <mat-label class='green' *ngIf="average!=''">
+              <mat-icon>check</mat-icon> Average
+            </mat-label>
+            <mat-label class='red' *ngIf="average==''">
+              <mat-icon>close</mat-icon> Average
+            </mat-label>
+              <input matInput [(ngModel)]="average" placeholder="" autocomplete="off" type="number">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr *ngIf="global.enrollmentype==2">
+          <td colspan="2">
+            <div style="height: 10px"></div>
+            <b>For Transferee Only:</b>
+            <div style="height: 10px"></div>
+          </td>
+        </tr>
+        <tr *ngIf="global.enrollmentype==2">
+          <td style="padding-right: 20px;" colspan="2">
+
+              <form class="example-form2">
+              <mat-form-field class="example-full-width" appearance="outline">
+              <mat-label>School Last Attended</mat-label>
+                <input type="text" aria-label="Number" matInput [formControl]="myControl2" [matAutocomplete]="auto2">
+                <mat-autocomplete #auto2="matAutocomplete">
+                  <mat-option *ngFor="let option of filteredOptions2 | async" [value]="option"  (click)="getindex2(option)">
+                    {{option}}
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+            </form>
+          </td>
+        </tr>
+        <tr *ngIf="global.enrollmentype==2">
+          <td colspan="2">
+            <section class="example-section" style="margin-top: -12px;display: flex; align-items: center;">
+              <mat-checkbox class="example-margin" [(ngModel)]="isPrivate">Private School</mat-checkbox>
+              &nbsp;&nbsp;&nbsp;<p style="color: #ff3a3a;font-size: smaller;">Tick the box if the school is private. Untick it if public</p>
+            </section>
+          </td>
+        </tr>
+        <!-- <tr>
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline" appearance="outline">
+              <mat-label>Address</mat-label>
+              <input matInput [(ngModel)]="lsaAddress" placeholder="" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr> -->
+        <tr *ngIf="global.enrollmentype==2">
+          <td style="padding-right: 20px;" colspan="1">
+            <mat-form-field class="example-full-width"  appearance="outline" appearance="outline">
+              <mat-label>School Year</mat-label>
+              <input matInput [(ngModel)]="slaSy" placeholder="" autocomplete="off">
+            </mat-form-field>
+        </td>
+        <td></td>
+        </tr>
+      </table>
+      <div style="height: 15px"></div>
+         <button mat-raised-button color="primary" form="ngForm" style="float: right;" (click)="saveedycbackground()"  *ngIf="studinfo.enrollmentStatus=='For Admission'">
+          <i class="material-icons">done_outline</i> Save Educational Background
+         </button>
+      </mat-expansion-panel>
+
+    <mat-expansion-panel  style="max-width: 650px;"  [expanded]="true" *ngIf="studinfo.enrollmentStatus=='For Admission'">
+          <mat-expansion-panel-header style="background-color: #dedede">
+            <mat-panel-title>
+            <table>
+              <tr>
+                <td>
+                  <mat-icon class="green" >check</mat-icon>
+                </td>
+                <td>
+                    <b style="color: #294a70">Sacraments Received</b>
+                </td>
+              </tr>
+            </table>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+       <div style="height: 10px"></div>
+          <div style="margin-left: 20px">
+                <mat-checkbox [(ngModel)]="global.userdemog.baptism">
+                  <p>Baptism</p>
+                </mat-checkbox>
+                <div style="height: 0px"></div>
+                <mat-checkbox [(ngModel)]="global.userdemog.confession">
+                  <p>Confession</p>
+                </mat-checkbox>
+                <div style="height: 0px"></div>
+                <mat-checkbox [(ngModel)]="global.userdemog.communion">
+                  <p>Holy Communion</p>
+                </mat-checkbox>
+                <div style="height: 0px"></div>
+                <mat-checkbox [(ngModel)]="global.userdemog.religiousInstruction">
+                  <p>Confirmation</p>
+                </mat-checkbox>
+                <div style="height: 20px"></div>
+                <mat-checkbox [(ngModel)]="global.userdemog.confirmation">
+                  <p>Received religious instruction during elementary?</p>
+                </mat-checkbox>
+              </div>
+
+        <mat-divider></mat-divider>
+            <button mat-raised-button color="primary" (click)="quickSaveSacramentsReceivedPut()" style="float: right"   *ngIf="studinfo.enrollmentStatus=='For Admission'">
+              <i class="material-icons">edit</i> Save Sacrament Received
+            </button>
+        </mat-expansion-panel>
+
+
+      <mat-expansion-panel   [expanded]="true" style="max-width: 650px;" *ngIf="studinfo.enrollmentStatus=='For Admission'">
+        <mat-expansion-panel-header style="background-color: #dedede">
+          <mat-panel-title>
+            <table>
+              <tr>
+                <td>
+                  <mat-icon class="green" *ngIf="!checkpersonalinfo()">check</mat-icon>
+                </td>
+                <td>
+                  <b style="color: #294a70">Personal Information</b>
+                </td>
+              </tr>
+            </table>
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+       <div style="height: 10px"></div>
+       <table class="example-full-width" cellspacing="0">
+         <tr>
+          <td style="padding-right: 20px" *ngIf="global.studinfo.yearOrGradeLevel == 1 && (global.studinfo.yearOrGradeLevel > 3 && global.studinfo.yearOrGradeLevel < 6)">
+            <mat-form-field class="example-full-width"  appearance="outline">
+
+            <mat-label class='green' *ngIf="!(global.hsfirstyear||global.oldjhs_shs)&&(global.userdemog.generalAverage!=''&&global.userdemog.generalAverage!=null)">
+              <mat-icon>check</mat-icon> General average last school year
+            </mat-label>
+            <mat-label class='red' *ngIf="!(global.hsfirstyear||global.oldjhs_shs)&&(global.userdemog.generalAverage==''||global.userdemog.generalAverage==null)">
+              <mat-icon>close</mat-icon> General average last school year
+            </mat-label>
+            <mat-label *ngIf="(global.hsfirstyear||global.oldjhs_shs)">
+              General average last school year
+            </mat-label>
+              <input matInput [(ngModel)]="global.userdemog.generalAverage" placeholder="" type="text" autocomplete="off">
+            </mat-form-field>
+        </td>
+        <td style="padding-right: 20px" *ngIf="(global.hsfirstyear||global.oldjhs_shs)&&studentYearLevel==1">
+            <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label>
+              NEAT Score
+            </mat-label>
+              <input matInput [(ngModel)]="global.userdemog.neatScore" placeholder="" type="text" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label class='green' *ngIf="global.userdemog.ethnicity!=''&&global.userdemog.ethnicity!=null">
+              <mat-icon>check</mat-icon> Ethnicity
+            </mat-label>
+            <mat-label class='red' *ngIf="global.userdemog.ethnicity==''||global.userdemog.ethnicity==null">
+              <mat-icon>close</mat-icon> Ethnicity
+            </mat-label>
+              <input matInput [(ngModel)]="global.userdemog.ethnicity" placeholder="e.g. Igorot, Itawes, Ibanag" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label class='green' *ngIf="global.userdemog.languageSpoken!=''&&global.userdemog.languageSpoken!=null">
+              <mat-icon>check</mat-icon> Language Spoken
+            </mat-label>
+            <mat-label class='red' *ngIf="global.userdemog.languageSpoken==''||global.userdemog.languageSpoken==null">
+              <mat-icon>close</mat-icon> Language Spoken
+            </mat-label>
+              <input matInput [(ngModel)]="global.userdemog.languageSpoken" placeholder="e.g. Tagalog, Ilocano, Cebuano" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label class='green' *ngIf="global.userdemog.motherTongue!=''&&global.userdemog.motherTongue!=null">
+              <mat-icon>check</mat-icon> Mother Tongue
+            </mat-label>
+            <mat-label class='red' *ngIf="global.userdemog.motherTongue==''||global.userdemog.motherTongue==null">
+              <mat-icon>close</mat-icon> Mother Tongue
+            </mat-label>
+              <input matInput [(ngModel)]="global.userdemog.motherTongue" placeholder="e.g. Tagalog, Ilocano, Itawes" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px">
+            <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label class='green' *ngIf="global.userdemog.numberOfSibling!=0">
+              <mat-icon>check</mat-icon> Number of Children in the family
+            </mat-label>
+            <mat-label class='red' *ngIf="global.userdemog.numberOfSibling==0">
+              <mat-icon>close</mat-icon> Number of Children in the family
+            </mat-label>
+
+              <mat-select [(ngModel)]="global.userdemog.numberOfSibling">
+                <mat-option value="1">1</mat-option>
+                <mat-option value="2">2</mat-option>
+                <mat-option value="3">3</mat-option>
+                <mat-option value="4">4</mat-option>
+                <mat-option value="5">5</mat-option>
+                <mat-option value="6">6</mat-option>
+                <mat-option value="7">7</mat-option>
+                <mat-option value="8">8</mat-option>
+                <mat-option value="9">9</mat-option>
+                <mat-option value="10">10</mat-option>
+                <mat-option value="11">11</mat-option>
+                <mat-option value="12">12</mat-option>
+              </mat-select>
+            </mat-form-field>
+        </td>
+          <td style="padding-right: 20px">
+            <mat-form-field class="example-full-width"  appearance="outline">
+            <mat-label class='green' *ngIf="global.userdemog.birthOrder!=0">
+              <mat-icon>check</mat-icon> Your Birth Order
+            </mat-label>
+            <mat-label class='red' *ngIf="global.userdemog.birthOrder==0">
+              <mat-icon>close</mat-icon> Your Birth Order
+            </mat-label>
+              <mat-select [(ngModel)]="global.userdemog.birthOrder">
+                <mat-option value="1">1st</mat-option>
+                <mat-option value="2">2nd</mat-option>
+                <mat-option value="3">3rd</mat-option>
+                <mat-option value="4">4th</mat-option>
+                <mat-option value="5">5th</mat-option>
+                <mat-option value="6">6th</mat-option>
+                <mat-option value="7">7th</mat-option>
+                <mat-option value="8">8th</mat-option>
+                <mat-option value="9">9th</mat-option>
+                <mat-option value="10">10th</mat-option>
+                <mat-option value="11">11th</mat-option>
+                <mat-option value="12">12th</mat-option>
+              </mat-select>
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline">
+              <mat-label class='green' *ngIf="global.userdemog.skillTalent!=''&&global.userdemog.skillTalent!=null">
+                <mat-icon>check</mat-icon> Special Abilities/Expertise/Talents
+              </mat-label>
+              <mat-label class='red' *ngIf="global.userdemog.skillTalent==''||global.userdemog.skillTalent==null">
+                <mat-icon>close</mat-icon> Special Abilities/Expertise/Talents
+              </mat-label>
+              <input matInput [(ngModel)]="global.userdemog.skillTalent" placeholder="e.g. Singing, Dancing, Drawing" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline">
+              <mat-label class='green' *ngIf="global.userdemog.contestToJoin!=''&&global.userdemog.contestToJoin!=null">
+                <mat-icon>check</mat-icon> Contest you want to join
+              </mat-label>
+              <mat-label class='red' *ngIf="global.userdemog.contestToJoin==''||global.userdemog.contestToJoin==null">
+                <mat-icon>close</mat-icon> Contest you want to join
+              </mat-label>
+              <input matInput [(ngModel)]="global.userdemog.contestToJoin" placeholder="e.g. Basketball, Debate, Chess" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline">
+              <mat-label>Physical Difficulties</mat-label>
+              <input matInput [(ngModel)]="global.userdemog.physicalDefect" placeholder="" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline">
+              <mat-label>Health Problems</mat-label>
+              <input matInput [(ngModel)]="global.userdemog.healthProblem" placeholder="" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr *ngIf="global.userdemog.healthProblem!=null&&global.userdemog.healthProblem!=''">
+          <td style="padding-right: 20px;" colspan="2">
+            <mat-form-field class="example-full-width"  appearance="outline">
+              <mat-label>Medical Advise</mat-label>
+              <input matInput [(ngModel)]="global.userdemog.medicalAdvise" placeholder="" autocomplete="off">
+            </mat-form-field>
+        </td>
+        </tr>
+        <tr>
+          <td style="padding-right: 20px">
+            <mat-form-field class="example-full-width"  appearance="outline">
+              <mat-label>Nearest neighbor studying in USL</mat-label>
+              <input matInput [(ngModel)]="global.userdemog.nearestNeighbor" placeholder="" autocomplete="off">
+            </mat-form-field>
+        </td>
+          <td style="padding-right: 20px">
+        </td>
+        </tr>
+        </table>
+
+
+          <br>
+          <button mat-raised-button color="primary" (click)="quickSavePersonalInfo()" style="float: right" *ngIf="studinfo.enrollmentStatus=='For Admission'">
+            <i class="material-icons">edit</i> Save Personal Info
+          </button><br>&nbsp;
+
+      </mat-expansion-panel>
+
+<div style="height: 20px"></div>
+
+    <div  style="max-width: 650px"  *ngIf="studinfo.enrollmentStatus=='For Admission'">
+      <!-- <div  style="max-width: 650px"  *ngIf="studinfo.enrollmentStatus=='For Admission'&&!global.oldjhs_shs"> -->
+
+      <div *ngIf="global.preenrollmenteligibleHS">
+        <div>
+            <div style="max-width: 650px" >
+              <div style="padding:10px">
+                <mat-form-field appearance="outline" style="width: calc(100% - 10px);margin-right: 10px" class="fullwidth">
+                  <mat-label>Select Strand
+                  </mat-label>
+                  <!-- <mat-select [(ngModel)]="strandval"  [disabled]="(!(preference.shS_PriorityStrandId1==''||preference.shS_PriorityStrandId1==null))"> -->
+                    <mat-select [(ngModel)]="strandval">
+                    <mat-option *ngFor="let a of strandfiltered" value="{{a.strandId}}">{{a.strandTitle}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+        </div>
+      </div>
+
+      <p>
+        <mat-checkbox [(ngModel)]='agree'>I, with the guidance of my parents/guardian,</mat-checkbox> declare that all the information provided is COMPLETE, ACCURATE, and TRUE. I certify that, to date, I understand that any information I have misrepresented, concealed or falsely given on my enrollment be a ground basis to invalidate and cancel my admission/enrollment in the USL, and the forfeiture of any down payment made by me in favor of USL, I also promise to comply with all the guidelines, requirements and instructions, and special conditions.
+        <br>
+        <mat-checkbox [(ngModel)]='agree1'>My registration in this school</mat-checkbox> is considered as expression of my willingness to abide with all the standing rules and
+        regulations of USL and whatsoever may be prescribed by the School Authorities from time to time.<br>
+        <mat-checkbox [(ngModel)]='agree2'>I hereby agree to pay all assessed fees and obligations</mat-checkbox> before the end of the School Year. Should I drop/withdraw my studies, I agree to pay the assessed fees according to the provisions sanctioned by Dept. Ed. and stipulated in the USL
+        Handbook which states, <i><b>"A student dropping from the school after enrollment shall be charged for his/her fees in accordance with the
+        Manual Regulations for Private Schools, Article XIII, Section 66. When a student registers in a school, it is understood he/she is enrolling for
+        the whole school year. A student who withdraws in writing within the first week of classes may be charged 10% of the total amount due or 20%
+        if within the second week of classes regardless of whether or not he/she has actually attended classes. The student may be charged all the fees
+        in full if he/she withdraws any time after the second week of classes. However, if the withdrawal is due to justifiable reason (i.e. serious illness)
+        he/she should be charged the pertinent fees only up to the last month of attendance."</b></i>
+      </p>
+      <div style="font-size: 20px">
+        <table style="width: 100%">
+          <tr>
+            <td>
+              <div *ngIf="global.hsfirstyear">
+                <b style="color: #294a70;margin-top: 5px" *ngIf="studinfo.yearOrGradeLevel>4">&nbsp;&nbsp;{{studinfo.major}}</b>
+                <b style="color: #294a70;margin-top: 5px"  *ngIf="studinfo.yearOrGradeLevel<5">&nbsp;&nbsp;{{studinfo.curriculum}}</b>
+
+                <b style="color: #294a70;margin-top: 5px">
+                    <span *ngIf="studinfo.departmentCode=='HS'&&studinfo.yearOrGradeLevel==1"> - Grade 7</span>
+                    <span *ngIf="studinfo.departmentCode=='HS'&&studinfo.yearOrGradeLevel==2"> - Grade 8</span>
+                    <span *ngIf="studinfo.departmentCode=='HS'&&studinfo.yearOrGradeLevel==3"> - Grade 9</span>
+                    <span *ngIf="studinfo.departmentCode=='HS'&&studinfo.yearOrGradeLevel==4"> - Grade 10</span>
+                    <span *ngIf="studinfo.departmentCode=='HS'&&studinfo.yearOrGradeLevel==5"> - Grade 11</span>
+                    <span *ngIf="studinfo.departmentCode=='HS'&&studinfo.yearOrGradeLevel==6"> - Grade 12</span>
+                  </b>
+              </div>
+            </td>
+            <td>
+
+             <button mat-raised-button color="primary" form="ngForm" style="float: right;" [disabled]="checkenroll||!agree||!agree1||!agree2" (click)="confirmenroll()">
+              <i class="material-icons">done_outline</i> Enroll
+             </button>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <!-- <div  style="max-width: 650px"  *ngIf="global.nextSYStudInfo.enrollmentStatus=='For Admission'&&global.oldjhs_shs"> -->
+           <!-- <mat-form-field appearance="outline" style="width: calc(100% - 150px);margin-right: 10px;margin-top: -10px" class="fullwidth">
+              <mat-label>Select Strand</mat-label>
+              <mat-select [(ngModel)]="strandval">
+                <mat-option *ngFor="let a of global.strandfiltered" value="{{a.strandId}}">{{a.strandcode}}({{a.strandTitle}})</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+         <button mat-raised-button color="primary" form="ngForm" style="float: right;" [disabled]="true" (click)="confirmenroll()">
+          <i class="material-icons">done_outline</i> Enroll
+         </button> -->
+
+         <!-- <p *ngIf="studinfo.departmentCode=='HS'">Please contact the Guidance office incharge for your enrollment.</p>
+         <p *ngIf="studinfo.departmentCode=='ELEM'">No Placement Result found. Please contact the Guidance office incharge.</p>
+
+         <button mat-raised-button color="primary" form="ngForm" style="float: right;" [disabled]="true" (click)="confirmenroll()">
+          <i class="material-icons">done_outline</i> Enroll 2
+         </button>
+    </div> -->
+
+
+
+    <mat-expansion-panel [expanded]="true"  style="max-width: 650px" *ngIf="triggerNextStudInfo!='For Admission'">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <b style="color: #294a70">Enrollment</b>
+        </mat-panel-title>
+        <mat-panel-description>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+        <p>
+          <!-- <mat-checkbox [(ngModel)]='agree2'>I promise to obey all the rules and regulations of the University </mat-checkbox> of Saint Louis as stated in the Student's Handbook. I understand
+                  that absences are allowed only for serious reason of illness and family emergencies. Failure to attend 80% of the classes will
+                  automatically result in dropping the subjects.<br> -->
+          <mat-checkbox [(ngModel)]='agree4'>I hereby agree to submit all</mat-checkbox> the admission credentials on or before May 15, {{global.currentYear}}. <strong>Failure to submit will mean that I am not officially enrolled.</strong><br>
+          <mat-checkbox [(ngModel)]='agree5'>I hereby agree to pay the assessed fees and financial obligations </mat-checkbox> should I discontinue my enrolment after the second week of classes according to the provisions of MORPHE 2008 and the Student Handbook.
+        </p>
+        <hr>
+        <p >
+          <!-- <b>*NOTE:</b><br>You are <b>CONDITIONALLY ENROLLED</b> in <b>{{nextSYStudInfoCourse}} strand</b>.<br> -->
+          <b>*NOTE:</b><br>You are <b>CONDITIONALLY ENROLLED</b><br>
+          Print your Enrollment form and submit to the <span *ngIf="studentYearLevel>4">Senior</span><span *ngIf="studentYearLevel<5">Junior</span> High School Office with your required documents for you to be <strong>officially enrolled.</strong><br><br>
+
+          <i>Failure to submit enrolment requirements will result to forfeiture of enrollment</i>
+        </p>
+            <!-- <ol tyle="a">
+              <li>
+                UnionBank over-the-counter
+              </li>
+              <li>
+                UnionBank online facility
+              </li>
+              <li>
+                USL Accounting Office (submit a copy of the enrollment form)
+              </li>
+            </ol> -->
+
+
+
+    <button
+      mat-raised-button color="primary"
+      style="min-width: 10px;width: auto;float: right;"
+      (click)='Getdatab4pdf()'
+      [disabled]="!(agree4)||!(agree5)"
+      ><mat-icon>format_align_center</mat-icon> Enrollment Form {{global.syDisplay(global.enrollmentsy.substring(0,6))}}&nbsp;</button>
+    </mat-expansion-panel>
+
+    <div style="height: 70px"></div>
+    </div>
+  </mat-card-content>
+</mat-card>

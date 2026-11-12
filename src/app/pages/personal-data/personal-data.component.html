@@ -1,0 +1,250 @@
+<mat-card class="example-card" id="es"  style="padding: 0;overflow-y: auto !important" *ngIf="global.userdemog!=undefined&&global.userinfo!=undefined">
+   <mat-card-header >
+    <mat-card-title>Personal Data</mat-card-title>
+        <mat-card-subtitle>Disclaimer: If there are information here that need to be updated, please inform the Office of Student Affairs and Services (OSAS).</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class='colo'>
+
+    <mat-divider></mat-divider>
+    <div style="padding: 10px">
+  <mat-accordion>
+	  <mat-expansion-panel  [expanded]="true"  style="max-width: 950px">
+	    <mat-expansion-panel-header style="background-color: #dedede">
+	      <mat-panel-title>
+	        <b style="color: #294a70">Basic Information</b>
+	      </mat-panel-title>
+	      <mat-panel-description>
+	      </mat-panel-description>
+
+	    </mat-expansion-panel-header>
+        <style type="text/css">
+      		#users  td{
+      			border: 0px solid #ddd;
+      		}
+      	</style>
+  		  <table class="apptable" id="users" border="0">
+  		  	<tr>
+  		  		<td width="200px">
+  		  			<b>Name</b>
+  		  		</td>
+  		  		<td style="text-transform: capitalize">
+  		  			{{global.userinfo.firstName}} {{global.userinfo.middleName}} {{global.userinfo.lastName}} {{global.userinfo.suffixName}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Gender</b>
+  		  		</td>
+  		  		<td>
+  		  			{{displayg(global.userinfo.gender)}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Civil Status</b>
+  		  		</td>
+  		  		<td>
+  		  			{{displaycs(global.userinfo.civilStatus)}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Date of Birth</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userinfo.dateOfBirth | date: 'MM/dd/yyyy'}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Place of Birth</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userdemog.placeOfBirth}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Nationality</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userdemog.nationality}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Religion</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userdemog.religion}}
+  		  		</td>
+  		  	</tr>
+  		  </table>
+	  </mat-expansion-panel>
+	  <mat-expansion-panel  style="max-width: 950px">
+	    <mat-expansion-panel-header style="background-color: #dedede">
+	      <mat-panel-title>
+	        <b style="color: #294a70">Contact Information</b>
+	      </mat-panel-title>
+	      <mat-panel-description>
+	      </mat-panel-description>
+	    </mat-expansion-panel-header>
+
+	    <table class="apptable" id="users" border="0">
+  		  	<tr>
+  		  		<td width="200px">
+  		  			<b>Telephone Number</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userdemog.telNo}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Cellphone Number</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userdemog.mobileNo}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Email Address</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userdemog.emailAdd}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Home Address</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userdemog.homeAddress}}
+  		  		</td>
+  		  	</tr>
+  		  	<tr>
+  		  		<td>
+  		  			<b>Current/Boarding Address</b>
+  		  		</td>
+  		  		<td>
+  		  			{{global.userdemog.currentAddress}}
+  		  		</td>
+  		  	</tr>
+  		  </table>
+	  </mat-expansion-panel>
+
+      <!-- <mat-expansion-panel  style="max-width: 950px">
+        <mat-expansion-panel-header style="background-color: #dedede">
+          <mat-panel-title>
+            <b style="color: #294a70">Family Background</b>
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <table id="student" class="apptable" style="width: 400px">
+          <tr>
+            <th width="250px" style="text-align: left;">
+              FAMILY MEMBER NAME
+            </th>
+            <th width="150px">
+              RELATIONSHIP
+            </th>
+          </tr>
+          <tr *ngFor="let f of global.familyarray">
+            <td>{{f.fullName}}</td>
+            <td>{{f.relDesc}}</td>
+          </tr>
+        </table>
+
+      </mat-expansion-panel> -->
+      <mat-expansion-panel  [expanded]="true" style="max-width: 950px">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <b style="color: #294a70">Family Background</b>
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div style="height: 10px"></div>
+          <table id="student">
+            <tr>
+              <th>
+                FAMILY MEMBER NAME
+              </th>
+              <th>
+                RELATIONSHIP
+              </th>
+              <th>
+                LANDLINE
+              </th>
+              <th>
+                MOBILE NO.
+              </th>
+              <th style="width: 190px;text-align: center;" *ngIf="!(currentDateOnly > dueDateOnly)">
+                - ACTION -
+              </th>
+            </tr>
+            <tr *ngFor="let f of familyarray">
+              <td>{{f.fullName}}</td>
+              <td>{{f.relDesc}}</td>
+              <td>{{f.landlineNo}}</td>
+              <td>{{f.cellphoneNo}}</td>
+              <td style="text-align: center;" *ngIf="!(currentDateOnly > dueDateOnly)">
+                <button mat-raised-button color="primary" (click)="openedit(f.memberIdNumber,f.relDesc)" style="width: 80px;color:white;" class="buttondesign"><i class="material-icons" >edit
+                          </i>
+                          <span style="margin-top: 7px"> Update&nbsp;&nbsp;</span></button>
+
+
+                 <!-- <button mat-raised-button (click)="deletefamily(f.memberIdNumber)" style="width: 85px;background-color:#990000;color:white;" class="buttondesign"><i class="material-icons">delete
+                          </i>
+                          <span style="margin-top: 7px"> Remove&nbsp;&nbsp;</span></button> -->
+              </td>
+            </tr>
+          </table>
+          <br>
+
+            <button mat-raised-button color="primary" (click)="openDialogAddParent(1)" style="float: left;margin-right: 5px" [disabled]="checkparent()" *ngIf="!(currentDateOnly > dueDateOnly)">
+              <i class="material-icons">add</i> Add Parent
+            </button>&nbsp; &nbsp;
+            <button mat-raised-button color="primary" (click)="openDialogguardian(1)" style="float: left;margin-right: 5px" *ngIf="!(currentDateOnly > dueDateOnly)">
+              <i class="material-icons">add</i> Add Guardian
+            </button>&nbsp; &nbsp;
+            <!-- <button mat-raised-button color="primary" (click)="openDialogfamilymember(1)" style="float: left" >
+              <i class="material-icons">add</i> Add Sibling Studying in USL
+            </button>&nbsp; &nbsp; -->
+      </mat-expansion-panel>
+
+      <mat-expansion-panel  style="max-width: 950px">
+        <mat-expansion-panel-header style="background-color: #dedede">
+          <mat-panel-title>
+            <b style="color: #294a70">Educational Background</b>
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <table id="student" class="apptable" style="width: 625px">
+          <tr>
+            <th width="250px" style="text-align: left;">
+              CURRICULUM
+            </th>
+            <th width="300px" style="text-align: left;">
+              NAME OF SCHOOL
+            </th>
+            <th  width="75px" >
+              YEAR
+            </th>
+          </tr>
+          <tr *ngFor="let f of global.educarray">
+            <td>{{f.programName}}</td>
+            <td>{{f.schoolName}}</td>
+            <td>{{f.yearGraduated}}</td>
+          </tr>
+        </table>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,89 @@
+<!-- <div *ngIf="buildIsUpToDate">Up-to-date</div>
+
+<div *ngIf="!buildIsUpToDate">Out-of-date. Hit F5 to update</div> -->
+
+<!-- Notification for signalr -->
+<!-- Start -->
+<div style="text-align: center;" *ngIf="( signalRService.data!=undefined && signalRService.data.length!=0)">
+  <p style="padding-left: 10px; margin: 0; color: red;font-weight: bold;" *ngFor="let notif of signalRService.data; let i = index;">
+    <ng-container *ngIf="signalRService.data.length == 1">
+      {{notif.message}}
+    </ng-container>
+    <ng-container *ngIf="signalRService.data.length > 1">
+      {{notif.message}}<br>
+    </ng-container>
+  </p>
+</div>
+<!-- End -->
+
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <table  style="width: 200px;float: left;text-align: left;line-height: 0.6;">
+        <tr>
+          <td style="width: 50px">
+            <img src="assets/myportal logo.png" style="width:250px;padding: 0;margin: 0;">
+          </td>
+          <!-- <td style="height: 20px">
+            <span style="color:white;font-size: 22px;padding: 0;margin: 0;">{{global.portaltext}} Portal</span><span *ngIf='global.api=="http://apidev.usl.edu.ph/api/"||global.api=="https://apidev.usl.edu.ph/api/"'>  -- THIS IS A TEST VERSION OF MYPORTAL!!!!  --</span>
+          </td> -->
+        </tr>
+    </table>
+<style type="text/css">
+  a {
+    color: inherit; /* blue colors for links too */
+    text-decoration: inherit; /* no underline */
+  }
+      .hovericon2:hover{
+        background-color: #cecece;
+      }
+      .hovericon2{
+        width: 100%;
+      }
+    </style>
+
+    <span class="example-spacer"></span>
+    <button mat-button (click)="openDialogTermsOfUse()">Terms of Use</button>
+    <button mat-button (click)="openDialogDisclaimerComponent()">Disclaimer</button>
+    <a href="https://usl.edu.ph/contact-us/" target="_blank"><button mat-button>Contact Information</button></a>
+    <button mat-button (click)="openDialogFaqsComponent()">FAQ's</button>
+    <a href="https://usl.edu.ph/" target="_blank" ><button mat-button>USLWebsite</button></a>
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu" *ngIf="global.requestid()!=null">
+  <mat-icon>apps</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+   <table style="margin-left: 1px">
+     <tr>
+       <td style="width: 120px">
+         <div class="hovericon2">
+            <img src="assets/student.png" style="width: 120px" *ngIf="checkportal('Student')" (click)="proceed('Student')">
+                    <img src="assets/studentdis.png" style="width: 120px" *ngIf="!checkportal('Student')" (click)="openSnackBar('Student','Close')">
+          </div>
+       </td>
+       <td style="width: 120px">
+         <div class="hovericon2">
+            <img src="assets/employee.png" style="width: 120px" *ngIf="checkportal('Employee')" (click)="proceed('Employee')">
+                    <img src="assets/employeedis.png" style="width: 120px" *ngIf="!checkportal('Employee')" (click)="openSnackBar('Employee','Close')">
+        </div>
+       </td>
+     </tr>
+     <tr>
+       <td style="width: 120px">
+         <div class="hovericon2">
+              <img src="assets/alumni.png" style="width: 120px" *ngIf="checkportal('Alumni')" (click)="proceed('Alumni')">
+                      <img src="assets/alumnidis.png" style="width: 120px" *ngIf="!checkportal('Alumni')" (click)="openSnackBar('Alumni','Close')">
+          </div>
+       </td>
+       <td style="width: 120px">
+           <div class="hovericon2">
+              <img src="assets/parent.png" style="width: 120px" *ngIf="checkportal('Parent')" (click)="proceed('Parent')">
+                      <img src="assets/parentdis.png" style="width: 120px" *ngIf="!checkportal('Parent')" (click)="openSnackBar('Parent','Close')">
+          </div>
+       </td>
+     </tr>
+   </table>
+  </mat-menu>
+  </mat-toolbar-row>
+  </mat-toolbar>
+  <div style="height: 5px;background-color: #ffab1f"></div>
+
+<router-outlet></router-outlet>

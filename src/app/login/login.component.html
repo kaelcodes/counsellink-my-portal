@@ -1,0 +1,198 @@
+<mat-drawer-container [style]='vars' class="example-container" ng-init="loadimage()" id="loginset">
+
+<div class="login">
+  <!-- login box -->
+    <mat-card style="float: left;width: 300px;margin-left: 7%;margin-top: 18vh;">
+
+      <div class="passwordReset-cvr" *ngIf="passwordReset">
+        <div class="login-box-header">
+          <h3>Password Reset</h3>
+      </div>
+      <br>
+      <!-- <div style="background-color: #fff3e0; padding: 16px; font-family: Roboto, sans-serif; font-size: 14px; color: #f57c00; border-left: 4px solid #f57c00; border-radius: 4px; margin: 0;">
+        <div style="text-align: center; margin-bottom: 8px;">
+          <mat-icon>warning</mat-icon>
+        </div>
+        Password reset via email (reset key) is currently unavailable. To reset your password, please contact our chat support pop-out located at the bottom right corner.
+      </div>
+      <br> -->
+          <mat-card style="background-color: rgb(241, 163, 163);height:auto;" *ngIf="!resetTrigger&&passwordResetStatus!=''">
+            <p style="color: rgb(177, 10, 10);font-size: 9.75pt;">{{passwordResetStatus}}</p>
+          </mat-card>
+          <mat-card style="background-color: rgb(161, 238, 161);height:auto;" *ngIf="resetTrigger&&bdateTrigger">
+            <p style="color: rgb(4, 156, 4);font-size: 9.75pt;">{{passwordResetStatus}}</p>
+          </mat-card>
+
+          <mat-grid-list cols="9" rowHeight="75px">
+            <mat-grid-tile [rowspan]="1" class="login-icon">
+                <mat-icon>perm_identity</mat-icon>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="7">
+                  <mat-form-field class="justifier">
+                    <input matInput placeholder="ID Number" [formControl]="PasswordResetIDFormControl">
+                    <mat-error *ngIf="PasswordResetIDFormControl.hasError('required')">
+                      ID Number is <strong>required</strong>
+                    </mat-error>
+                  </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+          <mat-grid-list *ngIf="bdateTrigger" cols="9" rowHeight="100px" style="margin-top: -20px;margin-bottom: -10px;">
+              <mat-grid-tile [rowspan]="1"  class="login-icon">
+                  <mat-icon>calendar_today</mat-icon>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="7">
+                <mat-form-field class="justifier">
+                  <input readonly matInput [matDatepicker]="picker" placeholder="Date of birth" (click)="picker.open()"  [(ngModel)]="bdate" name="bdate" required>
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              </mat-grid-tile>
+          </mat-grid-list>
+          <div class="reset-add-on" *ngIf="resetTrigger">
+            <mat-grid-list cols="9" rowHeight="75px">
+              <mat-grid-tile [rowspan]="1" class="login-icon">
+                  <mat-icon>vpn_key</mat-icon>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="7">
+                    <mat-form-field class="justifier">
+                      <input matInput placeholder="Reset key" [formControl]="ResetKeyFormControl">
+                      <mat-error *ngIf="ResetKeyFormControl.hasError('required')">
+                        Reset key is <strong>required</strong>
+                      </mat-error>
+                    </mat-form-field>
+              </mat-grid-tile>
+            </mat-grid-list>
+          </div>
+        <table width = "100%">
+          <tr>
+            <td>
+              <button *ngIf="resetTrigger" type='submit' color="warn"   mat-raised-button style="float: left" (click)="cancel()">
+                <mat-icon>keyboard_backspace</mat-icon> Cancel
+              </button>
+            </td>
+            <td>
+              <button *ngIf="!resetTrigger" mat-button color="primary" style="font-size: 7.75pt!important;" (click) = "togglePasswordResetTrigger()">I already have a reset key</button>
+            </td>
+            <td>
+              <button *ngIf="!resetTrigger" type='submit' color="primary"   mat-raised-button style="float: right" (click)="getresetkey()">
+                <mat-icon>input</mat-icon> Get reset key
+              </button>
+              <button *ngIf="resetTrigger" type='submit' color="primary"   mat-raised-button style="float: right" (click)="reset()">
+                <mat-icon>input</mat-icon> Reset
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <button *ngIf="!resetTrigger" type='submit' color="primary"   mat-raised-button style="float: right" (click)="passwordReset = false">
+                <mat-icon>reply</mat-icon> back to login
+              </button>
+            </td>
+          </tr>
+        </table>
+
+
+
+      </div>
+
+
+      <div class="login-container" *ngIf="!passwordReset">
+          <div class="login-box-header">
+              <h3>Sign In</h3>
+          </div>
+            <div style="height: 5px;background-color: #ffab1f;
+              margin-bottom:20px;"></div>
+          <div class="login-box-body">
+              <mat-grid-list cols="9" rowHeight="75px">
+                  <mat-grid-tile [rowspan]="1" class="login-icon">
+                      <mat-icon>lock</mat-icon>
+                  </mat-grid-tile>
+                  <mat-grid-tile [colspan]="7">
+                      <mat-form-field class="justifier">
+                          <input matInput placeholder="ID Number" text="text" [(ngModel)]="username">
+                      </mat-form-field>
+                  </mat-grid-tile>
+              </mat-grid-list>
+              <mat-grid-list cols="9" rowHeight="100px" style="margin-top: -20px;margin-bottom: -10px;">
+                  <mat-grid-tile [rowspan]="1"  class="login-icon">
+                      <mat-icon>vpn_key</mat-icon>
+                  </mat-grid-tile>
+                  <mat-grid-tile [colspan]="7">
+                      <mat-form-field class="justifier">
+                          <input matInput placeholder="Password" [type]="passwordType" [(ngModel)]="password" [disabled]="isSubmitting">
+                          <button type="button" mat-icon-button matSuffix tabindex="-1"
+                                  matTooltip="Click to show / hide password."
+                                  (click)="togglePassword()" [disabled]="isSubmitting">
+                            <mat-icon>{{ passwordType == 'password' ? 'visibility_off' : 'visibility' }}</mat-icon>
+                          </button>
+                      </mat-form-field>
+                  </mat-grid-tile>
+              </mat-grid-list>
+
+
+              <!-- <p style="font-size: 13px;margin-top: 0">&nbsp;&nbsp;NOTE: Default password is <b>usl</b></p> -->
+
+              &nbsp;&nbsp;<mat-checkbox [(ngModel)]='disabled'>I Accept the</mat-checkbox> <a href="javascript:void(0)" style="color: #294a70;text-decoration: none" (click)="openDialogTermsOfUse()"> Terms of Use</a>.
+              <br>
+              <button mat-button color="primary" style="font-size: 9.75pt!important;" (click) = "togglePasswordReset()">Forgot password</button>
+              <button  type='submit' color="primary"   mat-raised-button style="float: right" (click)="userLogin()" [disabled]="!disabled">
+                  <mat-icon>input</mat-icon> Login
+              </button>
+              <br>
+              <br>
+          </div>
+      </div>
+    </mat-card>
+
+    <!-- video box -->
+    <div style="float: left; width: calc(100% - 610px);margin-top: 10vh;margin-right: 75px;margin-left: 75px; max-width: 1000px;min-width: 300px">
+      <mat-card>
+        <div class="login-container2">
+            <div class="login-box-header">
+                <h3 style="margin: 0">USL MyPortal (Login video tutorial)</h3>
+            </div>
+              <div style="height: 5px;background-color: #ffab1f;
+                margin-bottom:0px;"></div>
+            <div class="login-box-body">
+                <div style=""><iframe  style="width: 100%;height: 50vh" src="https://www.youtube.com/embed/eF-BOIyplE8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+      </div>
+      </mat-card>
+    </div>
+</div>
+
+
+
+
+
+</mat-drawer-container>
+
+<footer style="position: absolute;z-index: 9999"><!--position: absolute;z-index: 9999-->
+
+    <div style="height: 5px;background-color: #ffab1f;"></div>
+    <mat-toolbar color='primary'>
+      <p style="font-size: 11px;line-height: 1.3;"  >
+      ©{{year}} USL MyPortal, All rights reserved.<br>
+      University of Saint Louis - Tuguegarao City<br>
+      Center for Information and Communications Technology
+      </p>
+    <span class='spacer'></span>
+
+    <table  style="width: 250px;float: right;text-align: center;padding-left: 40px">
+        <tr>
+          <td style="height: 20px;width: 50px">
+            <img src="assets/cicm.png" height="50px" style="padding: 0;margin: 0;">
+          </td>
+          <td style="height: 20px;padding-left: 5px">
+            <span style="color:#fe8841;font-size: 12px;padding: 0;margin: 0;">A CICM Academic Institution</span>
+          </td>
+        </tr>
+        <tr>
+        </tr>
+    </table>
+
+  </mat-toolbar>
+</footer>
