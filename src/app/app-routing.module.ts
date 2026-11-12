@@ -9,6 +9,7 @@ import { HsEnrollmentComponent } from './pages/hs-enrollment/hs-enrollment.compo
 import { SampleDataPageComponent } from './pages/sample-data-page/sample-data-page.component';
 import { AppointmentSchedulerComponent } from './guidance/appointment-scheduler/appointment-scheduler.component';
 import { AppointmentHistoryComponent } from './guidance/appointment-history/appointment-history.component';
+import { ApiIntegrationComponent } from './guidance/api-integration/api-integration.component';
 
 
 const routes: Routes = [
@@ -28,7 +29,8 @@ const routes: Routes = [
       // Guidance Counseling — student-facing routes (registered inline, not via GuidanceRouteModule,
       // because My Portal's main is not lazy-loaded and forChild would register at root).
       { path: 'guidance-scheduler', component: AppointmentSchedulerComponent, outlet: 'div' },
-      { path: 'guidance-history', component: AppointmentHistoryComponent, outlet: 'div' }
+      { path: 'guidance-history', component: AppointmentHistoryComponent, outlet: 'div' },
+      { path: 'guidance-api-integration', component: ApiIntegrationComponent, outlet: 'div' }
     ]
   },
   {

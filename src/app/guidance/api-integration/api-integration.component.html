@@ -1,0 +1,361 @@
+<div class="api-integration-wrapper">
+
+  <!-- Header -->
+  <div class="api-header">
+    <h2>CounselLink API Integration</h2>
+    <p>Inspect and test the CounselLink API endpoints. Use Mock Mode when the backend is unavailable.</p>
+  </div>
+
+  <!-- Mode toggle bar -->
+  <div class="mode-bar">
+    <button mat-raised-button [color]="useMock ? 'primary' : ''" (click)="switchMode(true)">Mock Mode</button>
+    <button mat-raised-button [color]="!useMock ? 'accent' : ''" (click)="switchMode(false)">Live API Mode</button>
+    <span class="mode-label" [ngClass]="useMock ? 'mock-label' : 'live-label'">
+      {{useMock ? 'MOCK DATA — no network requests' : 'LIVE API — real requests to https://dave55-001-site1.etempurl.com'}}
+    </span>
+    <div *ngIf="!useMock" class="live-warning">
+      &#9888; Write operations (POST/PUT/DELETE) require confirmation before sending.
+    </div>
+  </div>
+
+  <!-- Mode switch notice -->
+  <div *ngIf="modeNotice" class="mode-notice">{{modeNotice}}</div>
+
+  <!-- Connection check (live mode only) -->
+  <div *ngIf="!useMock" class="connection-bar">
+    <button mat-stroked-button (click)="checkHealth()" [disabled]="connectionStatus === 'checking'">Check Connection</button>
+    <span *ngIf="connectionStatus === 'checking'">Checking&hellip;</span>
+    <span *ngIf="connectionStatus === 'connected'" class="conn-ok">&#10003; Connected</span>
+    <span *ngIf="connectionStatus === 'unreachable'" class="conn-fail">&#10007; Unreachable</span>
+  </div>
+
+  <!-- Tabs -->
+  <mat-tab-group [(selectedIndex)]="selectedTab">
+
+    <!-- TAB 1: Appointments -->
+    <mat-tab label="Appointments">
+      <div class="tab-content">
+
+        <!-- My Appointments -->
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header><mat-panel-title>My Appointments</mat-panel-title></mat-expansion-panel-header>
+          <div class="panel-body">
+            <mat-form-field><input matInput placeholder="ID Number" [(ngModel)]="myAppointmentIDNumber"></mat-form-field>
+            <button mat-raised-button color="primary" (click)="fetchMyAppointments()" [disabled]="appointmentLoading">Fetch</button>
+            <mat-progress-bar *ngIf="appointmentLoading" mode="indeterminate"></mat-progress-bar>
+            <div *ngIf="appointmentError" class="error-state">{{appointmentError}} <button mat-button (click)="fetchMyAppointments()">Retry</button></div>
+            <div *ngIf="!appointmentLoading && !appointmentError && appointmentResults.length === 0 && appointmentRawResponse !== null" class="empty-state">No appointments found.</div>
+            <div class="table-wrap" *ngIf="appointmentResults.length > 0">
+              <table mat-table [dataSource]="appointmentResults" class="api-table">
+                <ng-container matColumnDef="appointmentID"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let r">{{r.appointmentID}}</td></ng-container>
+                <ng-container matColumnDef="idNumber"><th mat-header-cell *matHeaderCellDef>ID Number</th><td mat-cell *matCellDef="let r">{{r.idNumber}}</td></ng-container>
+                <ng-container matColumnDef="employeeID"><th mat-header-cell *matHeaderCellDef>Employee ID</th><td mat-cell *matCellDef="let r">{{r.employeeID}}</td></ng-container>
+                <ng-container matColumnDef="appointmentDate"><th mat-header-cell *matHeaderCellDef>Date</th><td mat-cell *matCellDef="let r">{{r.appointmentDate}}</td></ng-container>
+                <ng-container matColumnDef="appointmentTime"><th mat-header-cell *matHeaderCellDef>Time</th><td mat-cell *matCellDef="let r">{{r.appointmentTime}}</td></ng-container>
+                <ng-container matColumnDef="appointmentTypeID"><th mat-header-cell *matHeaderCellDef>Type</th><td mat-cell *matCellDef="let r">{{r.appointmentTypeID}}</td></ng-container>
+                <ng-container matColumnDef="appointmentStatusID"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let r">{{r.appointmentStatusID}}</td></ng-container>
+                <ng-container matColumnDef="concernTypeID"><th mat-header-cell *matHeaderCellDef>Concern</th><td mat-cell *matCellDef="let r">{{r.concernTypeID}}</td></ng-container>
+                <tr mat-header-row *matHeaderRowDef="apptColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: apptColumns;"></tr>
+              </table>
+            </div>
+            <mat-expansion-panel *ngIf="appointmentRawResponse !== null" class="raw-panel">
+              <mat-expansion-panel-header><mat-panel-title>Raw Response</mat-panel-title></mat-expansion-panel-header>
+              <pre>{{jsonStringify(appointmentRawResponse)}}</pre>
+            </mat-expansion-panel>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Counselor Appointments -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header><mat-panel-title>Counselor Appointments</mat-panel-title></mat-expansion-panel-header>
+          <div class="panel-body">
+            <mat-form-field><input matInput placeholder="Employee ID" [(ngModel)]="counselorSearchEmployeeID"></mat-form-field>
+            <button mat-raised-button color="primary" (click)="fetchCounselorAppointments()" [disabled]="counselorLoading">Fetch</button>
+            <mat-progress-bar *ngIf="counselorLoading" mode="indeterminate"></mat-progress-bar>
+            <div *ngIf="counselorError" class="error-state">{{counselorError}} <button mat-button (click)="fetchCounselorAppointments()">Retry</button></div>
+            <div *ngIf="!counselorLoading && !counselorError && counselorAppointmentResults.length === 0 && counselorRawResponse !== null" class="empty-state">No appointments found.</div>
+            <div class="table-wrap" *ngIf="counselorAppointmentResults.length > 0">
+              <table mat-table [dataSource]="counselorAppointmentResults" class="api-table">
+                <ng-container matColumnDef="appointmentID"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let r">{{r.appointmentID}}</td></ng-container>
+                <ng-container matColumnDef="idNumber"><th mat-header-cell *matHeaderCellDef>ID Number</th><td mat-cell *matCellDef="let r">{{r.idNumber}}</td></ng-container>
+                <ng-container matColumnDef="employeeID"><th mat-header-cell *matHeaderCellDef>Employee ID</th><td mat-cell *matCellDef="let r">{{r.employeeID}}</td></ng-container>
+                <ng-container matColumnDef="appointmentDate"><th mat-header-cell *matHeaderCellDef>Date</th><td mat-cell *matCellDef="let r">{{r.appointmentDate}}</td></ng-container>
+                <ng-container matColumnDef="appointmentTime"><th mat-header-cell *matHeaderCellDef>Time</th><td mat-cell *matCellDef="let r">{{r.appointmentTime}}</td></ng-container>
+                <ng-container matColumnDef="appointmentTypeID"><th mat-header-cell *matHeaderCellDef>Type</th><td mat-cell *matCellDef="let r">{{r.appointmentTypeID}}</td></ng-container>
+                <ng-container matColumnDef="appointmentStatusID"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let r">{{r.appointmentStatusID}}</td></ng-container>
+                <ng-container matColumnDef="concernTypeID"><th mat-header-cell *matHeaderCellDef>Concern</th><td mat-cell *matCellDef="let r">{{r.concernTypeID}}</td></ng-container>
+                <tr mat-header-row *matHeaderRowDef="apptColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: apptColumns;"></tr>
+              </table>
+            </div>
+            <mat-expansion-panel *ngIf="counselorRawResponse !== null" class="raw-panel">
+              <mat-expansion-panel-header><mat-panel-title>Raw Response</mat-panel-title></mat-expansion-panel-header>
+              <pre>{{jsonStringify(counselorRawResponse)}}</pre>
+            </mat-expansion-panel>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Appointment Search -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header><mat-panel-title>Appointment Search</mat-panel-title></mat-expansion-panel-header>
+          <div class="panel-body">
+            <div class="search-grid">
+              <mat-form-field><input matInput placeholder="Appointment ID" type="number" [(ngModel)]="searchApptID"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Grade/Year" type="number" [(ngModel)]="searchGradeOrYear"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Program" [(ngModel)]="searchProgram"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Start Date (YYYY-MM-DD)" [(ngModel)]="searchStartDate"></mat-form-field>
+              <mat-form-field><input matInput placeholder="End Date (YYYY-MM-DD)" [(ngModel)]="searchEndDate"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Time (HH:mm:ss)" [(ngModel)]="searchApptTime"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Type ID" type="number" [(ngModel)]="searchApptTypeID"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Concern Type ID" type="number" [(ngModel)]="searchConcernTypeID"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Status ID" type="number" [(ngModel)]="searchStatusID"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Attendance ID" type="number" [(ngModel)]="searchAttendanceID"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Referred By" [(ngModel)]="searchReferredBy"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Referral Start (YYYY-MM-DD)" [(ngModel)]="searchReferralStart"></mat-form-field>
+              <mat-form-field><input matInput placeholder="Referral End (YYYY-MM-DD)" [(ngModel)]="searchReferralEnd"></mat-form-field>
+            </div>
+            <button mat-raised-button color="primary" (click)="searchAppointments()" [disabled]="searchLoading">Search</button>
+            <mat-progress-bar *ngIf="searchLoading" mode="indeterminate"></mat-progress-bar>
+            <div *ngIf="searchError" class="error-state">{{searchError}} <button mat-button (click)="searchAppointments()">Retry</button></div>
+            <div *ngIf="!searchLoading && !searchError && searchResults.length === 0 && searchRawResponse !== null" class="empty-state">No results found.</div>
+            <div class="table-wrap" *ngIf="searchResults.length > 0">
+              <table mat-table [dataSource]="searchResults" class="api-table">
+                <ng-container matColumnDef="appointmentID"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let r">{{r.appointmentID}}</td></ng-container>
+                <ng-container matColumnDef="idNumber"><th mat-header-cell *matHeaderCellDef>ID Number</th><td mat-cell *matCellDef="let r">{{r.idNumber}}</td></ng-container>
+                <ng-container matColumnDef="employeeID"><th mat-header-cell *matHeaderCellDef>Employee ID</th><td mat-cell *matCellDef="let r">{{r.employeeID}}</td></ng-container>
+                <ng-container matColumnDef="appointmentDate"><th mat-header-cell *matHeaderCellDef>Date</th><td mat-cell *matCellDef="let r">{{r.appointmentDate}}</td></ng-container>
+                <ng-container matColumnDef="appointmentTime"><th mat-header-cell *matHeaderCellDef>Time</th><td mat-cell *matCellDef="let r">{{r.appointmentTime}}</td></ng-container>
+                <ng-container matColumnDef="appointmentTypeID"><th mat-header-cell *matHeaderCellDef>Type</th><td mat-cell *matCellDef="let r">{{r.appointmentTypeID}}</td></ng-container>
+                <ng-container matColumnDef="appointmentStatusID"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let r">{{r.appointmentStatusID}}</td></ng-container>
+                <ng-container matColumnDef="concernTypeID"><th mat-header-cell *matHeaderCellDef>Concern</th><td mat-cell *matCellDef="let r">{{r.concernTypeID}}</td></ng-container>
+                <tr mat-header-row *matHeaderRowDef="apptColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: apptColumns;"></tr>
+              </table>
+            </div>
+            <mat-expansion-panel *ngIf="searchRawResponse !== null" class="raw-panel">
+              <mat-expansion-panel-header><mat-panel-title>Raw Response</mat-panel-title></mat-expansion-panel-header>
+              <pre>{{jsonStringify(searchRawResponse)}}</pre>
+            </mat-expansion-panel>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Reschedule History -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header><mat-panel-title>Reschedule History</mat-panel-title></mat-expansion-panel-header>
+          <div class="panel-body">
+            <mat-form-field><input matInput placeholder="Employee ID" [(ngModel)]="reschedHistEmpID"></mat-form-field>
+            <button mat-raised-button color="primary" (click)="fetchRescheduleHistory()" [disabled]="reschedHistLoading">Fetch</button>
+            <mat-progress-bar *ngIf="reschedHistLoading" mode="indeterminate"></mat-progress-bar>
+            <div *ngIf="reschedHistError" class="error-state">{{reschedHistError}} <button mat-button (click)="fetchRescheduleHistory()">Retry</button></div>
+            <div *ngIf="!reschedHistLoading && !reschedHistError && reschedHistResults.length === 0 && reschedHistRawResponse !== null" class="empty-state">No reschedule history found.</div>
+            <div class="table-wrap" *ngIf="reschedHistResults.length > 0">
+              <table mat-table [dataSource]="reschedHistResults" class="api-table">
+                <ng-container matColumnDef="appointmentID"><th mat-header-cell *matHeaderCellDef>Appt ID</th><td mat-cell *matCellDef="let r">{{r.appointmentID}}</td></ng-container>
+                <ng-container matColumnDef="idNumber"><th mat-header-cell *matHeaderCellDef>ID Number</th><td mat-cell *matCellDef="let r">{{r.idNumber}}</td></ng-container>
+                <ng-container matColumnDef="employeeID"><th mat-header-cell *matHeaderCellDef>Employee ID</th><td mat-cell *matCellDef="let r">{{r.employeeID}}</td></ng-container>
+                <ng-container matColumnDef="newStartDate"><th mat-header-cell *matHeaderCellDef>New Start</th><td mat-cell *matCellDef="let r">{{r.newStartDate}}</td></ng-container>
+                <ng-container matColumnDef="rescheduleNote"><th mat-header-cell *matHeaderCellDef>Note</th><td mat-cell *matCellDef="let r">{{r.rescheduleNote}}</td></ng-container>
+                <tr mat-header-row *matHeaderRowDef="reschedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: reschedColumns;"></tr>
+              </table>
+            </div>
+            <mat-expansion-panel *ngIf="reschedHistRawResponse !== null" class="raw-panel">
+              <mat-expansion-panel-header><mat-panel-title>Raw Response</mat-panel-title></mat-expansion-panel-header>
+              <pre>{{jsonStringify(reschedHistRawResponse)}}</pre>
+            </mat-expansion-panel>
+          </div>
+        </mat-expansion-panel>
+
+      </div>
+    </mat-tab>
+
+    <!-- TAB 2: Notifications -->
+    <mat-tab label="Notifications">
+      <div class="tab-content">
+        <h3>Fetch Notifications</h3>
+        <mat-form-field><input matInput placeholder="Notification ID" type="number" [(ngModel)]="notifSearchID"></mat-form-field>
+        <mat-form-field><input matInput placeholder="ID Number" [(ngModel)]="notifSearchIDNumber"></mat-form-field>
+        <mat-form-field>
+          <mat-select placeholder="Status" [(ngModel)]="notifSearchStatus">
+            <mat-option value="">All</mat-option>
+            <mat-option value="true">Read</mat-option>
+            <mat-option value="false">Unread</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="fetchNotifications()" [disabled]="notifLoading">Fetch Notifications</button>
+        <mat-progress-bar *ngIf="notifLoading" mode="indeterminate"></mat-progress-bar>
+        <div *ngIf="notifError" class="error-state">{{notifError}} <button mat-button (click)="fetchNotifications()">Retry</button></div>
+        <div *ngIf="!notifLoading && !notifError && notifResults.length === 0 && notifRawResponse !== null" class="empty-state">No notifications found.</div>
+        <div class="table-wrap" *ngIf="notifResults.length > 0">
+          <table mat-table [dataSource]="notifResults" class="api-table">
+            <ng-container matColumnDef="notificationID"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let r">{{r.notificationID}}</td></ng-container>
+            <ng-container matColumnDef="idNumber"><th mat-header-cell *matHeaderCellDef>ID Number</th><td mat-cell *matCellDef="let r">{{r.idNumber}}</td></ng-container>
+            <ng-container matColumnDef="content"><th mat-header-cell *matHeaderCellDef>Content</th><td mat-cell *matCellDef="let r">{{r.content}}</td></ng-container>
+            <ng-container matColumnDef="notificationStatus"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let r">{{r.notificationStatus ? 'Read' : 'Unread'}}</td></ng-container>
+            <tr mat-header-row *matHeaderRowDef="notifColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: notifColumns;"></tr>
+          </table>
+        </div>
+        <mat-expansion-panel *ngIf="notifRawResponse !== null" class="raw-panel">
+          <mat-expansion-panel-header><mat-panel-title>Raw Response</mat-panel-title></mat-expansion-panel-header>
+          <pre>{{jsonStringify(notifRawResponse)}}</pre>
+        </mat-expansion-panel>
+
+        <hr style="margin: 16px 0;">
+        <h3>Post Notification</h3>
+        <mat-form-field><input matInput placeholder="ID Number (required)" [(ngModel)]="newNotifIDNumber"></mat-form-field>
+        <mat-form-field><input matInput placeholder="Content" [(ngModel)]="newNotifContent"></mat-form-field>
+        <div style="margin: 8px 0;">
+          <mat-checkbox [(ngModel)]="newNotifStatus">Read (notificationStatus = true)</mat-checkbox>
+        </div>
+        <div *ngIf="!useMock && !notifPostConfirmPending">
+          <button mat-stroked-button color="warn" (click)="notifPostConfirmPending = true">Preview &amp; Confirm</button>
+        </div>
+        <div *ngIf="!useMock && notifPostConfirmPending" class="confirm-preview">
+          <strong>You are about to send: POST /api/notifications</strong>
+          <pre>{{ jsonStringify({notificationID:0, idNumber:newNotifIDNumber, content:newNotifContent, notificationStatus:newNotifStatus}) }}</pre>
+          <button mat-raised-button color="warn" (click)="submitNotification()" [disabled]="notifPostLoading">Confirm &amp; Send</button>
+          <button mat-button (click)="notifPostConfirmPending = false">Cancel</button>
+        </div>
+        <button *ngIf="useMock" mat-raised-button color="primary" (click)="submitNotification()" [disabled]="notifPostLoading">Simulate Notification POST</button>
+        <mat-progress-bar *ngIf="notifPostLoading" mode="indeterminate"></mat-progress-bar>
+        <div *ngIf="notifPostError" class="error-state">{{notifPostError}}</div>
+        <div *ngIf="notifPostResult" class="success-state"><pre>{{jsonStringify(notifPostResult)}}</pre></div>
+      </div>
+    </mat-tab>
+
+    <!-- TAB 3: Counselor Assignments -->
+    <mat-tab label="Counselor Assignments">
+      <div class="tab-content">
+        <button mat-raised-button color="primary" (click)="fetchAssignments()" [disabled]="assignmentLoading">Fetch Assignments</button>
+        <mat-progress-bar *ngIf="assignmentLoading" mode="indeterminate"></mat-progress-bar>
+        <div *ngIf="assignmentError" class="error-state">{{assignmentError}} <button mat-button (click)="fetchAssignments()">Retry</button></div>
+        <div *ngIf="!assignmentLoading && !assignmentError && assignmentResults.length === 0 && assignmentRawResponse !== null" class="empty-state">No assignments found.</div>
+        <div class="table-wrap" *ngIf="assignmentResults.length > 0">
+          <table mat-table [dataSource]="assignmentResults" class="api-table">
+            <ng-container matColumnDef="assignmentID"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let r">{{r.assignmentID}}</td></ng-container>
+            <ng-container matColumnDef="employeeID"><th mat-header-cell *matHeaderCellDef>Employee ID</th><td mat-cell *matCellDef="let r">{{r.employeeID}}</td></ng-container>
+            <ng-container matColumnDef="departmentID"><th mat-header-cell *matHeaderCellDef>Department</th><td mat-cell *matCellDef="let r">{{r.departmentID}}</td></ng-container>
+            <ng-container matColumnDef="programID"><th mat-header-cell *matHeaderCellDef>Program</th><td mat-cell *matCellDef="let r">{{r.programID}}</td></ng-container>
+            <ng-container matColumnDef="yearOrGradeLevel"><th mat-header-cell *matHeaderCellDef>Year/Grade</th><td mat-cell *matCellDef="let r">{{r.yearOrGradeLevel}}</td></ng-container>
+            <ng-container matColumnDef="schoolYear"><th mat-header-cell *matHeaderCellDef>School Year</th><td mat-cell *matCellDef="let r">{{r.schoolYear}}</td></ng-container>
+            <tr mat-header-row *matHeaderRowDef="assignColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: assignColumns;"></tr>
+          </table>
+        </div>
+        <mat-expansion-panel *ngIf="assignmentRawResponse !== null" class="raw-panel">
+          <mat-expansion-panel-header><mat-panel-title>Raw Response</mat-panel-title></mat-expansion-panel-header>
+          <pre>{{jsonStringify(assignmentRawResponse)}}</pre>
+        </mat-expansion-panel>
+
+        <hr style="margin: 16px 0;">
+        <h3>Post Assignment</h3>
+        <mat-form-field><input matInput placeholder="Employee ID (required)" [(ngModel)]="newAssignEmployeeID"></mat-form-field>
+        <mat-form-field><input matInput placeholder="Department ID" [(ngModel)]="newAssignDepartmentID"></mat-form-field>
+        <mat-form-field><input matInput placeholder="Program ID" [(ngModel)]="newAssignProgramID"></mat-form-field>
+        <mat-form-field><input matInput placeholder="Year/Grade Level" type="number" [(ngModel)]="newAssignYearLevel"></mat-form-field>
+        <mat-form-field><input matInput placeholder="School Year (YYYY-MM-DD)" [(ngModel)]="newAssignSchoolYear"></mat-form-field>
+        <div *ngIf="!useMock && !assignPostConfirmPending">
+          <button mat-stroked-button color="warn" (click)="assignPostConfirmPending = true">Preview &amp; Confirm</button>
+        </div>
+        <div *ngIf="!useMock && assignPostConfirmPending" class="confirm-preview">
+          <strong>You are about to send: POST /api/counselor-assignments</strong>
+          <pre>{{ jsonStringify({assignmentID:0, employeeID:newAssignEmployeeID, departmentID:newAssignDepartmentID||null, programID:newAssignProgramID||null, yearOrGradeLevel:newAssignYearLevel, schoolYear:newAssignSchoolYear||null}) }}</pre>
+          <button mat-raised-button color="warn" (click)="submitAssignment()" [disabled]="assignPostLoading">Confirm &amp; Send</button>
+          <button mat-button (click)="assignPostConfirmPending = false">Cancel</button>
+        </div>
+        <button *ngIf="useMock" mat-raised-button color="primary" (click)="submitAssignment()" [disabled]="assignPostLoading">Simulate Assignment POST</button>
+        <mat-progress-bar *ngIf="assignPostLoading" mode="indeterminate"></mat-progress-bar>
+        <div *ngIf="assignPostError" class="error-state">{{assignPostError}}</div>
+        <div *ngIf="assignPostResult" class="success-state"><pre>{{jsonStringify(assignPostResult)}}</pre></div>
+      </div>
+    </mat-tab>
+
+    <!-- TAB 4: Appointment Actions -->
+    <mat-tab label="Appointment Actions">
+      <div class="tab-content">
+        <mat-form-field>
+          <mat-select placeholder="Select Action" [(ngModel)]="selectedAction">
+            <mat-option value="confirm">Confirm Appointment</mat-option>
+            <mat-option value="student-confirm">Student Confirm</mat-option>
+            <mat-option value="complete">Complete</mat-option>
+            <mat-option value="reschedule">Reschedule</mat-option>
+            <mat-option value="accept-reschedule">Accept Reschedule</mat-option>
+            <mat-option value="no-show">No-Show</mat-option>
+            <mat-option value="create">Create Appointment</mat-option>
+            <mat-option value="update">Update Appointment</mat-option>
+            <mat-option value="delete">Delete Appointment</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="selectedAction !== 'create'">
+          <input matInput placeholder="Appointment ID" type="number" [(ngModel)]="actionApptID">
+        </mat-form-field>
+
+        <ng-container *ngIf="selectedAction === 'confirm'">
+          <mat-form-field><input matInput placeholder="Employee ID (required)" [(ngModel)]="actionEmployeeID"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Confirmed Date (YYYY-MM-DD)" [(ngModel)]="actionConfirmedDate"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Confirmed Time (HH:mm:ss)" [(ngModel)]="actionConfirmedTime"></mat-form-field>
+        </ng-container>
+
+        <ng-container *ngIf="selectedAction === 'student-confirm' || selectedAction === 'accept-reschedule'">
+          <mat-form-field><input matInput placeholder="ID Number" [(ngModel)]="actionIDNumber"></mat-form-field>
+        </ng-container>
+
+        <ng-container *ngIf="selectedAction === 'reschedule'">
+          <mat-form-field><input matInput placeholder="New Start Date (ISO 8601)" [(ngModel)]="actionNewStartDate"></mat-form-field>
+          <mat-form-field><input matInput placeholder="New End Date (ISO 8601)" [(ngModel)]="actionNewEndDate"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Reschedule Note (required)" [(ngModel)]="actionReschedNote"></mat-form-field>
+        </ng-container>
+
+        <ng-container *ngIf="selectedAction === 'create'">
+          <mat-form-field><input matInput placeholder="ID Number (required)" [(ngModel)]="actionCreateDto.idNumber"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Grade/Year Level" type="number" [(ngModel)]="actionCreateDto.gradeOrYearLevel"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Program/Course" [(ngModel)]="actionCreateDto.programOrCourse"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Employee ID" [(ngModel)]="actionCreateDto.employeeID"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Date (YYYY-MM-DD)" [(ngModel)]="actionCreateDto.appointmentDate"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Time (HH:mm:ss)" [(ngModel)]="actionCreateDto.appointmentTime"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Type ID" type="number" [(ngModel)]="actionCreateDto.appointmentTypeID"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Status ID" type="number" [(ngModel)]="actionCreateDto.appointmentStatusID"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Concern Type ID" type="number" [(ngModel)]="actionCreateDto.concernTypeID"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Concern Description" [(ngModel)]="actionCreateDto.concernDescription"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Referred By" [(ngModel)]="actionCreateDto.referredBy"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Referral Date (YYYY-MM-DD)" [(ngModel)]="actionCreateDto.referralDate"></mat-form-field>
+        </ng-container>
+
+        <ng-container *ngIf="selectedAction === 'update'">
+          <mat-form-field><input matInput placeholder="Status ID" type="number" [(ngModel)]="actionUpdateDto.appointmentStatusID"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Attendance Status ID" type="number" [(ngModel)]="actionUpdateDto.attendanceStatusID"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Reschedule Note" [(ngModel)]="actionUpdateDto.rescheduleNote"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Concern Description" [(ngModel)]="actionUpdateDto.concernDescription"></mat-form-field>
+          <mat-form-field><input matInput placeholder="Concern Type ID" type="number" [(ngModel)]="actionUpdateDto.concernTypeID"></mat-form-field>
+        </ng-container>
+
+        <div *ngIf="!useMock && !actionConfirmPending" class="action-preview-trigger">
+          <button mat-stroked-button color="warn" (click)="actionConfirmPending = true">Preview &amp; Confirm</button>
+        </div>
+        <div *ngIf="!useMock && actionConfirmPending" class="confirm-preview">
+          <strong>You are about to execute: {{getActionLabel(selectedAction)}}</strong>
+          <div>Appointment ID: {{actionApptID}}</div>
+          <button mat-raised-button color="warn" (click)="executeAction()" [disabled]="actionLoading">Confirm &amp; Send</button>
+          <button mat-button (click)="actionConfirmPending = false">Cancel</button>
+        </div>
+
+        <button *ngIf="useMock" mat-raised-button color="primary" (click)="executeAction()" [disabled]="actionLoading">Simulate Action</button>
+
+        <mat-progress-bar *ngIf="actionLoading" mode="indeterminate"></mat-progress-bar>
+        <div *ngIf="actionError" class="error-state">{{actionError}}</div>
+        <div *ngIf="actionResult" class="success-state">
+          <strong>Result:</strong>
+          <pre>{{jsonStringify(actionResult)}}</pre>
+        </div>
+        <mat-expansion-panel *ngIf="actionRawResponse !== null" class="raw-panel">
+          <mat-expansion-panel-header><mat-panel-title>Raw Response</mat-panel-title></mat-expansion-panel-header>
+          <pre>{{jsonStringify(actionRawResponse)}}</pre>
+        </mat-expansion-panel>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

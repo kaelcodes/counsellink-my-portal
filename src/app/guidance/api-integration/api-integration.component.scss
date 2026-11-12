@@ -1,0 +1,131 @@
+$navy: #294a70;
+$blue: #3f7cc0;
+
+.api-integration-wrapper {
+  padding: 0;
+}
+
+.api-header {
+  background-color: $navy;
+  color: white;
+  padding: 18px 24px 14px 24px;
+  h2 { margin: 0 0 4px 0; font-size: 1.3rem; font-weight: 600; }
+  p { margin: 0; font-size: 0.85rem; opacity: 0.85; }
+}
+
+.mode-bar {
+  background: #f5f7fa;
+  border-bottom: 2px solid $blue;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mode-label {
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.mock-label { color: $navy; }
+.live-label { color: #c0392b; }
+
+.live-warning {
+  width: 100%;
+  color: #c0392b;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.mode-notice {
+  background: #e8f4fd;
+  border-left: 4px solid $blue;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  color: $navy;
+}
+
+.connection-bar {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.conn-ok { color: #27ae60; font-weight: 600; }
+.conn-fail { color: #c0392b; font-weight: 600; }
+
+.tab-content {
+  padding: 16px;
+}
+
+.panel-body {
+  padding: 8px 0;
+}
+
+.search-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  mat-form-field { flex: 1 1 160px; }
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+.api-table {
+  width: 100%;
+  font-size: 0.82rem;
+}
+
+.raw-panel {
+  margin-top: 10px;
+  pre {
+    font-size: 0.75rem;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    max-height: 300px;
+  }
+}
+
+.error-state {
+  color: #c0392b;
+  padding: 8px 0;
+  font-size: 0.85rem;
+}
+
+.empty-state {
+  color: #888;
+  padding: 8px 0;
+  font-style: italic;
+}
+
+.success-state {
+  color: #27ae60;
+  pre { font-size: 0.8rem; }
+}
+
+.confirm-preview {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 12px;
+  margin: 8px 0;
+  pre { font-size: 0.8rem; }
+}
+
+.action-preview-trigger {
+  margin: 8px 0;
+}
+
+mat-expansion-panel {
+  margin-bottom: 8px;
+}
