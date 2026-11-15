@@ -92,6 +92,9 @@
                       (click)="requestDelete(a)">Cancel</button>
                   </ng-container>
                   <ng-container *ngIf="a.status === 'Approved'">
+                    <button mat-raised-button type="button" class="btn-primary btn-sm"
+                      *ngIf="!confirmedIds.has(a.id)" [disabled]="actionLoading"
+                      (click)="confirmAppointment(a)">Confirm</button>
                     <button mat-stroked-button type="button" class="btn-outline btn-sm" [disabled]="actionLoading"
                       (click)="openReschedule(a, formDialog)">Reschedule</button>
                   </ng-container>
