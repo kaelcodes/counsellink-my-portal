@@ -245,9 +245,6 @@
       [disabled]="saving || draftSaving" matTooltip="Save draft changes">
       {{ draftSaving ? 'Saving...' : 'Save Draft' }}
     </button>
-    <button mat-stroked-button type="button" class="btn-warn" (click)="cancelDraft()" [disabled]="saving || draftSaving" matTooltip="Delete this draft">
-      Delete Draft
-    </button>
     <button mat-raised-button type="button" class="btn-primary" (click)="submitDraft()"
       [disabled]="!selected || saving || draftSaving" matTooltip="Submit this draft as an appointment">
       Submit Draft
