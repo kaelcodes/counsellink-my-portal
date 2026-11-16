@@ -370,7 +370,11 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
         },
         e => {
           this.draftSaving = false;
-          this.draftError = (e && e.message) ? e.message : 'Could not submit the draft. Please try again.';
+          if (this.handlePendingRescheduleConflict(e)) {
+            this.draftError = '';
+          } else {
+            this.draftError = (e && e.message) ? e.message : 'Could not submit the draft. Please try again.';
+          }
         }
       );
     });
@@ -546,6 +550,38 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Turn the backend's pending-reschedule overlap response into a clear student-facing modal.
+   * The conflicting slot is marked unavailable locally so the student cannot immediately
+   * submit the same selection again.
+   */
+  private handlePendingRescheduleConflict(e: any): boolean {
+    const message = String(
+      (e && (e.message || (e.error && (e.error.message || e.error)))) || ''
+    ).toLowerCase();
+
+    if (message.indexOf('pending reschedule') < 0 || message.indexOf('overlap') < 0) {
+      return false;
+    }
+
+    const conflictingStart = this.selected && this.selected.startTime;
+    if (conflictingStart) {
+      this.slots = this.slots.map(slot => slot.startTime === conflictingStart
+        ? { ...slot, status: 'Unavailable' as 'Unavailable' }
+        : slot);
+    }
+    this.selected = null;
+
+    Swal({
+      title: 'Time slot unavailable',
+      text: 'Another appointment already has a pending reschedule request for this exact date and time. Please choose a different available time. The slot can be used again once that pending request has been resolved.',
+      type: 'warning',
+      confirmButtonText: 'Choose another time'
+    });
+
+    return true;
+  }
+
   private openDialog(tpl: TemplateRef<any>) {
     this.dialogRef = this.dialog.open(tpl, { width: '480px', maxWidth: '95vw', disableClose: true });
     this.dialogRef.afterClosed().subscribe(() => this.dialogRef = null);
@@ -625,7 +661,11 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
         },
         e => {
           this.saving = false;
-          this.formError = (e && e.message) ? e.message : 'Something went wrong. Please try again.';
+          if (this.handlePendingRescheduleConflict(e)) {
+            this.formError = '';
+          } else {
+            this.formError = (e && e.message) ? e.message : 'Something went wrong. Please try again.';
+          }
         }
       );
     } else {
@@ -649,7 +689,11 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
         },
         e => {
           this.saving = false;
-          this.formError = (e && e.message) ? e.message : 'Something went wrong. Please try again.';
+          if (this.handlePendingRescheduleConflict(e)) {
+            this.formError = '';
+          } else {
+            this.formError = (e && e.message) ? e.message : 'Something went wrong. Please try again.';
+          }
         }
       );
       if (this.editingConcernDetails) {
