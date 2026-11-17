@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import { GlobalService } from '../global.service';
 import { CounselLinkApi } from './counsellink.api';
 import {
   Appointment, AppointmentStatus, BookingRequest, Counselor, CounselingType,
-  HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, SLOT_MINUTES,
+  HistoryQuery, HistoryResult, RescheduleRequest,
   StudentProfile, TimeSlot
 } from './guidance.models';
 
@@ -89,39 +89,20 @@ export class GuidanceService {
   // ------------------------------------------------------------------ slots
 
   /**
-   * REAL: GET /api/appointments?SearchEmployeeID=...&SearchStartDate=...&SearchEndDate=...
-   *       then derive taken slots client-side (no dedicated slots endpoint in Swagger).
-   *       Slot ownership: if the slot's studentId matches the authenticated student's idNumber,
-   *       it is marked 'Own'. Otherwise, it is marked 'Unavailable' (displayed as 'Booked').
-   *       NEVER expose another student's identifying information — only the slot status.
-   *
-   * BACKEND DEPENDENCY: Server-side ownership enforcement is required; frontend filtering alone
-   * is insufficient. The backend must enforce that students can only access their own appointments.
+   * GET /api/counselor-schedules/availability?employeeId=...&startDate=...&endDate=...
+   * Returns the counselor's declared schedule slots for the selected date.
+   * Availability is determined solely by the API's isAvailable flag — no student-ID
+   * comparison, no Own status, no derivation from appointments or fixed office hours.
    */
   getSlots(counselorId: string, date: string): Observable<TimeSlot[]> {
-    const ownId = String(this.global.requestid() || '');
-    return new Observable(obs => {
-      this.api.getTakenSlotDetails(counselorId, date).subscribe(
-        taken => {
-          const slots: TimeSlot[] = this.daySlots().map(s => {
-            const match = taken.find(t => t.startTime === s.start);
-            let status: 'Available' | 'Unavailable' | 'Own' = 'Available';
-            if (match) {
-              // If the slot belongs to the authenticated student, mark as 'Own'
-              status = (ownId && match.studentId === ownId) ? 'Own' : 'Unavailable';
-            }
-            return {
-              startTime: s.start, endTime: s.end,
-              label: this.formatTime(s.start) + ' - ' + this.formatTime(s.end),
-              status: status
-            };
-          });
-          obs.next(slots);
-          obs.complete();
-        },
-        e => obs.error(e)
-      );
-    });
+    return this.api.getScheduleAvailability(counselorId, date).pipe(
+      map(apiSlots => apiSlots.map(s => ({
+        startTime: s.startTime,
+        endTime:   s.endTime,
+        label:     this.formatTime(s.startTime) + ' - ' + this.formatTime(s.endTime),
+        status:    (s.isAvailable ? 'Available' : 'Unavailable') as 'Available' | 'Unavailable'
+      })))
+    );
   }
 
   // ----------------------------------------------------------- appointments
@@ -297,20 +278,6 @@ export class GuidanceService {
   formatTime(t: string): string {
     const m = this.toMin(t), h = Math.floor(m / 60), mm = m % 60;
     return (h % 12 === 0 ? 12 : h % 12) + ':' + this.pad(mm) + ' ' + (h >= 12 ? 'PM' : 'AM');
-  }
-
-  private daySlots(): { start: string, end: string }[] {
-    const out: { start: string, end: string }[] = [];
-    OFFICE_HOURS.forEach(block => {
-      let t = this.toMin(block.start);
-      const end = this.toMin(block.end);
-      while (t < end) {
-        const e = Math.min(t + SLOT_MINUTES, end);
-        out.push({ start: this.fromMin(t), end: this.fromMin(e) });
-        t = e;
-      }
-    });
-    return out;
   }
 
   private toMin(t: string): number { const p = t.split(':'); return (+p[0]) * 60 + (+p[1]); }

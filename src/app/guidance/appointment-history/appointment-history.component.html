@@ -126,6 +126,10 @@
           <mat-icon>drafts</mat-icon> Saved Drafts
           <span class="drafts-count">{{ drafts.length }}</span>
         </h3>
+        <p class="drafts-temp-note">
+          <mat-icon class="note-icon">info</mat-icon>
+          Preferred dates and times shown here are saved in this browser tab only. They are not reserved and may need to be re-entered if you open this portal in a new tab or browser.
+        </p>
         <table class="appt-table drafts-table">
           <thead>
             <tr>
@@ -190,9 +194,15 @@
       <input matInput type="date" [(ngModel)]="form.date" [min]="minDate" [readonly]="mode === 'reschedule' && editingConcernDetails" (ngModelChange)="onDateChange()">
     </mat-form-field>
 
+    <!-- Draft notice: preferred date/time are temporary and not reserved -->
+    <div class="msg msg-info draft-temp-notice" *ngIf="isDraftMode">
+      <mat-icon>info</mat-icon>
+      <span>Your preferred date and time are saved temporarily in this browser tab only. Selecting a time does <strong>not</strong> reserve it &mdash; availability is subject to change until your counselor approves the appointment. You may need to reselect if you reopen this portal in a new tab or browser.</span>
+    </div>
+
     <!-- Draft: show saved time hint when slots haven't loaded yet -->
-    <p class="draft-time-hint" *ngIf="isDraftMode && activeDraft.startTime && !slots.length && !slotsLoading">
-      Previously selected: {{ draftTime(activeDraft) }} — refreshing availability&hellip;
+    <p class="draft-time-hint" *ngIf="isDraftMode && _pendingRestoreSlot && _pendingRestoreSlot.startTime && !slots.length && !slotsLoading">
+      Previously selected: {{ formatTime(_pendingRestoreSlot.startTime) }}<ng-container *ngIf="_pendingRestoreSlot.endTime"> &ndash; {{ formatTime(_pendingRestoreSlot.endTime) }}</ng-container> &mdash; refreshing availability&hellip;
     </p>
 
     <div class="slot-block">
@@ -200,7 +210,7 @@
       <mat-progress-bar mode="indeterminate" *ngIf="slotsLoading"></mat-progress-bar>
       <div class="slots" *ngIf="slots.length">
         <button type="button" mat-stroked-button class="slot" *ngFor="let s of slots"
-          [class.sel]="selected === s" [class.slot-own]="s.status === 'Own'"
+          [class.sel]="selected === s"
           [disabled]="s.status !== 'Available'" matTooltip="Select this time slot" (click)="pick(s)">
           {{ slotLabel(s) }}
         </button>

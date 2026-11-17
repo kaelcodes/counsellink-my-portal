@@ -9,6 +9,15 @@ export type AppointmentStatus = 'Pending' | 'Approved' | 'Completed' | 'Reschedu
 // 'Own' is added to represent a slot already taken by the authenticated student themselves.
 export type SlotStatus = 'Available' | 'Unavailable' | 'Own';
 
+/** One record returned by GET /api/counselor-schedules/availability */
+export interface CounselorScheduleSlot {
+  scheduleDate: string;   // 'YYYY-MM-DD'
+  startTime: string;      // 'HH:mm' (normalised from API value)
+  endTime: string;        // 'HH:mm'
+  isAvailable: boolean;
+  status: string;         // raw status string from the API (e.g. 'Available', 'Booked')
+}
+
 export const APPOINTMENT_STATUSES: AppointmentStatus[] = ['Pending', 'Approved', 'Completed', 'Rescheduled', 'No-show'];
 
 // Counselor office hours (from the counselor "My schedule" screen).
@@ -44,7 +53,7 @@ export interface CounselingType {
   name: string;
 }
 
-// What a student sees for a slot: Available, Booked (another student), or Own appointment.
+// What a student sees for a slot: Available or Booked (taken by another student or marked unavailable).
 // NEVER expose another student's name or identifying information — only the status.
 export interface TimeSlot {
   startTime: string;   // 'HH:mm' (24h)

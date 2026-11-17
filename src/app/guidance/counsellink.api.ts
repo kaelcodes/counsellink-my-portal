@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 import { GlobalService } from '../global.service';
 import {
   Appointment, AppointmentStatus, BookingRequest, Counselor, CounselingType,
-  HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, SLOT_MINUTES, StudentProfile
+  CounselorScheduleSlot, HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, SLOT_MINUTES, StudentProfile
 } from './guidance.models';
 
 /*
@@ -350,6 +350,27 @@ export class CounselLinkApi {
   /** Legacy helper used by the existing reschedule() path; kept for compatibility. */
   getTakenStarts(counselorId: string, date: string): Observable<string[]> {
     return this.getTakenSlotDetails(counselorId, date).pipe(map(slots => slots.map(s => s.startTime)));
+  }
+
+  /**
+   * GET /api/counselor-schedules/availability
+   * Returns the counselor's schedule slots for a given date as declared by the backend.
+   * Query params: employeeId, startDate, endDate (both set to the selected date).
+   * Each record exposes scheduleDate, startTime, endTime, isAvailable, status.
+   */
+  getScheduleAvailability(employeeId: string, date: string): Observable<CounselorScheduleSlot[]> {
+    return this.get('counselor-schedules/availability', {
+      employeeId: employeeId,
+      startDate: date,
+      endDate: date
+    }).pipe(map(body => rows(body).map(row => ({
+      scheduleDate: toYmd(field(row, 'scheduleDate')) || date,
+      startTime:    toHm(field(row, 'startTime'))    || String(field(row, 'startTime') || ''),
+      endTime:      toHm(field(row, 'endTime'))      || String(field(row, 'endTime')   || ''),
+      isAvailable:  field(row, 'isAvailable') === true || field(row, 'isAvailable') === 1
+                    || String(field(row, 'isAvailable')).toLowerCase() === 'true',
+      status:       String(field(row, 'status') || '')
+    } as CounselorScheduleSlot))));
   }
 
   // ----------------------------------------------------------- appointments

@@ -54,3 +54,7 @@ src/excel/2019203.xls
 # Empty or local tooling directories
 /.agents/
 /fpdf/
+
+# untracked files for future references
+incoming-draft.html
+local-draft.html

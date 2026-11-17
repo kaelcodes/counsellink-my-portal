@@ -100,11 +100,12 @@ export class AppointmentDraftService {
 
   /**
    * POST appointment-drafts
-   * Creates a new draft. Returns the saved AppointmentDraft.
+   * Creates a new draft. Sends null for appointmentDate/startTime/endTime so the draft
+   * never blocks counselor availability. Returns the saved AppointmentDraft.
    */
   saveDraft(payload: Omit<AppointmentDraft, 'id' | 'savedAt'>, studentId: string): Observable<AppointmentDraft> {
     return this.http
-      .post(this.url('appointment-drafts'), JSON.stringify(this.draftToRow(payload, studentId)), this.opts())
+      .post(this.url('appointment-drafts'), JSON.stringify(this.draftToRow(payload, studentId, false)), this.opts())
       .pipe(
         timeout(TIMEOUT_MS),
         map(r => {
@@ -121,11 +122,13 @@ export class AppointmentDraftService {
 
   /**
    * PUT appointment-drafts/{id}
-   * Updates an existing draft. Returns the updated AppointmentDraft.
+   * Updates an existing draft. Sends null for appointmentDate/startTime/endTime so the
+   * draft never blocks counselor availability. The student's selected date and time are
+   * stored in sessionStorage only (see saveSelection / restoreSelection).
    */
   updateDraft(draft: AppointmentDraft, studentId: string): Observable<AppointmentDraft> {
     return this.http
-      .put(this.url('appointment-drafts/' + draft.id), JSON.stringify(this.draftToRow(draft, studentId)), this.opts())
+      .put(this.url('appointment-drafts/' + draft.id), JSON.stringify(this.draftToRow(draft, studentId, false)), this.opts())
       .pipe(
         timeout(TIMEOUT_MS),
         map(r => {
@@ -134,6 +137,28 @@ export class AppointmentDraftService {
             return this.rowToDraft(body);
           }
           // Backend returned no body — echo back the draft we sent with updated timestamp.
+          return { ...draft, savedAt: new Date().toISOString() };
+        }),
+        catchError(e => throwError(this.friendly(e)))
+      );
+  }
+
+  /**
+   * PUT appointment-drafts/{id} — submit path only.
+   * Same as updateDraft but sends the actual appointmentDate, startTime, and endTime so the
+   * backend has real values to associate with the submitted appointment (status 5 → 1).
+   * Called by the component immediately before submitDraft().
+   */
+  updateDraftForSubmit(draft: AppointmentDraft, studentId: string): Observable<AppointmentDraft> {
+    return this.http
+      .put(this.url('appointment-drafts/' + draft.id), JSON.stringify(this.draftToRow(draft, studentId, true)), this.opts())
+      .pipe(
+        timeout(TIMEOUT_MS),
+        map(r => {
+          const body = this.parse(r);
+          if (body && (body.id || body.AppointmentID || body.appointmentID)) {
+            return this.rowToDraft(body);
+          }
           return { ...draft, savedAt: new Date().toISOString() };
         }),
         catchError(e => throwError(this.friendly(e)))
@@ -219,8 +244,13 @@ export class AppointmentDraftService {
     };
   }
 
-  /** Map AppointmentDraft to the API request body. */
-  private draftToRow(draft: Partial<AppointmentDraft>, studentId: string): any {
+  /** Map AppointmentDraft to the API request body.
+   * @param includeDateTime When true (submit path only), sends the real appointmentDate,
+   * startTime, and endTime so the backend has values after the status 5 → 1 transition.
+   * When false (all draft save/update calls), sends null for all three fields so the draft
+   * never blocks counselor availability.
+   */
+  private draftToRow(draft: Partial<AppointmentDraft>, studentId: string, includeDateTime: boolean): any {
     // Only append ':00' if the value is exactly 'HH:mm'. Guard against double-appending.
     const toApiTime = (t: string | undefined): string | null => {
       if (!t || t.trim() === '') { return null; }
@@ -231,11 +261,14 @@ export class AppointmentDraftService {
       employeeID:          (draft.counselorId && draft.counselorId.trim() !== '') ? draft.counselorId.trim() : null,
       concernTypeID:       (draft.concernTypeId && draft.concernTypeId !== '0' && draft.concernTypeId !== '')
                              ? Number(draft.concernTypeId) : null,
-      appointmentDate:     (draft.date && draft.date.trim() !== '')
-                             ? (draft.date.indexOf('T') >= 0 ? draft.date : draft.date + 'T00:00:00') : null,
-      // Confirmed correct field names from live API testing: startTime / endTime (not appointmentTime / appointmentEndTime)
-      startTime:           toApiTime(draft.startTime),
-      endTime:             toApiTime(draft.endTime),
+      // Send null on every draft save/update so drafts never block counselor availability.
+      // Send the real values only on the submit path (includeDateTime = true).
+      appointmentDate:     includeDateTime
+                             ? ((draft.date && draft.date.trim() !== '')
+                               ? (draft.date.indexOf('T') >= 0 ? draft.date : draft.date + 'T00:00:00') : null)
+                             : null,
+      startTime:           includeDateTime ? toApiTime(draft.startTime) : null,
+      endTime:             includeDateTime ? toApiTime(draft.endTime)   : null,
       concernDescription:  (draft.notes && draft.notes.trim() !== '') ? draft.notes.trim() : null,
       // appointmentTypeID 1 = Student Initiated (GET /api/constants/AppointmentType, confirmed).
       // All student-created drafts are Student Initiated — this is not a user-visible choice.
@@ -245,5 +278,57 @@ export class AppointmentDraftService {
                              ? draft.gradeOrYearLevel : null,
       appointmentStatusID: 5,
     };
+  }
+
+  // ------------------------------------------------------------------ sessionStorage helpers
+  // The student's preferred date and time are never stored in the database while the
+  // appointment is a draft. Instead they are kept in sessionStorage (tab-scoped, cleared
+  // when the tab closes or on successful submit).
+
+  private selectionKey(studentId: string, draftId: string): string {
+    return 'draft_sel_' + studentId + '_' + draftId;
+  }
+
+  /**
+   * Persist the student's selected date and time for a draft in sessionStorage.
+   * Call this after every successful saveDraft / updateDraft response.
+   */
+  saveSelection(studentId: string, draftId: string, date: string, startTime: string, endTime: string): void {
+    try {
+      sessionStorage.setItem(
+        this.selectionKey(studentId, draftId),
+        JSON.stringify({ date: date || '', startTime: startTime || '', endTime: endTime || '' })
+      );
+    } catch (e) { /* sessionStorage unavailable — degrade silently */ }
+  }
+
+  /**
+   * Retrieve the student's previously saved date/time selection for a draft.
+   * Returns null if nothing is stored or the stored value cannot be parsed.
+   */
+  restoreSelection(studentId: string, draftId: string): { date: string; startTime: string; endTime: string } | null {
+    try {
+      const raw = sessionStorage.getItem(this.selectionKey(studentId, draftId));
+      if (!raw) { return null; }
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          date:      String(parsed.date      || ''),
+          startTime: String(parsed.startTime || ''),
+          endTime:   String(parsed.endTime   || ''),
+        };
+      }
+    } catch (e) { /* ignore parse errors */ }
+    return null;
+  }
+
+  /**
+   * Remove the sessionStorage entry for a draft.
+   * Call this after a successful submitDraft so temporary data is not left behind.
+   */
+  clearSelection(studentId: string, draftId: string): void {
+    try {
+      sessionStorage.removeItem(this.selectionKey(studentId, draftId));
+    } catch (e) { /* ignore */ }
   }
 }
