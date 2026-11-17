@@ -78,6 +78,13 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
    * Public so the template can show the "previously selected" hint.
    */
   _pendingRestoreSlot: { startTime: string; endTime: string } | null = null;
+  /**
+   * Drives the "Previously selected" loading hint in the template.
+   * Separate from _pendingRestoreSlot so the hint stays visible while slotsLoading is true
+   * even after _pendingRestoreSlot has been cleared to prevent leakage into manual date changes.
+   * Set by openDraft(); cleared by resetForm() and by the guarded onDateChange() callback.
+   */
+  _restoreHintSlot: { startTime: string; endTime: string } | null = null;
 
   // True until the first successful or failed load completes — drives the Swal loading popup.
   private firstLoad = true;
@@ -87,6 +94,8 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
   private typing$ = new Subject<void>();
   private sub: Subscription;
   private requestNo = 0;
+  /** Incremented on every onDateChange() call. Callbacks that capture an outdated value are discarded. */
+  private slotRequestNo = 0;
 
   constructor(private guidance: GuidanceService, private dialog: MatDialog, private draftSvc: AppointmentDraftService, private globalSvc: GlobalService) { }
 
@@ -106,6 +115,8 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.sub) { this.sub.unsubscribe(); }
+    // Invalidate any in-flight slot request so its callback cannot touch component state.
+    this.slotRequestNo++;
   }
 
   load() {
@@ -327,6 +338,9 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this._pendingRestoreSlot = (restoredStartTime || restoredEndTime)
       ? { startTime: restoredStartTime, endTime: restoredEndTime }
       : null;
+    // _restoreHintSlot drives the template hint separately so the hint stays visible
+    // even after _pendingRestoreSlot is cleared on onDateChange() entry.
+    this._restoreHintSlot = this._pendingRestoreSlot;
 
     // Trigger slot loading if a date is restored; availability is refreshed from the API.
     if (restoredDate) { this.onDateChange(); }
@@ -460,6 +474,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     const hasChanges = currentValues !== this.draftEditSnapshot;
 
     const closeDialog = () => {
+      this.slotRequestNo++;
       this.activeDraft = null;
       this.draftEditSnapshot = '';
       if (this.dialogRef) { this.dialogRef.close(); }
@@ -500,6 +515,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     }).then(result => {
       if (!result.value) { return; }
       this.draftSvc.deleteDraft(draftId, sid).subscribe(() => {
+        this.slotRequestNo++;
         this.activeDraft = null;
         this.loadDrafts();
         if (this.dialogRef) { this.dialogRef.close(); }
@@ -658,6 +674,9 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
 
   closeForm() {
     if (this.saving) { return; }
+    // Invalidate any in-flight slot request so its callback cannot touch component state
+    // after the dialog has closed.
+    this.slotRequestNo++;
     if (this.dialogRef) { this.dialogRef.close(); }
   }
 
@@ -667,30 +686,36 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.slots = [];
     this.selected = null;
     this.formError = '';
+    this._restoreHintSlot = null;
+    // Invalidate any in-flight slot request so its callback cannot overwrite the cleared state.
+    this.slotRequestNo++;
   }
 
   onDateChange() {
     this.selected = null;
     this.slots = [];
     this.formError = '';
-    // Capture any pending restore so it survives into the async callback.
-    // openDraft sets _pendingRestoreSlot before calling onDateChange; capturing it here
-    // means a subsequent manual date change (which also calls onDateChange) will correctly
-    // start fresh with null and not attempt a slot restore.
+    // Stamp this request so any callback from a previous in-flight call can be discarded.
+    const slotNo = ++this.slotRequestNo;
+    // Capture the restore slot and clear _pendingRestoreSlot immediately.
+    // Clearing here ensures that subsequent manual date changes (each calling onDateChange)
+    // capture null and cannot inherit the draft's restore slot for a different date.
+    // _restoreHintSlot is kept alive separately to continue driving the template hint.
     const pendingSlot = this._pendingRestoreSlot;
-    // Do NOT clear _pendingRestoreSlot yet — keep it set while slots are loading so the
-    // template hint "Previously selected: …" stays visible during slotsLoading.
-    if (!this.form.date) { this._pendingRestoreSlot = null; return; }
-    if (this.form.date < this.minDate) { this._pendingRestoreSlot = null; this.formError = 'Please choose today or a later date.'; return; }
-    if (this.guidance.isWeekend(this.form.date)) { this._pendingRestoreSlot = null; this.formError = 'Appointments are not available on weekends.'; return; }
+    this._pendingRestoreSlot = null;
+    if (!this.form.date) { this._restoreHintSlot = null; return; }
+    if (this.form.date < this.minDate) { this._restoreHintSlot = null; this.formError = 'Please choose today or a later date.'; return; }
+    if (this.guidance.isWeekend(this.form.date)) { this._restoreHintSlot = null; this.formError = 'Appointments are not available on weekends.'; return; }
     if (!this.counselor) {
-      this._pendingRestoreSlot = null;
+      this._restoreHintSlot = null;
       this.formError = this.counselorError || 'Counselor info is not available yet. Please close and try again.';
       return;
     }
     this.slotsLoading = true;
     this.guidance.getSlots(this.counselor.id, this.form.date).subscribe(
       s => {
+        // Discard if a newer date selection has already superseded this request.
+        if (slotNo !== this.slotRequestNo) { return; }
         this.slots = s;
         this.slotsLoading = false;
         // After slots load, try to restore the previously selected slot.
@@ -702,11 +727,13 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
           );
           this.selected = match ? match : null;
         }
-        // Clear now that loading is done — the template hint is no longer needed.
-        this._pendingRestoreSlot = null;
+        // Clear the hint slot now that loading is done.
+        this._restoreHintSlot = null;
       },
       e => {
-        this._pendingRestoreSlot = null;
+        // Discard if superseded.
+        if (slotNo !== this.slotRequestNo) { return; }
+        this._restoreHintSlot = null;
         this.formError = (e && e.message) ? e.message : 'Could not load time slots.';
         this.slotsLoading = false;
       }
