@@ -245,8 +245,8 @@
     </mat-form-field>
 
     <!-- Draft: show saved time hint when slots haven't loaded yet -->
-    <p class="draft-time-hint" *ngIf="isDraftMode && activeDraft.startTime && !slots.length && !slotsLoading">
-      Previously selected: {{ draftTime(activeDraft) }} — refreshing availability&hellip;
+    <p class="draft-time-hint" *ngIf="isDraftMode && _restoreHintSlot && _restoreHintSlot.startTime && !slots.length && !slotsLoading">
+      Previously selected: {{ formatTime(_restoreHintSlot.startTime) }}<ng-container *ngIf="_restoreHintSlot.endTime"> &ndash; {{ formatTime(_restoreHintSlot.endTime) }}</ng-container> &mdash; refreshing availability&hellip;
     </p>
 
     <div class="slot-block">
