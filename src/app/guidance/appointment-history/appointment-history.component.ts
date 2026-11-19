@@ -306,9 +306,9 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     // The API row stores null for date/time (drafts must not block counselor availability),
     // so sessionStorage is the authoritative source for these selections.
     const sel = this.draftSvc.restoreSelection(this.studentId, draft.id);
-    const restoredDate      = sel ? sel.date      : '';
-    const restoredStartTime = sel ? sel.startTime : '';
-    const restoredEndTime   = sel ? sel.endTime   : '';
+    const restoredDate      = sel ? sel.date      : (draft.date || '');
+    const restoredStartTime = sel ? sel.startTime : (draft.startTime || '');
+    const restoredEndTime   = sel ? sel.endTime   : (draft.endTime || '');
 
     // Seed the edit snapshot from sessionStorage-restored values so the dirty-check
     // correctly detects changes relative to what the student last saved.
@@ -322,6 +322,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
 
     // Populate form from draft values, using sessionStorage for date.
     this.form = { concernTypeId: draft.concernTypeId, date: restoredDate, notes: draft.notes };
+    this.datePickerValue = this.parseDateInput(restoredDate);
     this.minDate = this.guidance.today();
     this.slots = [];
     this.selected = null;
