@@ -187,6 +187,8 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.load();
   }
 
+  formatTime(t: string): string { return this.guidance.formatTime(t); }
+
   time(a: Appointment): string {
     return this.guidance.formatTime(a.startTime) + ' - ' + this.guidance.formatTime(a.endTime);
   }
@@ -673,6 +675,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.datePickerValue = null;
     this.minDate = this.guidance.today();
     this.slots = [];
+    this.slotsLoading = false;
     this.selected = null;
     this.formError = '';
     this.followUpRescheduleNote = '';
