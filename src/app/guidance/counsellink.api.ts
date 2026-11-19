@@ -437,19 +437,12 @@ export class CounselLinkApi {
     return value === undefined || value === null ? NaN : +value;
   }
 
-  /** Fetch normal appointments and counselor-created follow-ups, merge, filter, sort, and paginate. */
+  /** Appointment history is intentionally isolated from follow-up endpoints. */
   getHistory(p: StudentProfile, q: HistoryQuery): Observable<HistoryResult> {
-    return forkJoin(this.studentAppointments(p), this.studentFollowUps(p), this.studentFollowUpRescheduleRequests(p)).pipe(map(r => {
-      const requests = r[2].filter(x => this.isPendingFollowUpRequest(x));
-      const followUps = r[1].map(row => {
-        const id = +firstDefined(row, ['followUpID', 'followUpId', 'id']);
-        const pending = requests.some(req => this.followUpIdOf(req) === id);
-        return this.mapFollowUp(row, pending, p.idNumber);
-      });
-      const all = r[0].concat(followUps);
+    return this.studentAppointments(p).pipe(map(all => {
       const term = (q.search || '').trim().toLowerCase();
       const items = all
-        .filter(a => a.status !== 'Draft')   // Draft records (status 5) are managed separately
+        .filter(a => a.status !== 'Draft')
         .filter(a => !q.status || q.status === 'All' || a.status === q.status)
         .filter(a => !term || (a.counselingTypeName + ' ' + a.counselorName + ' ' + a.date + ' ' + a.notes + ' ' + a.status)
           .toLowerCase().indexOf(term) >= 0)
@@ -457,6 +450,23 @@ export class CounselLinkApi {
       const from = q.pageIndex * q.pageSize;
       return { items: items.slice(from, from + q.pageSize), total: items.length };
     }));
+  }
+
+  /** Independent student follow-up load. A request-list failure does not hide follow-ups. */
+  getFollowUpHistory(p: StudentProfile): Observable<Appointment[]> {
+    return this.studentFollowUps(p).pipe(
+      switchMap(rowsList => this.studentFollowUpRescheduleRequests(p).pipe(
+        catchError(() => of([])),
+        map(requestRows => {
+          const requests = requestRows.filter(x => this.isPendingFollowUpRequest(x));
+          return rowsList.map(row => {
+            const id = +firstDefined(row, ['followUpID', 'followUpId', 'id']);
+            const pending = requests.some(req => this.followUpIdOf(req) === id);
+            return this.mapFollowUp(row, pending, p.idNumber);
+          });
+        })
+      ))
+    );
   }
 
   /** POST /api/follow-ups/{followUpId}/reschedule-requests — requests counselor approval. */
