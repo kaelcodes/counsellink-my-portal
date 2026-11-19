@@ -141,11 +141,6 @@ export class AppointmentDraftService {
   }
 
   /**
-   * POST appointment-drafts/{id}/submit  Body: { idNumber: studentId }
-   * Transitions the draft (status 5) to a submitted appointment (status 1).
-   * The backend handles the status transition — no client-side deleteDraft needed.
-   */
-  /**
    * PUT appointment-drafts/{id} — submit path only.
    * Send actual selected date/time immediately before submitting the draft.
    */
