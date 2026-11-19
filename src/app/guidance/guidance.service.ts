@@ -135,6 +135,13 @@ export class GuidanceService {
     });
   }
 
+  /** Fetch follow-up data independently from appointment history. */
+  getFollowUpHistory(): Observable<Appointment[]> {
+    return this.getStudentProfile().pipe(
+      switchMap(p => this.api.getFollowUpHistory(p))
+    );
+  }
+
   /**
    * The student's first active appointment (Pending or Approved), or null.
    * Used to drive the activity indicator and color dot in MainComponent.
