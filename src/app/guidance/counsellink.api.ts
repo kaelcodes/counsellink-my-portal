@@ -452,7 +452,7 @@ export class CounselLinkApi {
     return value === undefined || value === null ? NaN : +value;
   }
 
-  /** Fetch normal appointments and counselor-created follow-ups, merge, filter, sort, and paginate. */
+  /** Fetch normal appointment history only; follow-ups are loaded independently. */
   getHistory(p: StudentProfile, q: HistoryQuery): Observable<HistoryResult> {
     return this.studentAppointments(p).pipe(map(all => {
       const term = (q.search || '').trim().toLowerCase();
