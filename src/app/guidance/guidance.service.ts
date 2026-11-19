@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { GlobalService } from '../global.service';
 import { CounselLinkApi } from './counsellink.api';
 import {
