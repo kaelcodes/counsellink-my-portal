@@ -757,7 +757,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
             this.saving = false;
             if (this.dialogRef) { this.dialogRef.close(); }
             this.notice = 'Follow-up reschedule request sent. Waiting for counselor approval.';
-            this.load();
+            this.loadFollowUps();
           },
           e => {
             this.saving = false;
