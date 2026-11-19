@@ -46,6 +46,14 @@ export interface CounselingType {
 
 // What a student sees for a slot: Available, Booked (another student), or Own appointment.
 // NEVER expose another student's name or identifying information — only the status.
+export interface CounselorScheduleSlot {
+  scheduleDate: string;   // 'YYYY-MM-DD'
+  startTime: string;      // 'HH:mm' (normalised from API value)
+  endTime: string;        // 'HH:mm'
+  isAvailable: boolean;
+  status: string;         // raw status string from the API (e.g. 'Available', 'Booked')
+}
+
 export interface TimeSlot {
   startTime: string;   // 'HH:mm' (24h)
   endTime: string;
