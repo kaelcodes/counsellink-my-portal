@@ -65,3 +65,9 @@ Confirm these against the current backend Swagger and test authorization/ownersh
 - `sessionStorage` is tab-scoped. If storage is unavailable or cleared, preferred date/time may not restore; the student must reselect.
 - The schedule-availability and follow-up endpoint contracts have not been independently confirmed here.
 - Do not merge into `main` until the local build and API/UI regression checks pass.
+
+
+## Build feedback from first local run
+- The first local `npm run build` found a missing RxJS `map` import in `guidance.service.ts`.
+- Fixed on this branch in commit `b29412105aa43b031094885caab30f6619163536` by importing `map` alongside `switchMap`.
+- Build has not yet been rerun after this correction; please rerun locally and report any next errors.
