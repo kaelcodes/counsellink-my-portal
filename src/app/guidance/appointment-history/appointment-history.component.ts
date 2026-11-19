@@ -21,6 +21,9 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
   readonly pageSizes = [5, 10, 25];
 
   items: Appointment[] = [];
+  followUps: Appointment[] = [];
+  followUpsLoading = false;
+  followUpsError = '';
   total = 0;
   pageIndex = 0;
   pageSize = 5;
@@ -95,12 +98,26 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
       this.load();
     });
     this.load();
+    this.loadFollowUps();
     this.loadBookingContext();
     this.loadDrafts();
   }
 
   ngOnDestroy() {
     if (this.sub) { this.sub.unsubscribe(); }
+  }
+
+  /** Follow-ups load independently; failure never blocks Recent Appointments. */
+  loadFollowUps() {
+    this.followUpsLoading = true;
+    this.followUpsError = '';
+    this.guidance.getFollowUpHistory().subscribe(
+      rows => { this.followUps = rows || []; this.followUpsLoading = false; },
+      e => {
+        this.followUpsError = (e && e.message) ? e.message : 'Could not load follow-ups.';
+        this.followUpsLoading = false;
+      }
+    );
   }
 
   load() {
