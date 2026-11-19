@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 import { GlobalService } from '../global.service';
 import {
   Appointment, AppointmentStatus, BookingRequest, Counselor, CounselingType,
-  HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, SLOT_MINUTES, StudentProfile
+  CounselorScheduleSlot, HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, SLOT_MINUTES, StudentProfile
 } from './guidance.models';
 
 /*
@@ -352,6 +352,21 @@ export class CounselLinkApi {
     return this.getTakenSlotDetails(counselorId, date).pipe(map(slots => slots.map(s => s.startTime)));
   }
 
+  getScheduleAvailability(employeeId: string, date: string): Observable<CounselorScheduleSlot[]> {
+    return this.get('counselor-schedules/availability', {
+      employeeId: employeeId,
+      startDate: date,
+      endDate: date
+    }).pipe(map(body => rows(body).map(row => ({
+      scheduleDate: toYmd(field(row, 'scheduleDate')) || date,
+      startTime:    toHm(field(row, 'startTime'))    || String(field(row, 'startTime') || ''),
+      endTime:      toHm(field(row, 'endTime'))      || String(field(row, 'endTime')   || ''),
+      isAvailable:  field(row, 'isAvailable') === true || field(row, 'isAvailable') === 1
+                    || String(field(row, 'isAvailable')).toLowerCase() === 'true',
+      status:       String(field(row, 'status') || '')
+    } as CounselorScheduleSlot))));
+  }
+
   // ----------------------------------------------------------- appointments
 
   private toAppointment(row: any, lk: Lookups): Appointment {
@@ -439,17 +454,10 @@ export class CounselLinkApi {
 
   /** Fetch normal appointments and counselor-created follow-ups, merge, filter, sort, and paginate. */
   getHistory(p: StudentProfile, q: HistoryQuery): Observable<HistoryResult> {
-    return forkJoin(this.studentAppointments(p), this.studentFollowUps(p), this.studentFollowUpRescheduleRequests(p)).pipe(map(r => {
-      const requests = r[2].filter(x => this.isPendingFollowUpRequest(x));
-      const followUps = r[1].map(row => {
-        const id = +firstDefined(row, ['followUpID', 'followUpId', 'id']);
-        const pending = requests.some(req => this.followUpIdOf(req) === id);
-        return this.mapFollowUp(row, pending, p.idNumber);
-      });
-      const all = r[0].concat(followUps);
+    return this.studentAppointments(p).pipe(map(all => {
       const term = (q.search || '').trim().toLowerCase();
       const items = all
-        .filter(a => a.status !== 'Draft')   // Draft records (status 5) are managed separately
+        .filter(a => a.status !== 'Draft')
         .filter(a => !q.status || q.status === 'All' || a.status === q.status)
         .filter(a => !term || (a.counselingTypeName + ' ' + a.counselorName + ' ' + a.date + ' ' + a.notes + ' ' + a.status)
           .toLowerCase().indexOf(term) >= 0)
@@ -457,6 +465,22 @@ export class CounselLinkApi {
       const from = q.pageIndex * q.pageSize;
       return { items: items.slice(from, from + q.pageSize), total: items.length };
     }));
+  }
+
+  getFollowUpHistory(p: StudentProfile): Observable<Appointment[]> {
+    return this.studentFollowUps(p).pipe(
+      switchMap(rowsList => this.studentFollowUpRescheduleRequests(p).pipe(
+        catchError(() => of([])),
+        map(requestRows => {
+          const requests = requestRows.filter(x => this.isPendingFollowUpRequest(x));
+          return rowsList.map(row => {
+            const id = +firstDefined(row, ['followUpID', 'followUpId', 'id']);
+            const pending = requests.some(req => this.followUpIdOf(req) === id);
+            return this.mapFollowUp(row, pending, p.idNumber);
+          });
+        })
+      ))
+    );
   }
 
   /** POST /api/follow-ups/{followUpId}/reschedule-requests — requests counselor approval. */
