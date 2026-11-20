@@ -273,6 +273,19 @@ $shadow: 0 1px 3px rgba(0, 0, 0, .15);
   }
 }
 
+.follow-ups-section { margin-top: 24px; }
+
+.appt-table .badge.st-scheduled,
+.appt-table .badge.st-approved {
+  color: $navy !important; background: $tint; border-color: $blue;
+}
+.appt-table .badge.st-reschedulepending {
+  color: #5c4a00 !important; background: #fff8e1; border-color: #f5c842;
+}
+.appt-table .badge.st-cancelled {
+  color: #8a1f1f !important; background: #fbe6e6; border-color: #b23b3b;
+}
+
 // ---- Drafts section ----
 .drafts-section { margin-top: 24px; }
 

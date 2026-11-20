@@ -138,6 +138,54 @@
       <mat-paginator *ngIf="total > 0" [length]="total" [pageIndex]="pageIndex" [pageSize]="pageSize"
         [pageSizeOptions]="pageSizes" (page)="onPage($event)">
       </mat-paginator>
+
+      <!-- Follow-ups are separate records from appointments; show their full history here. -->
+      <section class="follow-ups-section">
+        <div class="intro">
+          <h3>Follow-Up Appointments</h3>
+          <p>Track pending, completed, and cancelled follow-up sessions.</p>
+        </div>
+
+        <div class="table-wrap" *ngIf="!loading && followUpItems.length">
+          <table class="appt-table follow-up-table">
+            <thead>
+              <tr>
+                <th class="col-id">ID</th>
+                <th class="col-date">Date</th>
+                <th class="col-time">Time</th>
+                <th class="col-concern">Concern</th>
+                <th class="col-notes">Action Required</th>
+                <th class="col-status">Status</th>
+                <th class="col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let f of followUpItems" [ngClass]="'row-' + statusClass(f)">
+                <td class="col-id" data-label="ID">{{ f.followUpId || f.id }}</td>
+                <td class="col-date" data-label="Date">{{ f.date | date:'MMM d, y' }}</td>
+                <td class="col-time" data-label="Time">{{ time(f) }}</td>
+                <td class="col-concern" data-label="Concern">{{ f.concernTypeName || '—' }}</td>
+                <td class="col-notes" data-label="Action Required">{{ f.notes || '—' }}</td>
+                <td class="col-status" data-label="Status"><span class="badge" [ngClass]="statusClass(f)">{{ displayStatus(f) }}</span></td>
+                <td class="col-actions" data-label="Actions">
+                  <div class="row-actions">
+                    <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon"
+                      *ngIf="(f.status === 'Scheduled' || f.status === 'Pending' || f.status === 'Approved') && !f.followUpReschedulePending"
+                      [disabled]="actionLoading" matTooltip="Request follow-up reschedule"
+                      (click)="openReschedule(f, formDialog)"><mat-icon>event_repeat</mat-icon></button>
+                    <span class="waiting-label" *ngIf="f.status === 'Reschedule Pending'">Waiting for counselor</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty" *ngIf="!loading && !error && !followUpItems.length">
+          <ng-container *ngIf="search || status !== 'All'">No follow-ups match your search or filter.</ng-container>
+          <ng-container *ngIf="!search && status === 'All'">No follow-up appointments.</ng-container>
+        </div>
+      </section>
     </div>
   </div>
 

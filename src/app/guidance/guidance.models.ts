@@ -101,6 +101,8 @@ export interface HistoryQuery {
 export interface HistoryResult {
   items: Appointment[];
   total: number;
+  /** Follow-ups are returned separately so the history screen can render their own section. */
+  followUpItems: Appointment[];
 }
 
 // ---- Draft (Phase 1: in-memory; Phase 2 will back this with a backend endpoint) ----

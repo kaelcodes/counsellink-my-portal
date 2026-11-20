@@ -21,6 +21,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
   readonly pageSizes = [5, 10, 25];
 
   items: Appointment[] = [];
+  followUpItems: Appointment[] = [];
   total = 0;
   pageIndex = 0;
   pageSize = 5;
@@ -118,6 +119,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
       r => {
         if (no !== this.requestNo) { return; }
         this.items = r.items;
+        this.followUpItems = r.followUpItems || [];
         this.total = r.total;
         this.loading = false;
         if (this.firstLoad) { this.firstLoad = false; Swal.close(); }

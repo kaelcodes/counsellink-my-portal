@@ -388,7 +388,7 @@ export class CounselLinkApi {
 
   /** Reads counselor-created follow-ups for the student using the live Swagger route. */
   private studentFollowUps(p: StudentProfile): Observable<any[]> {
-    return this.get('follow-ups/student', { idNumber: p.idNumber, view: 'Active' }).pipe(map(body => rows(body)));
+    return this.get('follow-ups/student', { idNumber: p.idNumber, view: 'All' }).pipe(map(body => rows(body)));
   }
 
   /** Reads student reschedule requests so pending state persists after refresh. */
@@ -446,16 +446,26 @@ export class CounselLinkApi {
         const pending = requests.some(req => this.followUpIdOf(req) === id);
         return this.mapFollowUp(row, pending, p.idNumber);
       });
-      const all = r[0].concat(followUps);
       const term = (q.search || '').trim().toLowerCase();
-      const items = all
-        .filter(a => a.status !== 'Draft')   // Draft records (status 5) are managed separately
-        .filter(a => !q.status || q.status === 'All' || a.status === q.status)
-        .filter(a => !term || (a.counselingTypeName + ' ' + a.counselorName + ' ' + a.date + ' ' + a.notes + ' ' + a.status)
-          .toLowerCase().indexOf(term) >= 0)
+      const matches = (a: Appointment) =>
+        (!q.status || q.status === 'All' || a.status === q.status) &&
+        (!term || (a.counselingTypeName + ' ' + a.counselorName + ' ' + a.date + ' ' + a.notes + ' ' + a.status)
+          .toLowerCase().indexOf(term) >= 0);
+
+      // Keep the normal appointment table independent from the dedicated follow-up history.
+      const appointments = r[0]
+        .filter(a => a.status !== 'Draft') // Draft records (status 5) are managed separately
+        .filter(matches)
+        .sort((a, b) => (a.date + a.startTime) < (b.date + b.startTime) ? 1 : -1);
+      const followUpItems = followUps
+        .filter(matches)
         .sort((a, b) => (a.date + a.startTime) < (b.date + b.startTime) ? 1 : -1);
       const from = q.pageIndex * q.pageSize;
-      return { items: items.slice(from, from + q.pageSize), total: items.length };
+      return {
+        items: appointments.slice(from, from + q.pageSize),
+        total: appointments.length,
+        followUpItems: followUpItems
+      };
     }));
   }
 
