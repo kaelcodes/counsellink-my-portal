@@ -68,6 +68,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
 
   // ---- Draft state --------------------------------------------------------
   drafts: AppointmentDraft[] = [];
+  selectedDraft: AppointmentDraft | null = null;
   /** The draft currently being edited; null in normal booking mode. */
   activeDraft: AppointmentDraft | null = null;
   draftSaving = false;
@@ -293,6 +294,54 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
         this.draftError = (e && e.message) ? e.message : 'Could not save draft. Please try again.';
       }
     );
+  }
+
+  /** Open the saved-drafts table in its own dialog. */
+  openDraftsList(tpl: TemplateRef<any>) {
+    this.openDialog(tpl, '900px');
+  }
+
+  /** Close the list first, then show one draft's read-only details. */
+  viewDraft(draft: AppointmentDraft, detailsTpl: TemplateRef<any>) {
+    const ref = this.dialogRef;
+    this.selectedDraft = draft;
+    if (ref) {
+      ref.afterClosed().subscribe(() => {
+        this.dialogRef = null;
+        this.openDialog(detailsTpl, '560px');
+      });
+      ref.close();
+    } else {
+      this.openDialog(detailsTpl, '560px');
+    }
+  }
+
+  /** Close the drafts list before opening the edit form (avoid stacked dialogs). */
+  editDraftFromList(draft: AppointmentDraft, formTpl: TemplateRef<any>) {
+    const ref = this.dialogRef;
+    if (ref) {
+      ref.afterClosed().subscribe(() => {
+        this.dialogRef = null;
+        this.openDraft(draft, formTpl);
+      });
+      ref.close();
+    } else {
+      this.openDraft(draft, formTpl);
+    }
+  }
+
+  /** Close the details dialog before opening the existing draft-edit workflow. */
+  editDraftFromDetails(draft: AppointmentDraft, formTpl: TemplateRef<any>) {
+    const ref = this.dialogRef;
+    if (ref) {
+      ref.afterClosed().subscribe(() => {
+        this.dialogRef = null;
+        this.openDraft(draft, formTpl);
+      });
+      ref.close();
+    } else {
+      this.openDraft(draft, formTpl);
+    }
   }
 
   /** Open a saved draft into the booking form for editing. */
@@ -660,8 +709,8 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private openDialog(tpl: TemplateRef<any>) {
-    this.dialogRef = this.dialog.open(tpl, { width: '480px', maxWidth: '95vw', disableClose: true });
+  private openDialog(tpl: TemplateRef<any>, width = '480px') {
+    this.dialogRef = this.dialog.open(tpl, { width, maxWidth: '95vw', disableClose: true });
     this.dialogRef.afterClosed().subscribe(() => { this.slotRequestNo++; this.dialogRef = null; });
   }
 
@@ -684,7 +733,6 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this._restoreHintSlot = null;
     this.slotRequestNo++;
   }
-
 
   /** Convert the API's yyyy-MM-dd value into a local Date without timezone shifting. */
   private parseDateInput(value: string): Date {

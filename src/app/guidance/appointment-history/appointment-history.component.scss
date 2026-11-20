@@ -272,9 +272,23 @@ $shadow: 0 1px 3px rgba(0, 0, 0, .15);
 .drafts-section { margin-top: 24px; }
 
 .drafts-heading {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
   font-size: 14px; color: $navy; font-weight: 600; margin: 0 0 8px;
+  > span { display: inline-flex; align-items: center; gap: 6px; }
   mat-icon { font-size: 18px; height: 18px; width: 18px; }
+}
+.drafts-dialog-content { max-width: 80vw; }
+.drafts-dialog-intro { color: $muted; font-size: 12px; margin: 0 0 10px; }
+.draft-details-content { min-width: 0; }
+.draft-details { margin: 0; display: grid; gap: 10px;
+  > div { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 12px; padding-bottom: 8px; border-bottom: 1px solid $line; }
+  dt { color: $navy; font-weight: 600; font-size: 12px; }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  .draft-details-notes dd { white-space: pre-wrap; }
+}
+@media (max-width: 640px) {
+  .drafts-dialog-content { max-width: 92vw; }
+  .draft-details > div { grid-template-columns: 1fr; gap: 3px; }
 }
 
 .drafts-count {

@@ -164,43 +164,14 @@
         </table>
       </div>
 
-      <!-- ---- Drafts section ---- -->
+      <!-- ---- Drafts section: compact launcher; the full table opens in a dialog ---- -->
       <div class="drafts-section" *ngIf="drafts.length">
-        <h3 class="drafts-heading">
-          <mat-icon>drafts</mat-icon> Saved Drafts
-          <span class="drafts-count">{{ drafts.length }}</span>
-        </h3>
-        <table class="appt-table drafts-table">
-          <thead>
-            <tr>
-              <th class="col-date">Preferred Date</th>
-              <th class="col-time">Time</th>
-              <th class="col-concern">Concern</th>
-              <th class="col-notes">Notes</th>
-              <th class="col-status">Status</th>
-              <th class="col-actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let d of drafts">
-              <td class="col-date" data-label="Date">{{ d.date ? (d.date | date:'MMM d, y') : '—' }}</td>
-              <td class="col-time" data-label="Time">{{ draftTime(d) }}</td>
-              <td class="col-concern" data-label="Concern">{{ d.concernTypeName || '—' }}</td>
-              <td class="col-notes" data-label="Notes">{{ d.notes || '—' }}</td>
-              <td class="col-status" data-label="Status">
-                <span class="badge draft-badge">Draft</span>
-              </td>
-              <td class="col-actions" data-label="Actions">
-                <div class="row-actions">
-                  <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon" matTooltip="Edit draft"
-                    (click)="openDraft(d, formDialog)"><mat-icon>edit</mat-icon></button>
-                  <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon" matTooltip="Delete draft"
-                    (click)="deleteDraftFromList(d)"><mat-icon>cancel</mat-icon></button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="drafts-heading">
+          <span><mat-icon>drafts</mat-icon> Saved Drafts <span class="drafts-count">{{ drafts.length }}</span></span>
+          <button mat-stroked-button type="button" class="btn-outline" (click)="openDraftsList(draftsListDialog)">
+            View drafts
+          </button>
+        </div>
       </div>
 
       <mat-paginator *ngIf="total > 0" [length]="total" [pageIndex]="pageIndex" [pageSize]="pageSize"
@@ -302,6 +273,55 @@
       [disabled]="!selected || saving || draftSaving" matTooltip="Submit this draft as an appointment">
       Submit Draft
     </button>
+  </mat-dialog-actions>
+</ng-template>
+
+<!-- Saved drafts list dialog -->
+<ng-template #draftsListDialog>
+  <h2 mat-dialog-title>Saved Drafts ({{ drafts.length }})</h2>
+  <mat-dialog-content class="drafts-dialog-content">
+    <p class="drafts-dialog-intro">Select a draft to view its details or edit it before submitting.</p>
+    <div class="table-wrap" *ngIf="drafts.length">
+      <table class="appt-table drafts-table">
+        <thead><tr>
+          <th>Concern</th><th>Preferred Date</th><th>Time</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          <tr *ngFor="let d of drafts">
+            <td data-label="Concern">{{ d.concernTypeName || '—' }}</td>
+            <td data-label="Preferred Date">{{ d.date ? (d.date | date:'MMM d, y') : 'Not selected' }}</td>
+            <td data-label="Time">{{ draftTime(d) }}</td>
+            <td data-label="Status"><span class="badge draft-badge">Draft</span></td>
+            <td data-label="Actions"><div class="row-actions">
+              <button mat-stroked-button type="button" class="btn-outline btn-sm" (click)="viewDraft(d, draftDetailsDialog)">View</button>
+              <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon" matTooltip="Edit draft" (click)="editDraftFromList(d, formDialog)"><mat-icon>edit</mat-icon></button>
+              <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon btn-warn" matTooltip="Delete draft" (click)="deleteDraftFromList(d)"><mat-icon>delete</mat-icon></button>
+            </div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions class="dlg-actions">
+    <button mat-button type="button" (click)="closeForm()">Close</button>
+  </mat-dialog-actions>
+</ng-template>
+
+<!-- Individual draft details dialog -->
+<ng-template #draftDetailsDialog>
+  <h2 mat-dialog-title>Draft Details</h2>
+  <mat-dialog-content class="draft-details-content" *ngIf="selectedDraft">
+    <dl class="draft-details">
+      <div><dt>Concern</dt><dd>{{ selectedDraft.concernTypeName || '—' }}</dd></div>
+      <div><dt>Preferred date</dt><dd>{{ selectedDraft.date ? (selectedDraft.date | date:'MMM d, y') : 'Not selected' }}</dd></div>
+      <div><dt>Preferred time</dt><dd>{{ draftTime(selectedDraft) }}</dd></div>
+      <div><dt>Status</dt><dd><span class="badge draft-badge">Draft</span></dd></div>
+      <div class="draft-details-notes"><dt>Notes</dt><dd>{{ selectedDraft.notes || 'No notes saved.' }}</dd></div>
+    </dl>
+  </mat-dialog-content>
+  <mat-dialog-actions class="dlg-actions">
+    <button mat-button type="button" (click)="closeForm()">Close</button>
+    <button mat-raised-button type="button" class="btn-primary" *ngIf="selectedDraft" (click)="editDraftFromDetails(selectedDraft, formDialog)">Edit Draft</button>
   </mat-dialog-actions>
 </ng-template>
 
