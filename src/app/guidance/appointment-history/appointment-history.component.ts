@@ -21,6 +21,9 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
   readonly pageSizes = [5, 10, 25];
 
   items: Appointment[] = [];
+  followUps: Appointment[] = [];
+  followUpsLoading = false;
+  followUpsError = '';
   total = 0;
   pageIndex = 0;
   pageSize = 5;
@@ -74,6 +77,10 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
   /** True when the form dialog is open in draft-edit mode. */
   get isDraftMode(): boolean { return this.activeDraft !== null; }
 
+  /** Slot selected before a draft was saved; consumed once after availability loads. */
+  _pendingRestoreSlot: { startTime: string; endTime: string } | null = null;
+  /** Keeps the hint visible during loading while the pending restore is consumed. */
+  _restoreHintSlot: { startTime: string; endTime: string } | null = null;
   // True until the first successful or failed load completes — drives the Swal loading popup.
   private firstLoad = true;
 
@@ -82,6 +89,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
   private typing$ = new Subject<void>();
   private sub: Subscription;
   private requestNo = 0;
+  private slotRequestNo = 0;
 
   constructor(private guidance: GuidanceService, private dialog: MatDialog, private draftSvc: AppointmentDraftService, private globalSvc: GlobalService) { }
 
@@ -95,12 +103,26 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
       this.load();
     });
     this.load();
+    this.loadFollowUps();
     this.loadBookingContext();
     this.loadDrafts();
   }
 
   ngOnDestroy() {
     if (this.sub) { this.sub.unsubscribe(); }
+    this.slotRequestNo++;
+  }
+
+  loadFollowUps() {
+    this.followUpsLoading = true;
+    this.followUpsError = '';
+    this.guidance.getFollowUpHistory().subscribe(
+      rows => { this.followUps = rows || []; this.followUpsLoading = false; },
+      e => {
+        this.followUpsError = (e && e.message) ? e.message : 'Could not load follow-ups.';
+        this.followUpsLoading = false;
+      }
+    );
   }
 
   load() {
@@ -164,6 +186,8 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.pageSize = e.pageSize;
     this.load();
   }
+
+  formatTime(t: string): string { return this.guidance.formatTime(t); }
 
   time(a: Appointment): string {
     return this.guidance.formatTime(a.startTime) + ' - ' + this.guidance.formatTime(a.endTime);
@@ -259,6 +283,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
       saved => {
         this.draftSaving = false;
         this.activeDraft = saved;
+        this.draftSvc.saveSelection(this.studentId, saved.id, payload.date, payload.startTime, payload.endTime);
         this.loadDrafts();
         if (this.dialogRef) { this.dialogRef.close(); }
         this.notice = 'Draft saved. You can reopen it from the Drafts section below.';
@@ -277,25 +302,44 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.activeDraft = draft;
     this.draftError = '';
 
-    // Capture the original values so Cancel can distinguish closing from discarding edits.
+    // Restore the student's preferred date and time from sessionStorage.
+    // The API row stores null for date/time (drafts must not block counselor availability),
+    // so sessionStorage is the authoritative source for these selections.
+    const sel = this.draftSvc.restoreSelection(this.studentId, draft.id);
+    const restoredDate      = sel ? sel.date      : (draft.date || '');
+    const restoredStartTime = sel ? sel.startTime : (draft.startTime || '');
+    const restoredEndTime   = sel ? sel.endTime   : (draft.endTime || '');
+
+    // Seed the edit snapshot from sessionStorage-restored values so the dirty-check
+    // correctly detects changes relative to what the student last saved.
     this.draftEditSnapshot = JSON.stringify({
       concernTypeId: draft.concernTypeId || '',
-      date: draft.date || '',
-      notes: draft.notes || '',
-      startTime: draft.startTime || '',
-      endTime: draft.endTime || ''
+      date:      restoredDate,
+      notes:     draft.notes || '',
+      startTime: restoredStartTime,
+      endTime:   restoredEndTime
     });
 
-    // Populate form from draft values.
-    this.form = { concernTypeId: draft.concernTypeId, date: draft.date, notes: draft.notes };
-    this.datePickerValue = this.parseDateInput(draft.date);
+    // Populate form from draft values, using sessionStorage for date.
+    this.form = { concernTypeId: draft.concernTypeId, date: restoredDate, notes: draft.notes };
+    this.datePickerValue = this.parseDateInput(restoredDate);
     this.minDate = this.guidance.today();
     this.slots = [];
     this.selected = null;
     this.formError = '';
 
-    // Trigger slot loading if a date is saved; availability is refreshed from the API.
-    if (draft.date) { this.onDateChange(); }
+    // If a time slot was previously selected, store it so onDateChange can auto-select it
+    // once the available slots have loaded. It will only be re-selected if the slot is
+    // still Available — if it has since been taken, the student must choose again.
+    this._pendingRestoreSlot = (restoredStartTime || restoredEndTime)
+      ? { startTime: restoredStartTime, endTime: restoredEndTime }
+      : null;
+    // _restoreHintSlot drives the template hint separately so the hint stays visible
+    // even after _pendingRestoreSlot is cleared on onDateChange() entry.
+    this._restoreHintSlot = this._pendingRestoreSlot;
+
+    // Trigger slot loading if a date is restored; availability is refreshed from the API.
+    if (restoredDate) { this.onDateChange(); }
 
     this.openDialog(tpl);
   }
@@ -385,11 +429,12 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
 
   /** Persist draft edits and submit only after the active-appointment precheck passes. */
   private persistAndSubmitDraft(latestDraft: AppointmentDraft, sid: string) {
-    this.draftSvc.updateDraft(latestDraft, sid).pipe(
+    this.draftSvc.updateDraftForSubmit(latestDraft, sid).pipe(
       switchMap(() => this.draftSvc.submitDraft(latestDraft.id, sid))
     ).subscribe(
       () => {
         this.draftSaving = false;
+        this.draftSvc.clearSelection(sid, latestDraft.id);
         this.activeDraft = null;
         if (this.dialogRef) { this.dialogRef.close(); }
         this.loadDrafts();
@@ -421,6 +466,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     const hasChanges = currentValues !== this.draftEditSnapshot;
 
     const closeDialog = () => {
+      this.slotRequestNo++;
       this.activeDraft = null;
       this.draftEditSnapshot = '';
       if (this.dialogRef) { this.dialogRef.close(); }
@@ -461,6 +507,8 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     }).then(result => {
       if (!result.value) { return; }
       this.draftSvc.deleteDraft(draftId, sid).subscribe(() => {
+        this.slotRequestNo++;
+        this.draftSvc.clearSelection(sid, draftId);
         this.activeDraft = null;
         this.loadDrafts();
         if (this.dialogRef) { this.dialogRef.close(); }
@@ -480,7 +528,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
       cancelButtonText: 'Cancel'
     }).then(result => {
       if (!result.value) { return; }
-      this.draftSvc.deleteDraft(draft.id, sid).subscribe(() => { this.loadDrafts(); });
+      this.draftSvc.deleteDraft(draft.id, sid).subscribe(() => { this.draftSvc.clearSelection(sid, draft.id); this.loadDrafts(); });
     });
   }
 
@@ -614,11 +662,12 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
 
   private openDialog(tpl: TemplateRef<any>) {
     this.dialogRef = this.dialog.open(tpl, { width: '480px', maxWidth: '95vw', disableClose: true });
-    this.dialogRef.afterClosed().subscribe(() => this.dialogRef = null);
+    this.dialogRef.afterClosed().subscribe(() => { this.slotRequestNo++; this.dialogRef = null; });
   }
 
   closeForm() {
     if (this.saving) { return; }
+    this.slotRequestNo++;
     if (this.dialogRef) { this.dialogRef.close(); }
   }
 
@@ -627,9 +676,13 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.datePickerValue = null;
     this.minDate = this.guidance.today();
     this.slots = [];
+    this.slotsLoading = false;
     this.selected = null;
     this.formError = '';
     this.followUpRescheduleNote = '';
+    this._pendingRestoreSlot = null;
+    this._restoreHintSlot = null;
+    this.slotRequestNo++;
   }
 
 
@@ -663,18 +716,50 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.selected = null;
     this.slots = [];
     this.formError = '';
-    if (!this.form.date) { return; }
-    if (this.form.date < this.minDate) { this.formError = 'Please choose today or a later date.'; return; }
-    if (this.guidance.isWeekend(this.form.date)) { this.formError = 'Appointments are not available on weekends.'; return; }
+    // Stamp this request so any callback from a previous in-flight call can be discarded.
+    const slotNo = ++this.slotRequestNo;
+    // Capture the restore slot and clear _pendingRestoreSlot immediately.
+    // Clearing here ensures that subsequent manual date changes (each calling onDateChange)
+    // capture null and cannot inherit the draft's restore slot for a different date.
+    // _restoreHintSlot is kept alive separately to continue driving the template hint.
+    const pendingSlot = this._pendingRestoreSlot;
+    this._pendingRestoreSlot = null;
+    if (!this.form.date) { this._restoreHintSlot = null; this.slotsLoading = false; return; }
+    if (this.form.date < this.minDate) { this._restoreHintSlot = null; this.slotsLoading = false; this.formError = 'Please choose today or a later date.'; return; }
+    if (this.guidance.isWeekend(this.form.date)) { this._restoreHintSlot = null; this.slotsLoading = false; this.formError = 'Appointments are not available on weekends.'; return; }
     const availabilityCounselorId = (this.isFollowUp(this.target) && this.target.counselorId) ? this.target.counselorId : (this.counselor && this.counselor.id);
     if (!availabilityCounselorId) {
+      this._restoreHintSlot = null;
+      this.slotsLoading = false;
       this.formError = this.counselorError || 'Counselor info is not available yet. Please close and try again.';
       return;
     }
     this.slotsLoading = true;
     this.guidance.getSlots(availabilityCounselorId, this.form.date).subscribe(
-      s => { this.slots = s; this.slotsLoading = false; },
-      e => { this.formError = (e && e.message) ? e.message : 'Could not load time slots.'; this.slotsLoading = false; }
+      s => {
+        // Discard if a newer date selection has already superseded this request.
+        if (slotNo !== this.slotRequestNo) { return; }
+        this.slots = s;
+        this.slotsLoading = false;
+        // After slots load, try to restore the previously selected slot.
+        // Auto-select only if the slot is still Available — if it is now Unavailable or
+        // gone, the student must choose again (availability may have changed).
+        if (pendingSlot && pendingSlot.startTime) {
+          const match = this.slots.find(
+            slot => slot.startTime === pendingSlot.startTime && slot.status === 'Available'
+          );
+          this.selected = match ? match : null;
+        }
+        // Clear the hint slot now that loading is done.
+        this._restoreHintSlot = null;
+      },
+      e => {
+        // Discard if superseded.
+        if (slotNo !== this.slotRequestNo) { return; }
+        this._restoreHintSlot = null;
+        this.formError = (e && e.message) ? e.message : 'Could not load time slots.';
+        this.slotsLoading = false;
+      }
     );
   }
 
@@ -740,7 +825,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
             this.saving = false;
             if (this.dialogRef) { this.dialogRef.close(); }
             this.notice = 'Follow-up reschedule request sent. Waiting for counselor approval.';
-            this.load();
+            this.loadFollowUps();
           },
           e => {
             this.saving = false;

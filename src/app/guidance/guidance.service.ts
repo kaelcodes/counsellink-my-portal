@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { GlobalService } from '../global.service';
 import { CounselLinkApi } from './counsellink.api';
 import {
@@ -99,29 +99,14 @@ export class GuidanceService {
    * is insufficient. The backend must enforce that students can only access their own appointments.
    */
   getSlots(counselorId: string, date: string): Observable<TimeSlot[]> {
-    const ownId = String(this.global.requestid() || '');
-    return new Observable(obs => {
-      this.api.getTakenSlotDetails(counselorId, date).subscribe(
-        taken => {
-          const slots: TimeSlot[] = this.daySlots().map(s => {
-            const match = taken.find(t => t.startTime === s.start);
-            let status: 'Available' | 'Unavailable' | 'Own' = 'Available';
-            if (match) {
-              // If the slot belongs to the authenticated student, mark as 'Own'
-              status = (ownId && match.studentId === ownId) ? 'Own' : 'Unavailable';
-            }
-            return {
-              startTime: s.start, endTime: s.end,
-              label: this.formatTime(s.start) + ' - ' + this.formatTime(s.end),
-              status: status
-            };
-          });
-          obs.next(slots);
-          obs.complete();
-        },
-        e => obs.error(e)
-      );
-    });
+    return this.api.getScheduleAvailability(counselorId, date).pipe(
+      map(apiSlots => apiSlots.map(s => ({
+        startTime: s.startTime,
+        endTime:   s.endTime,
+        label:     this.formatTime(s.startTime) + ' - ' + this.formatTime(s.endTime),
+        status:    (s.isAvailable ? 'Available' : 'Unavailable') as 'Available' | 'Unavailable'
+      })))
+    );
   }
 
   // ----------------------------------------------------------- appointments
@@ -133,6 +118,12 @@ export class GuidanceService {
         this.api.getHistory(p, q).subscribe(r => { obs.next(r); obs.complete(); }, e => obs.error(e));
       }, e => obs.error(e));
     });
+  }
+
+  getFollowUpHistory(): Observable<Appointment[]> {
+    return this.getStudentProfile().pipe(
+      switchMap(p => this.api.getFollowUpHistory(p))
+    );
   }
 
   /**

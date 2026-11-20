@@ -126,6 +126,44 @@
         <ng-container *ngIf="!search && status === 'All'">You have no appointments yet. Book one with the New Appointment button.</ng-container>
       </div>
 
+      <!-- Follow-ups are independent from Recent Appointments and load from their own endpoints. -->
+      <div class="drafts-section follow-ups-section">
+        <h3 class="drafts-heading">Follow-Up Appointments</h3>
+        <mat-progress-bar mode="indeterminate" *ngIf="followUpsLoading"></mat-progress-bar>
+        <div class="msg msg-error" *ngIf="followUpsError">
+          <span>{{ followUpsError }}</span>
+          <button mat-stroked-button type="button" class="btn-outline" (click)="loadFollowUps()">Retry</button>
+        </div>
+        <div class="empty" *ngIf="!followUpsLoading && !followUpsError && !followUps.length">
+          No active follow-ups.
+        </div>
+        <table class="appt-table" *ngIf="!followUpsLoading && followUps.length">
+          <thead>
+            <tr><th class="col-id">ID</th><th class="col-date">Date</th><th class="col-time">Time</th><th class="col-concern">Concern</th><th class="col-notes">Notes</th><th class="col-status">Status</th><th class="col-actions">Actions</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of followUps" [ngClass]="'row-' + statusClass(f)">
+              <td class="col-id" data-label="ID">{{ f.followUpId || f.id }}</td>
+              <td class="col-date" data-label="Date">{{ f.date | date:'MMM d, y' }}</td>
+              <td class="col-time" data-label="Time">{{ time(f) }}</td>
+              <td class="col-concern" data-label="Concern">{{ f.concernTypeName || '—' }}</td>
+              <td class="col-notes" data-label="Notes">{{ f.notes || '—' }}</td>
+              <td class="col-status" data-label="Status"><span class="badge" [ngClass]="statusClass(f)">{{ displayStatus(f) }}</span></td>
+              <td class="col-actions" data-label="Actions">
+                <div class="row-actions">
+                  <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon"
+                    *ngIf="(f.status === 'Scheduled' || f.status === 'Pending' || f.status === 'Approved') && !f.followUpReschedulePending"
+                    [disabled]="actionLoading" matTooltip="Request follow-up reschedule" (click)="openReschedule(f, formDialog)">
+                    <mat-icon>event_repeat</mat-icon>
+                  </button>
+                  <span class="waiting-label" *ngIf="f.status === 'Reschedule Pending'">Waiting for counselor</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <!-- ---- Drafts section ---- -->
       <div class="drafts-section" *ngIf="drafts.length">
         <h3 class="drafts-heading">
@@ -206,8 +244,8 @@
     </mat-form-field>
 
     <!-- Draft: show saved time hint when slots haven't loaded yet -->
-    <p class="draft-time-hint" *ngIf="isDraftMode && activeDraft.startTime && !slots.length && !slotsLoading">
-      Previously selected: {{ draftTime(activeDraft) }} — refreshing availability&hellip;
+    <p class="draft-time-hint" *ngIf="isDraftMode && _restoreHintSlot && _restoreHintSlot.startTime && !slots.length && !slotsLoading">
+      Previously selected: {{ formatTime(_restoreHintSlot.startTime) }}<ng-container *ngIf="_restoreHintSlot.endTime"> &ndash; {{ formatTime(_restoreHintSlot.endTime) }}</ng-container> &mdash; refreshing availability&hellip;
     </p>
 
     <div class="slot-block">
