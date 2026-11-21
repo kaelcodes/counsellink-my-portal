@@ -72,6 +72,14 @@ export interface Appointment {
   isFollowUp?: boolean;
   followUpId?: number;
   followUpReschedulePending?: boolean;
+  /**
+   * Who proposed the most recent reschedule for this appointment.
+   * Derived client-side from reschedule history; undefined when status is not 'Rescheduled'
+   * or when the history could not be fetched.
+   * 'student' → the counselor must respond (Accept or Reschedule Again).
+   * 'counselor' → the student must respond (Accept or Reschedule Again).
+   */
+  rescheduleProposedBy?: 'student' | 'counselor';
 }
 
 export interface BookingRequest {

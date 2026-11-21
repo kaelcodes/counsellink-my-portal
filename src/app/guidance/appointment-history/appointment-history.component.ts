@@ -204,7 +204,10 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.activeDraft = null;   // ensure normal reschedule mode
     this.mode = 'reschedule';
     this.resetForm();
-    this.editingConcernDetails = !this.isCounselorInitiated(a) && !this.isFollowUp(a);
+    // Counter-rescheduling from a Rescheduled appointment is a time-only change — no concern edit.
+    // editingConcernDetails is only for Pending student-initiated appointments where the student
+    // wants to also update the concern type/description alongside the time change.
+    this.editingConcernDetails = !this.isCounselorInitiated(a) && !this.isFollowUp(a) && a.status !== 'Rescheduled';
     this.followUpRescheduleNote = '';
     if (this.editingConcernDetails) {
       this.form.concernTypeId = a.concernTypeId || (this.concernTypes.find(t => t.name === a.concernTypeName) || { id: '' }).id;
@@ -618,6 +621,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     this.guidance.acceptReschedule(a.id).subscribe(
       () => {
         this.actionLoading = false;
+        this.notice = 'Reschedule accepted. Your appointment is now confirmed.';
         this.load();
       },
       e => {
@@ -827,7 +831,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
           if (this.dialogRef) { this.dialogRef.close(); }
           this.rescheduledByStudentIds.add(appointmentId);
           const idx = this.items.findIndex(x => x.id === updated.id);
-          if (idx >= 0) { this.items[idx] = updated; }
+          if (idx >= 0) { this.items[idx] = { ...updated, rescheduleProposedBy: 'student' }; }
           this.notice = this.editingConcernDetails
             ? 'Changes submitted. Your updated appointment is waiting for counselor review.'
             : 'Reschedule request sent. Waiting for counselor confirmation.';

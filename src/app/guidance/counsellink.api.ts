@@ -439,14 +439,54 @@ export class CounselLinkApi {
 
   /** Fetch normal appointments and counselor-created follow-ups, merge, filter, sort, and paginate. */
   getHistory(p: StudentProfile, q: HistoryQuery): Observable<HistoryResult> {
-    return forkJoin(this.studentAppointments(p), this.studentFollowUps(p), this.studentFollowUpRescheduleRequests(p)).pipe(map(r => {
+    return forkJoin(
+      this.studentAppointments(p),
+      this.studentFollowUps(p),
+      this.studentFollowUpRescheduleRequests(p),
+      // Fetch reschedule history to annotate who proposed the most recent reschedule per appointment.
+      // Non-fatal: if this fails the rest of history still loads.
+      this.getStudentRescheduleHistory(p.idNumber).pipe(catchError(() => of([])))
+    ).pipe(map(r => {
       const requests = r[2].filter(x => this.isPendingFollowUpRequest(x));
       const followUps = r[1].map(row => {
         const id = +firstDefined(row, ['followUpID', 'followUpId', 'id']);
         const pending = requests.some(req => this.followUpIdOf(req) === id);
         return this.mapFollowUp(row, pending, p.idNumber);
       });
-      const all = r[0].concat(followUps);
+      // Build a map of appointmentId → most-recent reschedule proposer from history rows.
+      // A history row has the student's idNumber if the student proposed, or employeeID if
+      // the counselor proposed. We pick the last entry (sorted by newStartDate desc) per appt.
+      const reschedHist: any[] = r[3];
+      const proposerMap: { [id: number]: 'student' | 'counselor' } = {};
+      if (reschedHist.length) {
+        // Sort descending by proposed date so the first entry per appointment is the latest.
+        const sorted = reschedHist.slice().sort((a, b) => {
+          const da = String(firstDefined(a, ['newStartDate', 'proposedDate', 'createdAt']) || '');
+          const db = String(firstDefined(b, ['newStartDate', 'proposedDate', 'createdAt']) || '');
+          return da < db ? 1 : -1;
+        });
+        sorted.forEach(h => {
+          const apptId = +firstDefined(h, ['appointmentID', 'id']);
+          if (!isNaN(apptId) && proposerMap[apptId] === undefined) {
+            // If the history row has the student's idNumber as the initiator it was student-proposed;
+            // if it has an employeeID it was counselor-proposed.
+            const rowStudentId = String(field(h, 'idNumber') || '');
+            const rowEmployeeId = String(field(h, 'employeeID') || '');
+            if (rowStudentId && rowStudentId === p.idNumber) {
+              proposerMap[apptId] = 'student';
+            } else if (rowEmployeeId) {
+              proposerMap[apptId] = 'counselor';
+            }
+          }
+        });
+      }
+      const all = r[0].map(a => {
+        // Annotate Rescheduled appointments with who proposed the most recent reschedule.
+        if (a.status === 'Rescheduled' && proposerMap[a.id] !== undefined) {
+          return { ...a, rescheduleProposedBy: proposerMap[a.id] };
+        }
+        return a;
+      }).concat(followUps);
       const term = (q.search || '').trim().toLowerCase();
       const items = all
         .filter(a => a.status !== 'Draft')   // Draft records (status 5) are managed separately
@@ -458,6 +498,24 @@ export class CounselLinkApi {
       const from = q.pageIndex * q.pageSize;
       return { items: items.slice(from, from + q.pageSize), total: items.length };
     }));
+  }
+
+  /**
+   * GET /api/appointments/reschedule-history?idNumber=... (or SearchIDNumber=...)
+   * Returns reschedule history records for the authenticated student.
+   * Each record identifies the appointment, the new proposed date/time, and the proposer
+   * (via idNumber = student or employeeID = counselor on the row).
+   * Falls back to empty array on failure — history annotation is non-fatal.
+   */
+  getStudentRescheduleHistory(studentIdNumber: string): Observable<any[]> {
+    // Try the idNumber param first; the endpoint may also accept SearchIDNumber.
+    return this.get('appointments/reschedule-history', { idNumber: studentIdNumber }).pipe(
+      map(body => rows(body)),
+      catchError(() => this.get('appointments/reschedule-history', { SearchIDNumber: studentIdNumber }).pipe(
+        map(body => rows(body)),
+        catchError(() => of([]))
+      ))
+    );
   }
 
   /** POST /api/follow-ups/{followUpId}/reschedule-requests — requests counselor approval. */
@@ -492,14 +550,15 @@ export class CounselLinkApi {
 
   /**
    * Reschedule endpoint: POST /api/appointments/{id}/reschedule (RescheduleDto: newStartDate, newEndDate, rescheduleNote).
-   * Allowed for BOTH 'Pending' AND 'Approved' appointments (REQ 1B — rescheduling after counselor approval).
+   * Allowed for 'Pending', 'Approved', and 'Rescheduled' appointments.
+   * 'Rescheduled' allows the student to counter-propose when the counselor has proposed a new time.
    * A live failure surfaces as a friendly error; it is never silently swallowed.
    */
   reschedule(p: StudentProfile, id: number, req: RescheduleRequest): Observable<Appointment> {
     return this.studentAppointments(p).pipe(switchMap(all => {
       const old = all.filter(a => a.id === id)[0];
-      if (!old || (old.status !== 'Pending' && old.status !== 'Approved')) {
-        return throwError(new Error('Only a pending or approved appointment can be rescheduled.'));
+      if (!old || (old.status !== 'Pending' && old.status !== 'Approved' && old.status !== 'Rescheduled')) {
+        return throwError(new Error('Only a pending, approved, or rescheduled appointment can be rescheduled.'));
       }
       const body = {
         newStartDate: req.date + 'T' + req.startTime + ':00',

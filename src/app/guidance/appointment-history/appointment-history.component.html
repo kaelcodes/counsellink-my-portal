@@ -131,7 +131,19 @@
                     <span class="waiting-label">Appointment Confirmed</span>
                   </ng-container>
                   <ng-container *ngIf="!isFollowUp(a) && a.status === 'Rescheduled'">
-                    <span class="waiting-label">Reschedule awaiting confirmation</span>
+                    <!-- Counselor proposed the reschedule: student can Accept or propose a different time. -->
+                    <ng-container *ngIf="a.rescheduleProposedBy === 'counselor' || (!a.rescheduleProposedBy && !rescheduledByStudentIds.has(a.id))">
+                      <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon"
+                        [disabled]="actionLoading" matTooltip="Accept proposed reschedule"
+                        (click)="acceptReschedule(a)"><mat-icon>check</mat-icon></button>
+                      <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon"
+                        [disabled]="actionLoading" matTooltip="Propose a different time"
+                        (click)="openReschedule(a, formDialog)"><mat-icon>event</mat-icon></button>
+                    </ng-container>
+                    <!-- Student proposed the reschedule: waiting for counselor response. -->
+                    <ng-container *ngIf="a.rescheduleProposedBy === 'student' || (!a.rescheduleProposedBy && rescheduledByStudentIds.has(a.id))">
+                      <span class="waiting-label">Waiting for counselor</span>
+                    </ng-container>
                   </ng-container>
                 </div>
               </td>
