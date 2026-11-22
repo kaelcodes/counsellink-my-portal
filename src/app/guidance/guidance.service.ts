@@ -5,7 +5,7 @@ import { GlobalService } from '../global.service';
 import { CounselLinkApi } from './counsellink.api';
 import {
   Appointment, AppointmentStatus, BookingRequest, Counselor, CounselingType,
-  HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, SLOT_MINUTES,
+  HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, RescheduleV2ProposalRequest, SLOT_MINUTES,
   StudentProfile, TimeSlot
 } from './guidance.models';
 
@@ -166,6 +166,24 @@ export class GuidanceService {
         this.api.book(p, req).subscribe(a => { obs.next(a); obs.complete(); }, e => obs.error(e));
       }, e => obs.error(e));
     });
+  }
+
+  /**
+   * V2 proposal API facade. These wrappers are available for later UI migration;
+   * the current legacy reschedule submit flow is intentionally left unchanged.
+   */
+  proposeRescheduleV2(id: number, payload: RescheduleV2ProposalRequest): Observable<any> {
+    return this.api.proposeRescheduleV2(id, payload);
+  }
+
+  /** Raw pending-proposal response; Swagger currently has no response schema. */
+  getPendingRescheduleV2(id: number): Observable<any> {
+    return this.api.getPendingRescheduleV2(id);
+  }
+
+  /** Endpoint wrapper only; do not wire to the student Accept action until actor semantics are verified. */
+  acceptRescheduleV2(id: number): Observable<any> {
+    return this.api.acceptRescheduleV2(id);
   }
 
   /**
