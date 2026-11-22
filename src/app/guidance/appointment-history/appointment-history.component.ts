@@ -742,7 +742,9 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     if (!this.form.date) { return; }
     if (this.form.date < this.minDate) { this.formError = 'Please choose today or a later date.'; return; }
     if (this.guidance.isWeekend(this.form.date)) { this.formError = 'Appointments are not available on weekends.'; return; }
-    const availabilityCounselorId = (this.isFollowUp(this.target) && this.target.counselorId) ? this.target.counselorId : (this.counselor && this.counselor.id);
+    // During reschedule, check availability for the appointment's actual counselor, not the student's current assignment.
+    const availabilityCounselorId = (this.mode === 'reschedule' && this.target && this.target.counselorId)
+      ? this.target.counselorId : (this.counselor && this.counselor.id);
     if (!availabilityCounselorId) {
       this.formError = this.counselorError || 'Counselor info is not available yet. Please close and try again.';
       return;
