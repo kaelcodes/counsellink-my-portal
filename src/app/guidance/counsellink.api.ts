@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 import { GlobalService } from '../global.service';
 import {
   Appointment, AppointmentStatus, BookingRequest, Counselor, CounselingType,
-  HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, SLOT_MINUTES, StudentProfile
+  HistoryQuery, HistoryResult, OFFICE_HOURS, RescheduleRequest, RescheduleV2ProposalRequest, SLOT_MINUTES, StudentProfile
 } from './guidance.models';
 
 /*
@@ -489,6 +489,30 @@ export class CounselLinkApi {
 
   book(p: StudentProfile, req: BookingRequest): Observable<Appointment> {
     return this.submit(p, req, null);
+  }
+
+  /**
+   * POST /api/appointments/{id}/reschedule-v2/proposals.
+   * Request schema is fully documented; intentionally does not change the legacy reschedule flow.
+   */
+  proposeRescheduleV2(id: number, payload: RescheduleV2ProposalRequest): Observable<any> {
+    return this.send('post', 'appointments/' + id + '/reschedule-v2/proposals', payload);
+  }
+
+  /**
+   * GET /api/appointments/{id}/reschedule-v2/pending.
+   * Swagger does not define the response schema, so return the raw response without interpreting it.
+   */
+  getPendingRescheduleV2(id: number): Observable<any> {
+    return this.get('appointments/' + id + '/reschedule-v2/pending');
+  }
+
+  /**
+   * PUT /api/appointments/{id}/reschedule-v2/accept (no request body).
+   * Endpoint wrapper only; actor authorization and UI wiring remain unverified.
+   */
+  acceptRescheduleV2(id: number): Observable<any> {
+    return this.send('put', 'appointments/' + id + '/reschedule-v2/accept');
   }
 
   /**
