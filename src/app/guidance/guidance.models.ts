@@ -84,6 +84,13 @@ export interface BookingRequest {
   notes: string;
 }
 
+/** Request body documented by RescheduleV2ProposalDto in Swagger. */
+export interface RescheduleV2ProposalRequest {
+  newStart: string;       // local date-time: YYYY-MM-DDTHH:mm:ss (no timezone suffix)
+  newEnd: string;         // local date-time: YYYY-MM-DDTHH:mm:ss (no timezone suffix)
+  rescheduleNote: string;
+}
+
 export interface RescheduleRequest {
   date: string;
   startTime: string;
