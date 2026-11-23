@@ -63,6 +63,46 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
   // IDs of appointments where the STUDENT submitted a reschedule request this session.
   // For these, the appointment shows as "Waiting for counselor" — no Accept Reschedule button.
   rescheduledByStudentIds: Set<number> = new Set<number>();
+  /** Server-owned proposal state; independent of the original appointment type. */
+  pendingV2ByAppointment: { [appointmentId: number]: any } = {};
+  studentV2Pending(a: Appointment): boolean {
+    const p = a && this.pendingV2ByAppointment[a.id];
+    return !!p && p.origin === 'Student';
+  }
+  counselorV2Pending(a: Appointment): boolean {
+    const p = a && this.pendingV2ByAppointment[a.id];
+    return !!p && p.origin === 'Counselor';
+  }
+  hasV2Pending(a: Appointment): boolean { return !!(a && this.pendingV2ByAppointment[a.id]); }
+  proposalLabel(a: Appointment): string {
+    const p = a && this.pendingV2ByAppointment[a.id];
+    if (!p) { return ''; }
+    const start = String(p.proposedStartDateTime || '');
+    const end = String(p.proposedEndDateTime || '');
+    return start.substring(0, 10) + ' ' + start.substring(11, 16) + '–' + end.substring(11, 16);
+  }
+  private loadV2Proposals(requestNo: number): void {
+    const targets = this.items.filter(a => !this.isFollowUp(a) &&
+      (a.status === 'Pending' || a.status === 'Approved'));
+    this.pendingV2ByAppointment = {};
+    if (!targets.length) { return; }
+    forkJoin(targets.map(a => this.guidance.getPendingRescheduleV2(a.id))).subscribe(
+      results => {
+        if (requestNo !== this.requestNo) { return; }
+        const pending: { [id: number]: any } = {};
+        results.forEach((p, index) => {
+          if (p && p.proposalStatus === 'Pending') { pending[targets[index].id] = p; }
+        });
+        this.pendingV2ByAppointment = pending;
+      },
+      e => {
+        if (requestNo !== this.requestNo) { return; }
+        this.actionError = 'Could not load reschedule proposals. Please retry before responding.';
+        console.error('V2 proposal lookup failed:', e);
+      }
+    );
+  }
+
 
   // ---- Draft state --------------------------------------------------------
   drafts: AppointmentDraft[] = [];
@@ -119,6 +159,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
       r => {
         if (no !== this.requestNo) { return; }
         this.items = r.items;
+        this.loadV2Proposals(no);
         this.total = r.total;
         this.loading = false;
         if (this.firstLoad) { this.firstLoad = false; Swal.close(); }
@@ -201,6 +242,10 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
   }
 
   openReschedule(a: Appointment, tpl: TemplateRef<any>) {
+    if (!a || a.status === 'No-show' || a.status === 'Completed' || a.status === 'Cancelled') {
+      this.actionError = 'This appointment is already closed and cannot be rescheduled.';
+      return;
+    }
     this.target = a;
     this.activeDraft = null;   // ensure normal reschedule mode
     this.mode = 'reschedule';
@@ -619,6 +664,11 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     if (this.actionLoading) { return; }
     this.actionLoading = true;
     this.actionError = '';
+    if (!this.counselorV2Pending(a)) {
+      this.actionLoading = false;
+      this.actionError = 'No counselor proposal is awaiting your response.';
+      return;
+    }
     this.guidance.acceptReschedule(a.id).subscribe(
       () => {
         this.actionLoading = false;
@@ -776,6 +826,11 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
 
   submit() {
     if (!this.canSubmit) { return; }
+    if (this.mode === 'reschedule' && this.target &&
+        (this.target.status === 'No-show' || this.target.status === 'Completed' || this.target.status === 'Cancelled')) {
+      this.formError = 'This appointment is already closed and cannot be rescheduled.';
+      return;
+    }
     const s = this.selected;
     this.saving = true;
     this.formError = '';
@@ -831,7 +886,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
         (updated: Appointment) => {
           this.saving = false;
           if (this.dialogRef) { this.dialogRef.close(); }
-          this.rescheduledByStudentIds.add(appointmentId);
+          // Pending V2 state is reloaded from the server.
           const idx = this.items.findIndex(x => x.id === updated.id);
           if (idx >= 0) { this.items[idx] = updated; }
           this.notice = this.editingConcernDetails

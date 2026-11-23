@@ -104,8 +104,21 @@
               </td>
               <td class="col-actions" data-label="Actions">
                 <div class="row-actions">
+                  <!-- V2 response is determined by the current proposal origin, NOT the original appointment type. -->
+                  <ng-container *ngIf="!isFollowUp(a) && counselorV2Pending(a)">
+                    <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon"
+                      [disabled]="actionLoading" matTooltip="Accept counselor's proposed schedule"
+                      (click)="acceptReschedule(a)"><mat-icon>check</mat-icon></button>
+                    <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon"
+                      [disabled]="actionLoading" matTooltip="Propose another schedule"
+                      (click)="openReschedule(a, formDialog)"><mat-icon>repeat</mat-icon></button>
+                    <span class="waiting-label">Proposed: {{ proposalLabel(a) }}</span>
+                  </ng-container>
+                  <ng-container *ngIf="!isFollowUp(a) && studentV2Pending(a)">
+                    <span class="waiting-label">Waiting for counselor</span>
+                  </ng-container>
                   <!-- Counselor-initiated appointments may also be rescheduled by the student. -->
-                  <ng-container *ngIf="!isFollowUp(a) && isCounselorInitiated(a) && (a.status === 'Pending' || a.status === 'Approved')">
+                  <ng-container *ngIf="!isFollowUp(a) && !hasV2Pending(a) && isCounselorInitiated(a) && (a.status === 'Pending' || a.status === 'Approved')">
                     <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon"
                       [disabled]="actionLoading" matTooltip="Reschedule appointment"
                       (click)="openReschedule(a, formDialog)"><mat-icon>repeat</mat-icon></button>
@@ -118,7 +131,7 @@
                   <ng-container *ngIf="isFollowUp(a) && a.status === 'Reschedule Pending'">
                     <span class="waiting-label">Waiting for counselor</span>
                   </ng-container>
-                  <ng-container *ngIf="!isFollowUp(a) && a.status === 'Pending'">
+                  <ng-container *ngIf="!isFollowUp(a) && !hasV2Pending(a) && a.status === 'Pending'">
                     <!-- Counselor-initiated: student can accept the proposed appointment. -->
                     <ng-container *ngIf="isCounselorInitiated(a)">
                       <button mat-stroked-button type="button" class="btn-outline btn-sm btn-icon"
@@ -132,9 +145,12 @@
                         (click)="requestDelete(a)"><mat-icon>cancel</mat-icon></button>
                     </ng-container>
                   </ng-container>
-                  <ng-container *ngIf="!isFollowUp(a) && a.status === 'Approved'">
+                  <ng-container *ngIf="!isFollowUp(a) && !hasV2Pending(a) && a.status === 'Approved'">
                     <!-- Approved appointments are confirmed for both initiation types; no further action is needed. -->
                     <span class="waiting-label">Appointment Confirmed</span>
+                  </ng-container>
+                  <ng-container *ngIf="!isFollowUp(a) && a.status === 'No-show'">
+                    <span class="waiting-label">No-show · Rescheduling unavailable</span>
                   </ng-container>
                   <ng-container *ngIf="!isFollowUp(a) && a.status === 'Rescheduled'">
                     <span class="waiting-label">Reschedule awaiting confirmation</span>

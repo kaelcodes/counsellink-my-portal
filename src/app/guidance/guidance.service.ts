@@ -232,6 +232,13 @@ export class GuidanceService {
     );
   }
 
+  /** Active V2 proposal for this student's own appointment, or null if absent. */
+  getPendingRescheduleV2(id: number): Observable<any | null> {
+    return this.getStudentProfile().pipe(
+      switchMap(p => this.api.getPendingRescheduleV2(p, id))
+    );
+  }
+
   /**
    * Accept a counselor-proposed reschedule.
    * LIVE: PUT /api/appointments/{id}/accept-reschedule → body: { idNumber }.
