@@ -1,0 +1,3949 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "CounselLink.API",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/appointment-drafts/{appointmentId}": {
+      "delete": {
+        "tags": [
+          "AppointmentDraftDelete"
+        ],
+        "summary": "Delete an unsubmitted Draft (AppointmentStatusID = 5) for the supplied\r\nstudent ID. The appointmentId is the same ID used by Draft update/submit.\r\nExample: DELETE /api/appointment-drafts/101?idNumber=2023001",
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "idNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Draft deleted; returns appointmentId and message."
+          },
+          "400": {
+            "description": "Invalid request or other business validation failure."
+          },
+          "404": {
+            "description": "Draft not found for the appointmentId and idNumber."
+          },
+          "409": {
+            "description": "Appointment is no longer a Draft."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AppointmentDrafts"
+        ],
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftAppointmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftAppointmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointment-drafts": {
+      "post": {
+        "tags": [
+          "AppointmentDrafts"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftAppointmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftAppointmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointment-drafts/{appointmentId}/submit": {
+      "post": {
+        "tags": [
+          "AppointmentDrafts"
+        ],
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitDraftDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitDraftDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitDraftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "GET /api/appointments -> dbo.spAppointment_Select (with query filters)",
+        "parameters": [
+          {
+            "name": "SearchAppointmentID",
+            "in": "query",
+            "description": "@SearchAppointmentID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1001
+            },
+            "example": 1001
+          },
+          {
+            "name": "SearchIDNumber",
+            "in": "query",
+            "description": "@SearchIDNumber",
+            "schema": {
+              "type": "string",
+              "example": "2023001"
+            },
+            "example": "2023001"
+          },
+          {
+            "name": "SearchGradeOrYear",
+            "in": "query",
+            "description": "@SearchGradeOrYear",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 4
+            },
+            "example": 4
+          },
+          {
+            "name": "SearchProgram",
+            "in": "query",
+            "description": "@SearchProgram",
+            "schema": {
+              "type": "string",
+              "example": "BS Information Technology"
+            },
+            "example": "BS Information Technology"
+          },
+          {
+            "name": "SearchEmployeeID",
+            "in": "query",
+            "description": "@SearchEmployeeID",
+            "schema": {
+              "type": "string",
+              "example": "EMP-1001"
+            },
+            "example": "EMP-1001"
+          },
+          {
+            "name": "SearchStartDate",
+            "in": "query",
+            "description": "@SearchStartDate (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-10-01"
+            },
+            "example": "2026-10-01"
+          },
+          {
+            "name": "SearchEndDate",
+            "in": "query",
+            "description": "@SearchEndDate (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-10-31"
+            },
+            "example": "2026-10-31"
+          },
+          {
+            "name": "SearchAppointmentTime",
+            "in": "query",
+            "description": "@SearchAppointmentTime (HH:mm:ss)",
+            "schema": {
+              "type": "string",
+              "format": "date-span",
+              "example": "08:30:00"
+            },
+            "example": "08:30:00"
+          },
+          {
+            "name": "SearchAppointmentTypeID",
+            "in": "query",
+            "description": "@SearchAppointmentTypeID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "SearchConcernTypeID",
+            "in": "query",
+            "description": "@SearchConcernTypeID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 2
+            },
+            "example": 2
+          },
+          {
+            "name": "SearchStatusID",
+            "in": "query",
+            "description": "@SearchStatusID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "SearchAttendanceID",
+            "in": "query",
+            "description": "@SearchAttendanceID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "SearchReferredBy",
+            "in": "query",
+            "description": "@SearchReferredBy",
+            "schema": {
+              "type": "string",
+              "example": "Prof. Dela Cruz"
+            },
+            "example": "Prof. Dela Cruz"
+          },
+          {
+            "name": "SearchReferralStart",
+            "in": "query",
+            "description": "@SearchReferralStart (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-10-01"
+            },
+            "example": "2026-10-01"
+          },
+          {
+            "name": "SearchReferralEnd",
+            "in": "query",
+            "description": "@SearchReferralEnd (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-10-31"
+            },
+            "example": "2026-10-31"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "POST /api/appointments -> dbo.spAppointment_Insert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppointmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppointmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}": {
+      "put": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "PUT /api/appointments/{id} -> dbo.spAppointment_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppointmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppointmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "DELETE /api/appointments/{id} -> dbo.spAppointment_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/confirm": {
+      "put": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "PUT /api/appointments/{id}/confirm -> dbo.spConfirmAppointment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmAppointmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmAppointmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/student-confirm": {
+      "put": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "PUT /api/appointments/{id}/student-confirm -> dbo.spStudentConfirmAppointment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdNumberDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdNumberDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdNumberDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/complete": {
+      "put": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "PUT /api/appointments/{id}/complete -> dbo.spCompleteAppointment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/reschedule": {
+      "post": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "POST /api/appointments/{id}/reschedule -> dbo.spRescheduleAppointment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/accept-reschedule": {
+      "put": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "PUT /api/appointments/{id}/accept-reschedule -> dbo.spStudentAcceptReschedule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdNumberDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdNumberDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdNumberDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/no-show": {
+      "put": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "PUT /api/appointments/{id}/no-show -> dbo.spSetAppointmentNoShow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/reschedule-history/permanent": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/reschedule-history": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "GET /api/appointments/reschedule-history -> dbo.spGetCounselorRescheduleHistory",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/sessions": {
+      "post": {
+        "tags": [
+          "Clinical"
+        ],
+        "summary": "POST /api/clinical/sessions -> dbo.spCounselingSession_Insert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselingSessionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselingSessionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselingSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Clinical"
+        ],
+        "summary": "GET /api/clinical/sessions -> dbo.spCounselingSession_Select",
+        "parameters": [
+          {
+            "name": "SearchIDNumber",
+            "in": "query",
+            "description": "@SearchIDNumber",
+            "schema": {
+              "type": "string",
+              "example": "2023001"
+            },
+            "example": "2023001"
+          },
+          {
+            "name": "SearchEmployeeID",
+            "in": "query",
+            "description": "@SearchEmployeeID",
+            "schema": {
+              "type": "string",
+              "example": "EMP0001"
+            },
+            "example": "EMP0001"
+          },
+          {
+            "name": "SearchAppointmentID",
+            "in": "query",
+            "description": "@SearchAppointmentID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 1001
+            },
+            "example": 1001
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/assessments": {
+      "post": {
+        "tags": [
+          "Clinical"
+        ],
+        "summary": "POST /api/clinical/assessments -> dbo.spStudentAssessment_Insert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentAssessmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentAssessmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentAssessmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Clinical"
+        ],
+        "summary": "GET /api/clinical/assessments -> dbo.spStudentAssessment_Select",
+        "parameters": [
+          {
+            "name": "SearchAssessmentID",
+            "in": "query",
+            "description": "@SearchAssessmentID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 6001
+            },
+            "example": 6001
+          },
+          {
+            "name": "SearchSessionID",
+            "in": "query",
+            "description": "@SearchSessionID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 5001
+            },
+            "example": 5001
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/assessments/{assessmentId}": {
+      "put": {
+        "tags": [
+          "Clinical"
+        ],
+        "parameters": [
+          {
+            "name": "assessmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentAssessmentUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentAssessmentUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentAssessmentUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/monitoring": {
+      "get": {
+        "tags": [
+          "Clinical"
+        ],
+        "parameters": [
+          {
+            "name": "SearchIDNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchEmployeeID",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchAppointmentID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SearchSessionID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/follow-up-needs": {
+      "get": {
+        "tags": [
+          "Clinical"
+        ],
+        "parameters": [
+          {
+            "name": "SearchIDNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchEmployeeID",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchAppointmentID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SearchSessionID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/follow-ups": {
+      "post": {
+        "tags": [
+          "Clinical"
+        ],
+        "summary": "POST /api/clinical/follow-ups -> dbo.spSessionFollowUp_Insert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionFollowUpDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionFollowUpDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionFollowUpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Clinical"
+        ],
+        "summary": "GET /api/clinical/follow-ups -> dbo.spSessionFollowUp_Select",
+        "parameters": [
+          {
+            "name": "SearchAssessmentID",
+            "in": "query",
+            "description": "@SearchAssessmentID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 6001
+            },
+            "example": 6001
+          },
+          {
+            "name": "SearchStatus",
+            "in": "query",
+            "description": "@SearchStatus (Pending, Completed, Cancelled).",
+            "schema": {
+              "type": "string",
+              "example": "Pending"
+            },
+            "example": "Pending"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/follow-ups/{followUpId}": {
+      "put": {
+        "tags": [
+          "Clinical"
+        ],
+        "parameters": [
+          {
+            "name": "followUpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionFollowUpUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionFollowUpUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionFollowUpUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/follow-ups/details": {
+      "get": {
+        "tags": [
+          "Clinical"
+        ],
+        "parameters": [
+          {
+            "name": "SearchIDNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchEmployeeID",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SearchAppointmentID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SearchSessionID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SearchAssessmentID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SearchStatus",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/follow-ups/appointments": {
+      "post": {
+        "tags": [
+          "ClinicalFollowUpAppointments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleFollowUpRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleFollowUpRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleFollowUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/counseling-form/{appointmentId}": {
+      "get": {
+        "tags": [
+          "ClinicalFollowUpAppointments"
+        ],
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clinical/sessions/{sessionId}": {
+      "delete": {
+        "tags": [
+          "ClinicalSessionsDelete"
+        ],
+        "summary": "DELETE /api/clinical/sessions/{sessionId}; uses SessionID, not AppointmentID.",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/constants/{type}": {
+      "get": {
+        "tags": [
+          "Constants"
+        ],
+        "summary": "GET /api/constants/{type} -> spConst{Type}_Select",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Constants"
+        ],
+        "summary": "POST /api/constants/{type} -> spConst{Type}_Insert",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstantDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstantDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Constants"
+        ],
+        "summary": "PUT /api/constants/{type} -> spConst{Type}_Update",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstantDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstantDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/constants/{type}/{id}": {
+      "delete": {
+        "tags": [
+          "Constants"
+        ],
+        "summary": "DELETE /api/constants/{type}/{id} -> spConst{Type}_Delete",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "CounselLink.API"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselor-assignments": {
+      "get": {
+        "tags": [
+          "CounselorAssignments"
+        ],
+        "summary": "GET /api/counselor-assignments -> dbo.spCounselorAssignment_Select",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CounselorAssignments"
+        ],
+        "summary": "POST /api/counselor-assignments -> dbo.spCounselorAssignment_Insert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselor-records/me/assignments": {
+      "get": {
+        "tags": [
+          "CounselorRecords"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "schoolYear",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselor-records/appointments": {
+      "get": {
+        "tags": [
+          "CounselorRecords"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "schoolYear",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "searchIDNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselor-records/sessions": {
+      "get": {
+        "tags": [
+          "CounselorRecords"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "schoolYear",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselor-records/assessments": {
+      "get": {
+        "tags": [
+          "CounselorRecords"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "schoolYear",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselor-records/follow-ups": {
+      "get": {
+        "tags": [
+          "CounselorRecords"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "schoolYear",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselor-records/masterlist": {
+      "get": {
+        "tags": [
+          "CounselorRecords"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "schoolYear",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselors": {
+      "get": {
+        "tags": [
+          "Counselors"
+        ],
+        "summary": "GET /api/counselors -> dbo.spCounselor_Select",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Counselors"
+        ],
+        "summary": "POST /api/counselors -> dbo.spCounselor_Insert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Counselors"
+        ],
+        "summary": "PUT /api/counselors -> dbo.spCounselor_Update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselors/{employeeId}": {
+      "delete": {
+        "tags": [
+          "Counselors"
+        ],
+        "summary": "DELETE /api/counselors/{employeeId} -> dbo.spCounselor_Delete",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/counselor-schedules/availability": {
+      "get": {
+        "tags": [
+          "CounselorSchedules"
+        ],
+        "summary": "Get privacy-safe Available/Unavailable time slots for a counselor.",
+        "description": "Example: /api/counselor-schedules/availability?employeeId=EMP0001&startDate=2026-11-16&endDate=2026-11-20\r\nInclusive range of up to 42 days. Times are Philippine local times.",
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ScheduleBlocking"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBlockedSlotsDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBlockedSlotsDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBlockedSlotsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/student": {
+      "get": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "idNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "Active"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/counselor": {
+      "get": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "originalAppointmentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "All"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups": {
+      "post": {
+        "tags": [
+          "FollowUps"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFollowUpRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFollowUpRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFollowUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/{followUpId}/reschedule-requests": {
+      "post": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "followUpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentFollowUpRescheduleRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentFollowUpRescheduleRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentFollowUpRescheduleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/reschedule-requests/counselor": {
+      "get": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "Pending"
+            }
+          },
+          {
+            "name": "followUpId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/reschedule-requests/student": {
+      "get": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "idNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "followUpId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/reschedule-requests/{requestId}/approve": {
+      "post": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDecisionRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDecisionRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/reschedule-requests/{requestId}/decline": {
+      "post": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDecisionRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDecisionRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorDecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/{followUpId}/schedule": {
+      "put": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "followUpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorFollowUpRescheduleRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorFollowUpRescheduleRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorFollowUpRescheduleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/{followUpId}/complete": {
+      "post": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "followUpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteFollowUpRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteFollowUpRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteFollowUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/follow-ups/{followUpId}/cancel": {
+      "post": {
+        "tags": [
+          "FollowUps"
+        ],
+        "parameters": [
+          {
+            "name": "followUpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelFollowUpRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelFollowUpRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelFollowUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "GET /api/notifications -> dbo.spNotification_Select",
+        "parameters": [
+          {
+            "name": "SearchNotificationID",
+            "in": "query",
+            "description": "@SearchNotificationID",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 7001
+            },
+            "example": 7001
+          },
+          {
+            "name": "SearchIDNumber",
+            "in": "query",
+            "description": "@SearchIDNumber",
+            "schema": {
+              "type": "string",
+              "example": "2023001"
+            },
+            "example": "2023001"
+          },
+          {
+            "name": "SearchStatus",
+            "in": "query",
+            "description": "@SearchStatus (read status).",
+            "schema": {
+              "type": "boolean",
+              "example": false
+            },
+            "example": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "POST /api/notifications -> dbo.spNotification_Insert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/reports/monthly/completed": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "GET /api/reports/monthly/completed -> dbo.sp_GenerateMonthlyReport_CompletedAppointments",
+        "parameters": [
+          {
+            "name": "SchoolYearStart",
+            "in": "query",
+            "description": "School year start (year).",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 2026
+            },
+            "example": 2026
+          },
+          {
+            "name": "ReportMonth",
+            "in": "query",
+            "description": "Report month (1-12).",
+            "required": true,
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "example": 9
+            },
+            "example": 9
+          },
+          {
+            "name": "EmployeeID",
+            "in": "query",
+            "description": "Optional counselor employee id to scope the report.",
+            "schema": {
+              "type": "string",
+              "example": "EMP0001"
+            },
+            "example": "EMP0001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/reports/monthly/concerns": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "GET /api/reports/monthly/concerns -> dbo.sp_GenerateMonthlyReport_ConcernFrequency",
+        "parameters": [
+          {
+            "name": "SchoolYearStart",
+            "in": "query",
+            "description": "School year start (year).",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 2026
+            },
+            "example": 2026
+          },
+          {
+            "name": "ReportMonth",
+            "in": "query",
+            "description": "Report month (1-12).",
+            "required": true,
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "example": 9
+            },
+            "example": 9
+          },
+          {
+            "name": "EmployeeID",
+            "in": "query",
+            "description": "Optional counselor employee id to scope the report.",
+            "schema": {
+              "type": "string",
+              "example": "EMP0001"
+            },
+            "example": "EMP0001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/reports/monthly/modes": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "GET /api/reports/monthly/modes -> dbo.sp_GenerateMonthlyReport_SessionModes",
+        "parameters": [
+          {
+            "name": "SchoolYearStart",
+            "in": "query",
+            "description": "School year start (year).",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 2026
+            },
+            "example": 2026
+          },
+          {
+            "name": "ReportMonth",
+            "in": "query",
+            "description": "Report month (1-12).",
+            "required": true,
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "example": 9
+            },
+            "example": 9
+          },
+          {
+            "name": "EmployeeID",
+            "in": "query",
+            "description": "Optional counselor employee id to scope the report.",
+            "schema": {
+              "type": "string",
+              "example": "EMP0001"
+            },
+            "example": "EMP0001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/reports/monthly/referrals": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "GET /api/reports/monthly/referrals -> dbo.sp_GenerateMonthlyReport_ExternalReferrals",
+        "parameters": [
+          {
+            "name": "SchoolYearStart",
+            "in": "query",
+            "description": "School year start (year).",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 2026
+            },
+            "example": 2026
+          },
+          {
+            "name": "ReportMonth",
+            "in": "query",
+            "description": "Report month (1-12).",
+            "required": true,
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "example": 9
+            },
+            "example": 9
+          },
+          {
+            "name": "EmployeeID",
+            "in": "query",
+            "description": "Optional counselor employee id to scope the report.",
+            "schema": {
+              "type": "string",
+              "example": "EMP0001"
+            },
+            "example": "EMP0001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/reports/masterlist": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "GET /api/reports/masterlist -> dbo.sp_GetAppointmentMasterlist",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/reschedule-v2/pending": {
+      "get": {
+        "tags": [
+          "RescheduleV2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/reschedule-v2/proposals": {
+      "post": {
+        "tags": [
+          "RescheduleV2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleV2ProposalDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleV2ProposalDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleV2ProposalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/reschedule-v2/accept": {
+      "put": {
+        "tags": [
+          "RescheduleV2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/students/{idNumber}": {
+      "get": {
+        "tags": [
+          "TestSuperAdmins"
+        ],
+        "parameters": [
+          {
+            "name": "idNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "TestSuperAdmins"
+        ],
+        "parameters": [
+          {
+            "name": "idNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentProfileOverrideDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentProfileOverrideDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentProfileOverrideDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "TestSuperAdmins"
+        ],
+        "parameters": [
+          {
+            "name": "idNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/counselors/{employeeId}": {
+      "get": {
+        "tags": [
+          "TestSuperAdmins"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "TestSuperAdmins"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAdminEditDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAdminEditDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAdminEditDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/counselors/{employeeId}/assignments": {
+      "post": {
+        "tags": [
+          "TestSuperAdmins"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentAdminDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentAdminDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentAdminDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/counselors/{employeeId}/assignments/{assignmentId}": {
+      "put": {
+        "tags": [
+          "TestSuperAdmins"
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentAdminDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentAdminDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorAssignmentAdminDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BlockSlotDto": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "string",
+            "format": "date-span",
+            "example": "08:30:00"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-span",
+            "example": "08:30:00"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "example": false
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CancelFollowUpRequest": {
+        "type": "object",
+        "properties": {
+          "employeeID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompleteFollowUpRequest": {
+        "type": "object",
+        "properties": {
+          "employeeID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "actualStartAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "actualEndAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "counselingReport": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConfirmAppointmentDto": {
+        "required": [
+          "employeeID"
+        ],
+        "type": "object",
+        "properties": {
+          "employeeID": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Confirming counselor employee id.",
+            "example": "EMP-1001"
+          },
+          "confirmedDate": {
+            "type": "string",
+            "description": "Confirmed date (YYYY-MM-DD).",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-26"
+          },
+          "confirmedTime": {
+            "type": "string",
+            "description": "Confirmed time (HH:mm:ss).",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for spConfirmAppointment."
+      },
+      "ConstantDto": {
+        "required": [
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Integer primary key for the constant row.",
+            "format": "int32",
+            "example": 1
+          },
+          "value": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The text value (type/status name, or specialist role).",
+            "example": "Student Initiated"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Shared shape for the constant lookup tables. Each table has an integer id\r\ncolumn (AppointmentTypeID, ConcernTypeID, AttendanceStatusID,\r\nAppointmentStatusID, SessionTypeID, SpecialistReferralID) and a single\r\ntext column (the type/status name, or SpecialistRole). The repository maps\r\nCounselLink.API.DTOs.ConstantDto.Id and CounselLink.API.DTOs.ConstantDto.Value onto the correct per-type\r\nstored-procedure parameter names."
+      },
+      "CounselingSessionDto": {
+        "required": [
+          "appointmentID",
+          "generalNotes",
+          "sessionDate"
+        ],
+        "type": "object",
+        "properties": {
+          "sessionID": {
+            "type": "integer",
+            "description": "Session id (0 for new).",
+            "format": "int32",
+            "example": 0
+          },
+          "appointmentID": {
+            "type": "integer",
+            "description": "Related appointment id.",
+            "format": "int32",
+            "example": 1001
+          },
+          "employeeID": {
+            "type": "string",
+            "description": "Counselor employee id (derived from the appointment if omitted).",
+            "nullable": true,
+            "example": "EMP0001"
+          },
+          "idNumber": {
+            "type": "string",
+            "description": "Student ID number (derived from the appointment if omitted).",
+            "nullable": true,
+            "example": "2023001"
+          },
+          "sessionTypeID": {
+            "type": "integer",
+            "description": "Session type id.",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "sessionDate": {
+            "type": "string",
+            "description": "Session date (ISO 8601 UTC).",
+            "format": "date-time",
+            "example": "2026-10-26T08:30:00Z"
+          },
+          "sessionStartTime": {
+            "type": "string",
+            "description": "Session start time (ISO 8601 UTC).",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-26T08:30:00Z"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Preferred time-only start field (HH:mm:ss).",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "Preferred time-only end field (HH:mm:ss).",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "sessionEndTime": {
+            "type": "string",
+            "description": "Session end time (ISO 8601 UTC).",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-26T09:15:00Z"
+          },
+          "generalNotes": {
+            "minLength": 1,
+            "type": "string",
+            "description": "General session notes (required by the procedure).",
+            "example": "Discussed academic goals"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for spCounselingSession_Insert."
+      },
+      "CounselorAdminEditDto": {
+        "required": [
+          "firstName",
+          "lastName"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string",
+            "example": "sample"
+          },
+          "lastName": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string",
+            "example": "sample"
+          },
+          "middleName": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CounselorAssignmentAdminDto": {
+        "type": "object",
+        "properties": {
+          "departmentID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "programID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "yearOrGradeLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "schoolYear": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-26"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CounselorAssignmentDto": {
+        "required": [
+          "employeeID"
+        ],
+        "type": "object",
+        "properties": {
+          "assignmentID": {
+            "type": "integer",
+            "description": "Assignment id (0 for new).",
+            "format": "int32",
+            "example": 0
+          },
+          "employeeID": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Counselor employee id.",
+            "example": "EMP0001"
+          },
+          "departmentID": {
+            "type": "string",
+            "description": "Department id/code.",
+            "nullable": true,
+            "example": "SACE"
+          },
+          "programID": {
+            "type": "string",
+            "description": "Program id/code.",
+            "nullable": true,
+            "example": "BSIT"
+          },
+          "yearOrGradeLevel": {
+            "type": "integer",
+            "description": "Year or grade level.",
+            "format": "int32",
+            "nullable": true,
+            "example": 4
+          },
+          "schoolYear": {
+            "type": "string",
+            "description": "School year (YYYY-MM-DD, start date).",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-08-01"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Counselor-to-scope assignment for spCounselorAssignment_* procedures."
+      },
+      "CounselorDecisionRequest": {
+        "type": "object",
+        "properties": {
+          "employeeID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "decisionNote": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CounselorDto": {
+        "required": [
+          "employeeID"
+        ],
+        "type": "object",
+        "properties": {
+          "employeeID": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Counselor employee id.",
+            "example": "EMP0001"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name.",
+            "nullable": true,
+            "example": "Maria"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name.",
+            "nullable": true,
+            "example": "Santos"
+          },
+          "middleName": {
+            "type": "string",
+            "description": "Middle name.",
+            "nullable": true,
+            "example": "Reyes"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Counselor record for spCounselor_* procedures."
+      },
+      "CounselorFollowUpRescheduleRequest": {
+        "type": "object",
+        "properties": {
+          "employeeID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "newStartAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "newEndAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateAppointmentDto": {
+        "required": [
+          "idNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "idNumber": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Student ID number.",
+            "example": "2023001"
+          },
+          "gradeOrYearLevel": {
+            "type": "integer",
+            "description": "Grade or year level.",
+            "format": "int32",
+            "nullable": true,
+            "example": 4
+          },
+          "programOrCourse": {
+            "type": "string",
+            "description": "Program or course.",
+            "nullable": true,
+            "example": "BS Information Technology"
+          },
+          "employeeID": {
+            "type": "string",
+            "description": "Assigned counselor employee id.",
+            "nullable": true,
+            "example": "EMP-1001"
+          },
+          "appointmentDate": {
+            "type": "string",
+            "description": "Appointment date (YYYY-MM-DD).",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-26"
+          },
+          "appointmentTime": {
+            "type": "string",
+            "description": "Appointment time (HH:mm:ss).",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Preferred start time (HH:mm:ss); overrides legacy appointmentTime.",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "Preferred end time (HH:mm:ss).",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "appointmentTypeID": {
+            "type": "integer",
+            "description": "Appointment type id.",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "appointmentStatusID": {
+            "type": "integer",
+            "description": "Appointment status id.",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "attendanceStatusID": {
+            "type": "integer",
+            "description": "Attendance status id.",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "concernTypeID": {
+            "type": "integer",
+            "description": "Selected concern category ID (1-8).",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "concernDescription": {
+            "type": "string",
+            "description": "Student's explanation of the concern.",
+            "nullable": true,
+            "example": "Academic stress and time management"
+          },
+          "referredBy": {
+            "type": "string",
+            "description": "Who referred the student, if applicable.",
+            "nullable": true,
+            "example": "Prof. Dela Cruz"
+          },
+          "referralDate": {
+            "type": "string",
+            "description": "Referral date (YYYY-MM-DD), if applicable.",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-20"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request payload for POST /api/appointments. Property names match the\r\ndbo.spAppointment_Insert parameters exactly."
+      },
+      "CreateFollowUpRequest": {
+        "type": "object",
+        "properties": {
+          "assessmentID": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "originalAppointmentID": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "employeeID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "scheduledStartAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "scheduledEndAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "actionRequired": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DraftAppointmentDto": {
+        "required": [
+          "idNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "idNumber": {
+            "maxLength": 7,
+            "minLength": 1,
+            "type": "string",
+            "example": "sample"
+          },
+          "gradeOrYearLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "programOrCourse": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "employeeID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "appointmentDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-26"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "appointmentTypeID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "concernTypeID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "concernDescription": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "referredBy": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "referralDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-26"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NotificationDto": {
+        "required": [
+          "idNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "notificationID": {
+            "type": "integer",
+            "description": "Notification id (0 for new).",
+            "format": "int32",
+            "example": 0
+          },
+          "idNumber": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Recipient student ID number.",
+            "example": "2023001"
+          },
+          "content": {
+            "type": "string",
+            "description": "Notification content.",
+            "nullable": true,
+            "example": "Your appointment is confirmed."
+          },
+          "notificationStatus": {
+            "type": "boolean",
+            "description": "Read status (false = unread).",
+            "example": false
+          }
+        },
+        "additionalProperties": false,
+        "description": "Notification record for spNotification_Insert."
+      },
+      "RescheduleDto": {
+        "required": [
+          "rescheduleNote"
+        ],
+        "type": "object",
+        "properties": {
+          "newStartDate": {
+            "type": "string",
+            "description": "New start date/time (ISO 8601).",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-11-02T08:30:00"
+          },
+          "newEndDate": {
+            "type": "string",
+            "description": "New end date/time (ISO 8601).",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-11-02T09:15:00"
+          },
+          "appointmentDate": {
+            "type": "string",
+            "description": "Preferred date+startTime+endTime; old newStartDate/newEndDate still accepted.",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-10-26"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true,
+            "example": "08:30:00"
+          },
+          "rescheduleNote": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Reschedule note (required by the procedure).",
+            "example": "Counselor unavailable on the original date."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for spRescheduleAppointment."
+      },
+      "RescheduleV2ProposalDto": {
+        "required": [
+          "newEnd",
+          "newStart",
+          "rescheduleNote"
+        ],
+        "type": "object",
+        "properties": {
+          "newStart": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "newEnd": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "rescheduleNote": {
+            "minLength": 1,
+            "type": "string",
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ScheduleFollowUpRequest": {
+        "required": [
+          "appointmentDate",
+          "endTime",
+          "startTime"
+        ],
+        "type": "object",
+        "properties": {
+          "followUpID": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "parentAppointmentID": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "appointmentDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-span",
+            "example": "08:30:00"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-span",
+            "example": "08:30:00"
+          },
+          "concernTypeID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          },
+          "concernDescription": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SessionFollowUpDto": {
+        "required": [
+          "actionRequired",
+          "assessmentID",
+          "targetDate"
+        ],
+        "type": "object",
+        "properties": {
+          "followUpID": {
+            "type": "integer",
+            "description": "Follow-up id (0 for new).",
+            "format": "int32",
+            "example": 0
+          },
+          "assessmentID": {
+            "type": "integer",
+            "description": "Related assessment id.",
+            "format": "int32",
+            "example": 6001
+          },
+          "targetDate": {
+            "type": "string",
+            "description": "Target date (YYYY-MM-DD).",
+            "format": "date-time",
+            "example": "2026-11-01"
+          },
+          "followUpStatus": {
+            "pattern": "^(Pending|Completed|Cancelled)$",
+            "type": "string",
+            "description": "Follow-up status (Pending, Completed, or Cancelled).",
+            "nullable": true,
+            "example": "Pending"
+          },
+          "actionRequired": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Action required (required by the procedure).",
+            "example": "Check grade report"
+          },
+          "resolutionNotes": {
+            "type": "string",
+            "description": "Resolution notes, if any.",
+            "nullable": true,
+            "example": "Reviewed updated grades with the student."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for spSessionFollowUp_Insert."
+      },
+      "SessionFollowUpUpdateDto": {
+        "required": [
+          "actionRequired",
+          "followUpStatus",
+          "targetDate"
+        ],
+        "type": "object",
+        "properties": {
+          "targetDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "followUpStatus": {
+            "minLength": 1,
+            "pattern": "^(Pending|Completed|Cancelled)$",
+            "type": "string",
+            "example": "sample"
+          },
+          "actionRequired": {
+            "minLength": 1,
+            "type": "string",
+            "example": "sample"
+          },
+          "resolutionNotes": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StudentAssessmentDto": {
+        "required": [
+          "sessionID"
+        ],
+        "type": "object",
+        "properties": {
+          "assessmentID": {
+            "type": "integer",
+            "description": "Assessment id (0 for new).",
+            "format": "int32",
+            "example": 0
+          },
+          "sessionID": {
+            "type": "integer",
+            "description": "Related session id.",
+            "format": "int32",
+            "example": 5001
+          },
+          "progressNotes": {
+            "type": "string",
+            "description": "Progress notes.",
+            "nullable": true,
+            "example": "Client showing progress"
+          },
+          "isFollowUpNeeded": {
+            "type": "boolean",
+            "description": "Whether a follow-up is needed.",
+            "example": true
+          },
+          "isForMonitoring": {
+            "type": "boolean",
+            "description": "Whether the student is flagged for monitoring.",
+            "example": false
+          },
+          "specialistReferralID": {
+            "type": "integer",
+            "description": "Specialist referral id, if any.",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for spStudentAssessment_Insert."
+      },
+      "StudentAssessmentUpdateDto": {
+        "type": "object",
+        "properties": {
+          "progressNotes": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "isFollowUpNeeded": {
+            "type": "boolean",
+            "example": false
+          },
+          "isForMonitoring": {
+            "type": "boolean",
+            "example": false
+          },
+          "specialistReferralID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "StudentFollowUpRescheduleRequest": {
+        "type": "object",
+        "properties": {
+          "idNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "requestedStartAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "requestedEndAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "requestNote": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StudentIdNumberDto": {
+        "required": [
+          "idNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "idNumber": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Student ID number.",
+            "example": "2023001"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for spStudentConfirmAppointment and spStudentAcceptReschedule."
+      },
+      "StudentProfileOverrideDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "middleName": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "nullable": true,
+            "example": "sample"
+          },
+          "contactNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "departmentID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "programID": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "programOrCourse": {
+            "type": "string",
+            "nullable": true,
+            "example": "sample"
+          },
+          "gradeOrYearLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubmitDraftDto": {
+        "required": [
+          "idNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "idNumber": {
+            "maxLength": 7,
+            "minLength": 1,
+            "type": "string",
+            "example": "sample"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateAppointmentDto": {
+        "type": "object",
+        "properties": {
+          "appointmentStatusID": {
+            "type": "integer",
+            "description": "Appointment status id.",
+            "format": "int32",
+            "example": 2
+          },
+          "attendanceStatusID": {
+            "type": "integer",
+            "description": "Attendance status id.",
+            "format": "int32",
+            "example": 1
+          },
+          "rescheduleNote": {
+            "type": "string",
+            "description": "Optional reschedule note.",
+            "nullable": true,
+            "example": "Moved to a later slot at the student's request."
+          },
+          "concernDescription": {
+            "type": "string",
+            "description": "Primary concern description.",
+            "nullable": true,
+            "example": "Academic stress and time management"
+          },
+          "concernTypeID": {
+            "type": "integer",
+            "description": "Selected concern category ID (1-8).",
+            "format": "int32",
+            "nullable": true,
+            "example": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request payload for PUT /api/appointments/{id}. Property names match the\r\ndbo.spAppointment_Update parameters exactly (the appointment id comes from\r\nthe route and is supplied as @AppointmentID by the repository)."
+      },
+      "UpdateBlockedSlotsDto": {
+        "required": [
+          "employeeId",
+          "slots"
+        ],
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "maxLength": 7,
+            "minLength": 1,
+            "type": "string",
+            "example": "sample"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockSlotDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "AppointmentDraftDelete"
+    },
+    {
+      "name": "AppointmentDrafts"
+    },
+    {
+      "name": "Appointments"
+    },
+    {
+      "name": "Clinical"
+    },
+    {
+      "name": "ClinicalFollowUpAppointments"
+    },
+    {
+      "name": "ClinicalSessionsDelete"
+    },
+    {
+      "name": "Constants"
+    },
+    {
+      "name": "CounselLink.API"
+    },
+    {
+      "name": "CounselorAssignments"
+    },
+    {
+      "name": "CounselorRecords"
+    },
+    {
+      "name": "Counselors"
+    },
+    {
+      "name": "CounselorSchedules"
+    },
+    {
+      "name": "ScheduleBlocking"
+    },
+    {
+      "name": "FollowUps"
+    },
+    {
+      "name": "Notifications"
+    },
+    {
+      "name": "Reports"
+    },
+    {
+      "name": "RescheduleV2"
+    },
+    {
+      "name": "TestSuperAdmins"
+    }
+  ]
+}
