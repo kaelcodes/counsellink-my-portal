@@ -432,6 +432,12 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.isFutureSlot(this.form.date, this.selected.startTime)) {
+      this.selected = null;
+      this.formError = 'This time slot has already started or passed. Please choose a future time slot.';
+      return;
+    }
+
     // Build the merge now — before the Swal prompt — so we can validate all required fields
     // while the user is still looking at the form.
     const concernName = (this.concernTypes.find(c => c.id === this.form.concernTypeId) || { name: '' }).name;
@@ -804,28 +810,55 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
     );
   }
 
-  /** Only 'Available' slots can be selected; 'Unavailable' and 'Own' are disabled. */
+  /** Compare a slot's start against the current local time; started slots are no longer bookable. */
+  private isFutureSlot(date: string, startTime: string): boolean {
+    if (!date || !startTime) { return false; }
+    const dateParts = date.split('-').map(Number);
+    const timeParts = startTime.split(':').map(Number);
+    if (dateParts.length !== 3 || timeParts.length !== 2 ||
+        dateParts.some(n => !n) || timeParts.some(n => isNaN(n))) { return false; }
+    const slotStart = new Date(dateParts[0], dateParts[1] - 1, dateParts[2],
+      timeParts[0], timeParts[1], 0, 0);
+    return slotStart.getTime() > Date.now();
+  }
+
+  /** Only future Available slots can be selected; past, booked, and own slots are disabled. */
   // Made with blood, sweat, and tear + coffee, complaining & AI
-  pick(s: TimeSlot) { if (s.status === 'Available') { this.selected = s; } }
+  pick(s: TimeSlot) {
+    if (s.status !== 'Available') { return; }
+    if (!this.isFutureSlot(this.form.date, s.startTime)) {
+      this.selected = null;
+      this.formError = 'This time slot has already started or passed. Please choose a future time slot.';
+      return;
+    }
+    this.formError = '';
+    this.selected = s;
+  }
 
   slotLabel(s: TimeSlot): string {
     if (s.status === 'Own') { return 'Your appointment'; }
     if (s.status === 'Unavailable') { return 'Booked'; }
+    if (s.status === 'Past') { return 'Past — unavailable'; }
     return s.label;
   }
 
   get canSubmit(): boolean {
     if (this.mode === 'book') {
-      return !!this.selected && !!this.form.date && !!this.form.concernTypeId && !!this.form.notes.trim() && !this.saving;
+      return !!this.selected && this.isFutureSlot(this.form.date, this.selected.startTime) && !!this.form.date && !!this.form.concernTypeId && !!this.form.notes.trim() && !this.saving;
     }
     if (this.editingConcernDetails) {
       return !!this.selected && !!this.form.date && !!this.form.concernTypeId && !!this.form.notes.trim() && !this.saving;
     }
-    return !!this.selected && !!this.form.date && !this.saving;
+    return !!this.selected && this.isFutureSlot(this.form.date, this.selected.startTime) && !!this.form.date && !this.saving;
   }
 
   submit() {
     if (!this.canSubmit) { return; }
+    if (!this.selected || !this.isFutureSlot(this.form.date, this.selected.startTime)) {
+      this.selected = null;
+      this.formError = 'This time slot has already started or passed. Please choose a future time slot.';
+      return;
+    }
     if (this.mode === 'reschedule' && this.target &&
         (this.target.status === 'No-show' || this.target.status === 'Completed' || this.target.status === 'Cancelled')) {
       this.formError = 'This appointment is already closed and cannot be rescheduled.';
