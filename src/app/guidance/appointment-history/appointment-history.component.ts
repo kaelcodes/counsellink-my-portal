@@ -847,7 +847,7 @@ export class AppointmentHistoryComponent implements OnInit, OnDestroy {
       return !!this.selected && this.isFutureSlot(this.form.date, this.selected.startTime) && !!this.form.date && !!this.form.concernTypeId && !!this.form.notes.trim() && !this.saving;
     }
     if (this.editingConcernDetails) {
-      return !!this.selected && !!this.form.date && !!this.form.concernTypeId && !!this.form.notes.trim() && !this.saving;
+      return !!this.selected && this.isFutureSlot(this.form.date, this.selected.startTime) && !!this.form.date && !!this.form.concernTypeId && !!this.form.notes.trim() && !this.saving;
     }
     return !!this.selected && this.isFutureSlot(this.form.date, this.selected.startTime) && !!this.form.date && !this.saving;
   }
