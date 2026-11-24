@@ -103,10 +103,21 @@ export class GuidanceService {
     return new Observable(obs => {
       this.api.getTakenSlotDetails(counselorId, date).subscribe(
         taken => {
+          // Evaluate against the browser's local clock (the student's local timezone).
+          // A slot is unusable as soon as its start time is reached, even if it is still in progress.
+          const now = new Date();
           const slots: TimeSlot[] = this.daySlots().map(s => {
             const match = taken.find(t => t.startTime === s.start);
-            let status: 'Available' | 'Unavailable' | 'Own' = 'Available';
-            if (match) {
+            const dateParts = date.split('-').map(Number);
+            const timeParts = s.start.split(':').map(Number);
+            const slotStart = new Date(dateParts[0], dateParts[1] - 1, dateParts[2],
+              timeParts[0], timeParts[1], 0, 0);
+            const isPast = slotStart.getTime() <= now.getTime();
+
+            let status: 'Available' | 'Unavailable' | 'Own' | 'Past' = 'Available';
+            if (isPast) {
+              status = 'Past';
+            } else if (match) {
               // If the slot belongs to the authenticated student, mark as 'Own'
               status = (ownId && match.studentId === ownId) ? 'Own' : 'Unavailable';
             }
