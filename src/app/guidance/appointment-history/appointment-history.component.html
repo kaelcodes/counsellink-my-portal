@@ -214,7 +214,7 @@
 <ng-template #formDialog>
   <h2 mat-dialog-title>
     <ng-container *ngIf="isDraftMode">Edit Draft</ng-container>
-    <ng-container *ngIf="!isDraftMode && mode === 'book'">New Appointment</ng-container>
+    <ng-container *ngIf="!isDraftMode && mode === 'book'">Create Appointment</ng-container>
     <ng-container *ngIf="!isDraftMode && mode === 'reschedule'">{{ isFollowUp(target) ? 'Reschedule Follow Up' : (editingConcernDetails ? 'Edit Appointment' : 'Reschedule Appointment') }}</ng-container>
   </h2>
   <mat-dialog-content class="dlg-body">
