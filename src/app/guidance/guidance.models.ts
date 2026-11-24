@@ -7,7 +7,7 @@
 export type AppointmentStatus = 'Pending' | 'Approved' | 'Scheduled' | 'Reschedule Pending' | 'Completed' | 'Rescheduled' | 'Cancelled' | 'No-show' | 'Draft';
 
 // 'Own' is added to represent a slot already taken by the authenticated student themselves.
-export type SlotStatus = 'Available' | 'Unavailable' | 'Own';
+export type SlotStatus = 'Available' | 'Unavailable' | 'Own' | 'Past';
 
 export const APPOINTMENT_STATUSES: AppointmentStatus[] = ['Pending', 'Approved', 'Scheduled', 'Reschedule Pending', 'Completed', 'Rescheduled', 'Cancelled', 'No-show'];
 
